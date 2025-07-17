@@ -1,0 +1,73 @@
+
+
+<?php
+require_once __DIR__ . '/fa_mock.php'; // Remove in production
+require_once __DIR__ . '/model.php';
+
+
+$db = new PDO('sqlite::memory:'); // Replace with FA DB connection in production
+$model = new AmortizationModel($db);
+
+// Handle loan creation/edit (admin & user)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['amount_financed'])) {
+        $data = [
+            'loan_type' => $_POST['loan_type'],
+            'description' => $_POST['description'],
+            'amount_financed' => $_POST['amount_financed'],
+            'interest_rate' => $_POST['interest_rate'],
+            'payment_frequency' => $_POST['payment_frequency'],
+            'interest_calc_frequency' => $_POST['interest_calc_frequency'],
+            'num_payments' => $_POST['num_payments'],
+            'regular_payment' => $_POST['regular_payment'],
+            'override_payment' => isset($_POST['override_payment']) ? 1 : 0,
+            'first_payment_date' => $_POST['first_payment_date'],
+            'last_payment_date' => $_POST['last_payment_date'],
+            'created_by' => 1, // Replace with logged-in user
+            // legacy fields for compatibility
+            'principal' => $_POST['amount_financed'],
+            'term_months' => $_POST['num_payments'],
+            'repayment_schedule' => $_POST['payment_frequency'],
+            'start_date' => $_POST['first_payment_date'],
+            'end_date' => $_POST['last_payment_date']
+        ];
+        if (!empty($_POST['edit_loan_id'])) {
+            // Edit logic (not implemented in model yet)
+        } else {
+            // Calculate payment if not overridden
+            if (!$data['override_payment']) {
+                $data['regular_payment'] = round($model->calculatePayment($data['amount_financed'], $data['interest_rate'], $data['num_payments']), 2);
+            }
+            $model->createLoan($data);
+        }
+    }
+}
+
+// Get loans for display
+$loans = [];
+try {
+    $stmt = $db->query('SELECT * FROM fa_loans');
+    $loans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    // Table may not exist in dev
+}
+
+$action = isset($_GET['action']) ? $_GET['action'] : 'list';
+
+switch ($action) {
+    case 'create':
+        // Pass loans to user_loan_setup.php for selection
+        include __DIR__ . '/user_loan_setup.php';
+        break;
+    case 'admin':
+        // Pass loans to admin_settings.php for management
+        include __DIR__ . '/admin_settings.php';
+        break;
+    case 'report':
+        include __DIR__ . '/reporting.php';
+        break;
+    default:
+        // List loans and allow selection
+        include __DIR__ . '/view.php';
+        break;
+}
