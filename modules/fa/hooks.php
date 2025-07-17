@@ -1,6 +1,12 @@
 <?php
 namespace Ksfraser\Amortizations\FA;
 
+
+define( 'MENU_AMORTIZATIONS', 'Amortizations' );
+if (!defined('AMORTIZATION_PLATFORM')) {
+    define('AMORTIZATION_PLATFORM', 'fa');
+}
+
 /**
  * Amortization Module Hooks
  * Registers the module and adds menu entries to FrontAccounting
@@ -13,20 +19,31 @@ class hooks_amortization extends hooks {
      * Only show to users with Loans Administrator or Loans Reader access
      * @return void
      */
+    var $module_name = 'amortization'; 
     function install_options($app) {
         global $user;
-        // Example: Replace with actual FA permission checks
-        $isAdmin = isset($user->access) && in_array('LOANS_ADMIN', $user->access);
-        $isReader = isset($user->access) && in_array('LOANS_READER', $user->access);
-        if ($isAdmin || $isReader) {
-            $app->add_module_menu_option(
-                'banking',
-                _('Amortization'),
-                '/modules/amortization/controller.php',
-                MENU_BANKING
-            );
-        }
+        global $path_to_root;
+        switch($app->id) {
+            case 'GL':
+                $app->add_lapp_function(3, _("Amortization (Amortization)"),
+                    $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php", 'SA_CUSTOMER', MENU_AMORTIZATIONS);
+                $app->add_lapp_function(3, _("Amortization (Banking)"),
+                    $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php", 'SA_CUSTOMER', MENU_BANKING);
+                break;
+            }
     }
+    function activate_extension($company, $check_only=true) {
+        $updates = array( 'update.sql' => array($this->module_name) );
+        return $this->update_databases($company, $updates, $check_only);
+    }
+    function db_prevoid($trans_type, $trans_no) {
+        // Assuming $db is a PDO instance available in scope
+        // You may need to adjust how $db is retrieved in your environment
+        global $db;
+        $provider = new FADataProvider($db);
+        $provider->resetPostedToGL($trans_no, $trans_type);
+    }
+    
 
     /**
      * Check if current user is Loans Administrator

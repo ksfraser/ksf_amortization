@@ -5,8 +5,25 @@ require_once __DIR__ . '/fa_mock.php'; // Remove in production
 require_once __DIR__ . '/model.php';
 
 
-$db = new PDO('sqlite::memory:'); // Replace with FA DB connection in production
-$model = new AmortizationModel($db);
+
+
+// Platform detection logic (simplified)
+$platform = getenv('AMORTIZATION_PLATFORM') ?: 'fa';
+global $db;
+if ($platform === 'fa') {
+    require_once __DIR__ . '/../fa/FADataProvider.php';
+    $provider = new \Ksfraser\Amortizations\FA\FADataProvider($db);
+} elseif ($platform === 'wordpress') {
+    require_once __DIR__ . '/../wordpress/WPDataProvider.php';
+    global $wpdb;
+    $provider = new \Ksfraser\Amortizations\WordPress\WPDataProvider($wpdb);
+} elseif ($platform === 'suitecrm') {
+    require_once __DIR__ . '/../suitecrm/SuiteCRMDataProvider.php';
+    $provider = new \Ksfraser\Amortizations\SuiteCRM\SuiteCRMDataProvider();
+} else {
+    throw new \Exception('Unknown platform for Amortization module');
+}
+$model = new AmortizationModel($provider);
 
 // Handle loan creation/edit (admin & user)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -32,7 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'end_date' => $_POST['last_payment_date']
         ];
         if (!empty($_POST['edit_loan_id'])) {
-            // Edit logic (not implemented in model yet)
+            // Edit logic: update all fields for the loan
+            $loanId = $_POST['edit_loan_id'];
+            // Calculate payment if not overridden
+            if (!$data['override_payment']) {
+                $data['regular_payment'] = round($model->calculatePayment($data['amount_financed'], $data['interest_rate'], $data['num_payments']), 2);
+            }
+            $model->updateLoan($loanId, $data);
         } else {
             // Calculate payment if not overridden
             if (!$data['override_payment']) {
@@ -44,9 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get loans for display
+
 $loans = [];
 try {
-    $stmt = $db->query('SELECT * FROM fa_loans');
+    // Use provider abstraction
+    $stmt = $db->prepare('SELECT * FROM fa_loans');
+    $stmt->execute();
     $loans = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     // Table may not exist in dev

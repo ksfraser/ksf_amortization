@@ -12,6 +12,7 @@ interface DataProviderInterface {
     public function insertLoan(array $data): int;
     public function getLoan(int $loan_id): array;
     public function insertSchedule(int $loan_id, array $schedule_row): void;
+    public function updateLoan(int $loan_id, array $data): void;
 }
 
 class AmortizationModel {
@@ -28,6 +29,15 @@ class AmortizationModel {
      */
     public function createLoan($data) {
         return $this->db->insertLoan($data);
+    }
+
+    /**
+     * Update an existing loan
+     * @param int $loan_id
+     * @param array $data
+     */
+    public function updateLoan($loan_id, $data) {
+        $this->db->updateLoan($loan_id, $data);
     }
 
     /**

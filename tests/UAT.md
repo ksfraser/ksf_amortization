@@ -29,6 +29,13 @@ These scripts test every screen, button, and data entry box in the Amortization 
 - [ ] Submit loan creation
 - [ ] Verify loan appears in list
 
+## Out-of-Schedule Events
+- [ ] Create out-of-schedule event (skip/extra payment)
+- [ ] Edit out-of-schedule event
+- [ ] Delete out-of-schedule event
+- [ ] Verify event appears in event list
+- [ ] Verify event impacts amortization schedule and reporting
+
 ## Reporting Screen
 - [ ] Open Reporting screen
 - [ ] Select loan for report

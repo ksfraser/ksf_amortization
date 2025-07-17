@@ -46,7 +46,22 @@ This module adds Amortization functionality to FrontAccounting, WordPress, or Su
 ## Multi-Platform Architecture
 - Models and business logic are framework-agnostic and reusable.
 - Views (forms, tables) are designed for easy integration into FA, WordPress, or SuiteCRM.
-- Platform-specific adapters/services handle integration points (e.g., FA journal entries).
+- Platform-specific adapters/services handle integration points (e.g., FA journal entries, loan events).
+- Controller uses DataProviderInterface and instantiates the correct provider for each platform (FA, WordPress, SuiteCRM) via entry points.
+- Entry points for each platform define AMORTIZATION_PLATFORM and load the shared controller.
+
+## Out-of-Schedule Events
+- LoanEvent model class represents skipped/extra payments.
+- Platform-specific LoanEventProvider classes (FA, WordPress, SuiteCRM) implement LoanEventProviderInterface and handle CRUD for loan_events table.
+- Amortization calculations must incorporate out-of-schedule events to adjust running balance, interest, and payment count.
+
+## Testing
+- Unit tests for LoanEvent model and each LoanEventProvider implementation.
+- Controller and model tests for event logic integration.
+
+## UAT
+- UAT scripts must include creation, editing, and deletion of out-of-schedule events.
+- Verify correct impact on amortization schedule and reporting.
 
 ## Security
 - User permissions for access to module features and posting to GL.

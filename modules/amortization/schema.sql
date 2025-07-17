@@ -24,5 +24,7 @@ CREATE TABLE fa_amortization_staging (
     remaining_balance DECIMAL(15,2) NOT NULL,
     posted_to_gl TINYINT(1) DEFAULT 0,
     posted_at DATETIME,
+    trans_no INT,
+    trans_type VARCHAR(20),
     FOREIGN KEY (loan_id) REFERENCES fa_loans(id)
 );

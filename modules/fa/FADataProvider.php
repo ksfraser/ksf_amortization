@@ -15,6 +15,28 @@ class FADataProvider implements DataProviderInterface
     private $pdo;
 
     /**
+     * Update amortization_staging row after posting to GL
+     * @param int $staging_id
+     * @param int $trans_no
+     * @param string $trans_type
+     */
+    public function markPostedToGL(int $staging_id, int $trans_no, string $trans_type): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE fa_amortization_staging SET posted_to_gl = 1, posted_at = CURRENT_TIMESTAMP, trans_no = ?, trans_type = ? WHERE id = ?");
+        $stmt->execute([$trans_no, $trans_type, $staging_id]);
+    }
+    /**
+     * Reset posted_to_gl, trans_no, and trans_type when GL entry is voided
+     * @param int $trans_no
+     * @param string $trans_type
+     */
+    public function resetPostedToGL(int $trans_no, string $trans_type): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE fa_amortization_staging SET posted_to_gl = 0, trans_no = 0, trans_type = '0' WHERE trans_no = ? AND trans_type = ?");
+        $stmt->execute([$trans_no, $trans_type]);
+    }
+
+    /**
      * FADataProvider constructor.
      * @param \PDO $pdo
      */
