@@ -16,6 +16,25 @@ if (!defined('AMORTIZATION_PLATFORM')) {
 
 class hooks_amortization extends hooks {
     /**
+     * Install the Amortization module and run generic installer
+     */
+    function install() {
+        // Ensure Composer dependencies are loaded
+        $autoload = __DIR__ . '/vendor/autoload.php';
+        if (file_exists($autoload)) {
+            require_once $autoload;
+        }
+        // Get DB adapter and prefix from FA environment
+        global $db, $dbPrefix;
+        // Fallback for FA: $db is PDO, $dbPrefix is usually '0_'
+        if (!isset($dbPrefix)) {
+            $dbPrefix = '0_';
+        }
+        // Run generic installer
+        $installer = new \Ksfraser\Amortizations\AmortizationModuleInstaller($db, $dbPrefix);
+        $installer->install();
+    }
+    /**
      * Install the module menu entry under Banking and General Ledger
      * Only show to users with Loans Administrator or Loans Reader access
      * @return void
@@ -34,6 +53,7 @@ class hooks_amortization extends hooks {
             }
     }
     function activate_extension($company, $check_only=true) {
+        $this->install();
         $updates = array( 'update.sql' => array($this->module_name) );
         return $this->update_databases($company, $updates, $check_only);
     }

@@ -1,26 +1,36 @@
 <?php
-// FA mock definitions for linting and local development
-if (!class_exists('hooks')) {
-    /**
-     * Mock base hooks class for FrontAccounting
-     */
-    class hooks {
-        // ...mock methods if needed...
-    }
-}
+namespace Ksfraser\Amortizations\FA;
 
+use Ksfraser\Amortizations\DataProviderInterface;
+
+
+/**
+ * Mock base hooks class for FrontAccounting (for linting and local development)
+ */
 if (!defined('MENU_BANKING')) {
-    define('MENU_BANKING', 1);
+    define('MENU_BANKING', 'Banking');
+}
+if (!class_exists('hooks')) {
+    require_once __DIR__ . '/../fa_mock/hooks.php';
 }
 
-if (!function_exists('_')) {
-    function _($str) { return $str; }
-}
+/**
+ * Mock class for FADataProvider for testing and documentation.
+ */
+class FADataProviderMock implements DataProviderInterface
+{
+    public function getLoan(int $loan_id): array
+    {
+        return ['id' => $loan_id, 'principal' => 1000, 'interest_rate' => 5.0, 'term' => 12, 'schedule' => 'monthly'];
+    }
 
-if (!method_exists('app', 'add_module_menu_option')) {
-    class app {
-        public function add_module_menu_option($section, $label, $url, $menu) {
-            // mock implementation
-        }
+    public function insertLoan(array $data): int
+    {
+        return 42;
+    }
+
+    public function insertSchedule(int $loan_id, array $schedule_row): void
+    {
+        // No-op for mock
     }
 }

@@ -68,7 +68,7 @@ class FADataProvider implements DataProviderInterface {
             }
         }
         $params[':loan_id'] = $loan_id;
-        $sql = "UPDATE " . $this->dbPrefix . "fa_loans SET " . implode(', ', $set) . " WHERE id = :loan_id";
+        $sql = "UPDATE " . $this->dbPrefix . "ksf_loans SET " . implode(', ', $set) . " WHERE id = :loan_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
     }

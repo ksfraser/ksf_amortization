@@ -1,4 +1,4 @@
--- Table: 0_ksf_loans
+-- Table: fa_loans
 CREATE TABLE 0_ksf_loans (
     id INT AUTO_INCREMENT PRIMARY KEY,
     borrower_id INT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE 0_ksf_loans (
     status VARCHAR(16) DEFAULT 'active'
 );
 
--- Table: 0_ksf_amortization_staging
+-- Table: fa_amortization_staging
 CREATE TABLE 0_ksf_amortization_staging (
     id INT AUTO_INCREMENT PRIMARY KEY,
     loan_id INT NOT NULL,
@@ -26,5 +26,5 @@ CREATE TABLE 0_ksf_amortization_staging (
     trans_no INT,
     trans_type INT,
     voided TINYINT(1) DEFAULT 0,
-    FOREIGN KEY (loan_id) REFERENCES 0_ksf_loans(id)
+    FOREIGN KEY (loan_id) REFERENCES fa_loans(id)
 );
