@@ -43,7 +43,14 @@ This module adds Amortization functionality to FrontAccounting, WordPress, or Su
 - Admin screen includes GL account selectors and "Add GL" buttons for Asset, Liability, Expense, and Asset Value accounts (FA only).
 - Admin and user screens allow entry and display of amount financed, interest rate, payment frequency, interest calculation frequency, number of payments, regular payment amount (calculated, override allowed in admin), first payment date, and last payment date.
 
-## Multi-Platform Architecture
+- All table names must be prefixed using a platform-specific DB_PREFIX constant/variable.
+- FA: Use TB_PREF as DB_PREFIX.
+- WordPress: Use $wpdb->prefix as DB_PREFIX.
+- SuiteCRM: Define DB_PREFIX as needed for SuiteCRM conventions.
+- All table names must be prefixed using a platform-specific DB_PREFIX constant/variable.
+- FA: Use TB_PREF as DB_PREFIX.
+- WordPress: Use $wpdb->prefix as DB_PREFIX.
+- SuiteCRM: Define DB_PREFIX as needed for SuiteCRM conventions.
 - Models and business logic are framework-agnostic and reusable, following PSR-4 autoloading via Composer.
 - Views (forms, tables) are designed for easy integration into FA, WordPress, or SuiteCRM, and are autoloaded via Composer.
 - Platform-specific adapters/services handle integration points (e.g., FA journal entries, loan events).

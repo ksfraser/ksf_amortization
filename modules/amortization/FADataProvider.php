@@ -27,9 +27,11 @@ use Ksfraser\Amortizations\DataProviderInterface;
 
 class FADataProvider implements DataProviderInterface {
     private $pdo;
+    private $dbPrefix;
 
-    public function __construct($pdo) {
+    public function __construct($pdo, $dbPrefix = '') {
         $this->pdo = $pdo;
+        $this->dbPrefix = $dbPrefix;
     }
 
     public function insertLoan(array $data): int {
@@ -66,7 +68,7 @@ class FADataProvider implements DataProviderInterface {
             }
         }
         $params[':loan_id'] = $loan_id;
-        $sql = "UPDATE fa_loans SET " . implode(', ', $set) . " WHERE id = :loan_id";
+        $sql = "UPDATE " . $this->dbPrefix . "fa_loans SET " . implode(', ', $set) . " WHERE id = :loan_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
     }
@@ -77,7 +79,7 @@ class FADataProvider implements DataProviderInterface {
      * @param array $eventData
      */
     public function insertOutOfScheduleEvent(int $loan_id, array $eventData): void {
-        $sql = "INSERT INTO loan_events (loan_id, event_type, event_date, amount, notes) VALUES (:loan_id, :event_type, :event_date, :amount, :notes)";
+        $sql = "INSERT INTO " . $this->dbPrefix . "loan_events (loan_id, event_type, event_date, amount, notes) VALUES (:loan_id, :event_type, :event_date, :amount, :notes)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':loan_id' => $loan_id,
@@ -94,7 +96,7 @@ class FADataProvider implements DataProviderInterface {
      * @return array
      */
     public function getOutOfScheduleEvents(int $loan_id): array {
-        $sql = "SELECT * FROM loan_events WHERE loan_id = :loan_id ORDER BY event_date ASC";
+        $sql = "SELECT * FROM " . $this->dbPrefix . "loan_events WHERE loan_id = :loan_id ORDER BY event_date ASC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':loan_id' => $loan_id]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
