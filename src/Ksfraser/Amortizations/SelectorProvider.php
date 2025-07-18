@@ -8,7 +8,7 @@ interface SelectorDbAdapter {
     public function query(string $sql);
     public function fetch_assoc($result);
     public function escape($value);
-    public function execute(string $sql): void;
+    public function execute(string $sql, array $params = []): void;
 }
 
 class SelectorProvider {

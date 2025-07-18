@@ -7,9 +7,7 @@ use Ksfraser\Amortizations\DataProviderInterface;
  * Mock base hooks class for FrontAccounting (for linting and local development)
  */
 if (!class_exists('hooks')) {
-    class hooks {
-        // ...mock methods if needed...
-    }
+    require_once __DIR__ . '/../fa_mock/hooks.php';
 }
 
 /**

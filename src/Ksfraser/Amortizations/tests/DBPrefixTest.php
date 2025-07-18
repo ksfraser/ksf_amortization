@@ -14,8 +14,8 @@ class DBPrefixTest extends TestCase {
     }
 
     public function testSelectorProviderPrefix() {
-        $db = $this->createMock(PDO::class);
-        $provider = new SelectorProvider($db, 'wp_');
+        $dbAdapter = $this->createMock(\Ksfraser\Amortizations\SelectorDbAdapter::class);
+        $provider = new SelectorProvider($dbAdapter, 'wp_');
         $reflection = new \ReflectionClass($provider);
         $property = $reflection->getProperty('dbPrefix');
         $property->setAccessible(true);

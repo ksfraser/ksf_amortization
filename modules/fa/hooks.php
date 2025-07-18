@@ -1,5 +1,6 @@
+
 <?php
-namespace Ksfraser\Amortizations\FA;
+use Ksfraser\Amortizations\FA\FADataProvider;
 
 
 define( 'MENU_AMORTIZATIONS', 'Amortizations' );

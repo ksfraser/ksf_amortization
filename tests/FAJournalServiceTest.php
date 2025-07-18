@@ -1,6 +1,8 @@
 <?php
 namespace Ksfraser\Amortizations\Tests;
 
+require_once __DIR__ . '/../src/FAJournalService.php';
+
 use Ksfraser\Amortizations\FAJournalService;
 use PHPUnit\Framework\TestCase;
 
