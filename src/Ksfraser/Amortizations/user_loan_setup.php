@@ -21,6 +21,16 @@
         <option value="Mortgage">Mortgage</option>
         <option value="Other">Other</option>
     </select><br><br>
+    <label for="interest_calc_frequency">Interest Calculation Frequency:</label>
+    <select name="interest_calc_frequency" id="interest_calc_frequency">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="bi-weekly">Bi-Weekly</option>
+        <option value="semi-monthly">Semi-Monthly</option>
+        <option value="monthly">Monthly</option>
+        <option value="semi-annual">Semi-Annual</option>
+        <option value="annual">Annual</option>
+    </select><br><br>
     <label for="description">Description:</label>
     <input type="text" name="description" id="description"><br><br>
     <label for="amount_financed">Amount Financed:</label>

@@ -44,11 +44,12 @@ This module adds Amortization functionality to FrontAccounting, WordPress, or Su
 - Admin and user screens allow entry and display of amount financed, interest rate, payment frequency, interest calculation frequency, number of payments, regular payment amount (calculated, override allowed in admin), first payment date, and last payment date.
 
 ## Multi-Platform Architecture
-- Models and business logic are framework-agnostic and reusable.
-- Views (forms, tables) are designed for easy integration into FA, WordPress, or SuiteCRM.
+- Models and business logic are framework-agnostic and reusable, following PSR-4 autoloading via Composer.
+- Views (forms, tables) are designed for easy integration into FA, WordPress, or SuiteCRM, and are autoloaded via Composer.
 - Platform-specific adapters/services handle integration points (e.g., FA journal entries, loan events).
 - Controller uses DataProviderInterface and instantiates the correct provider for each platform (FA, WordPress, SuiteCRM) via entry points.
 - Entry points for each platform define AMORTIZATION_PLATFORM and load the shared controller.
+- After moving or splitting files, run `composer dump-autoload` to update autoload mappings.
 
 ## Out-of-Schedule Events
 - LoanEvent model class represents skipped/extra payments.
@@ -56,8 +57,9 @@ This module adds Amortization functionality to FrontAccounting, WordPress, or Su
 - Amortization calculations must incorporate out-of-schedule events to adjust running balance, interest, and payment count.
 
 ## Testing
-- Unit tests for LoanEvent model and each LoanEventProvider implementation.
+- Unit tests for LoanType, InterestCalcFrequency, LoanEvent model and each LoanEventProvider implementation.
 - Controller and model tests for event logic integration.
+- Ensure tests cover autoloaded models and views after file changes.
 
 ## UAT
 - UAT scripts must include creation, editing, and deletion of out-of-schedule events.

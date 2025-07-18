@@ -37,11 +37,23 @@
 <h3>Manage Loans/Mortgages</h3>
 <form method="post" action="">
     <input type="hidden" name="edit_loan_id" value="">
+    <?php
+    use Ksfraser\Amortizations\SelectorProvider;
+    $selectorProvider = new SelectorProvider($db);
+    $loanTypes = $selectorProvider->getLoanTypes();
+    $interestCalcFreqs = $selectorProvider->getInterestCalcFrequencies();
+    ?>
     <label for="loan_type">Loan Type:</label>
     <select name="loan_type" id="loan_type">
-        <option value="Auto">Auto</option>
-        <option value="Mortgage">Mortgage</option>
-        <option value="Other">Other</option>
+        <?php foreach ($loanTypes as $type): ?>
+            <option value="<?= htmlspecialchars($type->name) ?>"><?= htmlspecialchars($type->name) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <label for="interest_calc_frequency">Interest Calculation Frequency:</label>
+    <select name="interest_calc_frequency" id="interest_calc_frequency">
+        <?php foreach ($interestCalcFreqs as $freq): ?>
+            <option value="<?= htmlspecialchars($freq->name) ?>"><?= htmlspecialchars($freq->name) ?></option>
+        <?php endforeach; ?>
     </select>
     <label for="description">Description:</label>
     <input type="text" name="description" id="description">
