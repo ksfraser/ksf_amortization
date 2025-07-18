@@ -3,7 +3,7 @@ namespace Ksfraser\Amortizations;
 
 use Ksfraser\Amortizations\DataProviderInterface;
 
-require_once __DIR__ . '/model.php';
+// If model.php contains a class, use its namespace import instead. (Assume autoloading via Composer)
 
 /**
  * Class FADataProvider
