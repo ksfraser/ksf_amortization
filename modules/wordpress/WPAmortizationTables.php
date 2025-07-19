@@ -1,6 +1,9 @@
 <?php
 namespace Ksfraser\Amortizations\WordPress;
 
+// Include WordPress mock definitions for linting/testing outside WP
+require_once __DIR__ . '/wp_mock.php';
+
 /**
  * Handles creation of custom tables for amortization in WordPress.
  */
