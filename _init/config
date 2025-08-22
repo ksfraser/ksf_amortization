@@ -1,0 +1,9 @@
+Package: ksf_amortization
+Version: 2.4
+Name: Amortization 
+Description: Create amortization GL records
+Author: Kevin Fraser <kevin@ksfraser.com>
+Maintenance: Kevin Fraser <kevin@ksfraser.com>
+Homepage: ksfraser.com
+Type: extension
+InstallPath: modules/ksf_amortization  
