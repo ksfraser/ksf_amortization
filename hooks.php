@@ -1,9 +1,16 @@
 <?php
 
+//If copying this file to be the basis for a new module, remember to change:
+//	MENU_XXXX
+//	$module_name
+
+//SA_CUSTOMER is probably not the right access level for this module.  It should be the company's bookkeeper etc.
+
 define( 'MENU_AMORTIZATION', 'menu_amortization' );
 
 class hooks_ksf_amortization extends hooks {
     var $module_name = 'ksf_amortization'; 
+    var $controller = "/src/Ksfraser/Amortizations/controller.php";
 
     /*
     * Install additonal menu options provided by module
@@ -15,14 +22,14 @@ class hooks_ksf_amortization extends hooks {
 
 	switch($app->id) {
 	    case 'GL':
-		$app->add_lapp_function(3, _("Amortization Generic"),
-			$path_to_root."/modules/".$this->module_name."/src/Ksfraser/Amortizations/controller.php", 'SA_CUSTOMER', MENU_AMORTIZATION);
-		$app->add_lapp_function(3, _("Amortization Admin"),
-			$path_to_root."/modules/".$this->module_name."/src/Ksfraser/Amortizations/controller.php?action=admin", 'SA_CUSTOMER', MENU_AMORTIZATION);
-		$app->add_lapp_function(3, _("Amortization Create"),
-			$path_to_root."/modules/".$this->module_name."/src/Ksfraser/Amortizations/controller.php?action=create", 'SA_CUSTOMER', MENU_AMORTIZATION);
-		$app->add_lapp_function(3, _("Amortization Reports"),
-			$path_to_root."/modules/".$this->module_name."/src/Ksfraser/Amortizations/controller.php?action=report", 'SA_CUSTOMER', MENU_AMORTIZATION);
+		$app->add_rapp_function(3, _("Amortization Generic"),
+			$path_to_root."/modules/".$this->module_name.$this->controller, 'SA_CUSTOMER', MENU_AMORTIZATION);
+		$app->add_rapp_function(3, _("Amortization Admin"),
+			$path_to_root."/modules/".$this->module_name.$this->controller."?action=admin", 'SA_CUSTOMER', MENU_AMORTIZATION);
+		$app->add_rapp_function(3, _("Amortization Create"),
+			$path_to_root."/modules/".$this->module_name.$this->controller."?action=create", 'SA_CUSTOMER', MENU_AMORTIZATION);
+		$app->add_rapp_function(3, _("Amortization Reports"),
+			$path_to_root."/modules/".$this->module_name.$this->controller."?action=report", 'SA_CUSTOMER', MENU_AMORTIZATION);
 		break;
 	}
     }

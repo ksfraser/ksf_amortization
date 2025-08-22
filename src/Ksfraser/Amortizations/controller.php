@@ -1,9 +1,12 @@
-
-
 <?php
-require_once __DIR__ . '/fa_mock.php'; // Remove in production
+
+//print_r( __FILE__ . "::" . __LINE__, true );
+
+//require_once __DIR__ . '/fa_mock.php'; // Remove in production
+require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/model.php';
 
+use Ksfraser\Amortizations\AmortizationModel;
 
 
 
@@ -69,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get loans for display
 
 $loans = [];
+/*
 try {
     // Use provider abstraction
     $stmt = $db->prepare('SELECT * FROM fa_loans');
@@ -77,6 +81,7 @@ try {
 } catch (Exception $e) {
     // Table may not exist in dev
 }
+*/
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'list';
 
