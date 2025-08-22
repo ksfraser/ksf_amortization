@@ -15,7 +15,7 @@ class WPLoanEventProvider implements LoanEventProviderInterface {
         $this->dbPrefix = $dbPrefix;
     }
     public function insertLoanEvent(LoanEvent $event): void {
-        $this->wpdb->insert($this->dbPrefix . 'loan_events', [
+        $this->wpdb->insert($this->dbPrefix . 'ksf_loan_events', [
             'loan_id' => $event->loan_id,
             'event_type' => $event->event_type,
             'event_date' => $event->event_date,
@@ -25,12 +25,12 @@ class WPLoanEventProvider implements LoanEventProviderInterface {
     }
     public function getLoanEvents(int $loan_id): array {
         $results = $this->wpdb->get_results($this->wpdb->prepare(
-            "SELECT * FROM {$this->dbPrefix}loan_events WHERE loan_id = %d ORDER BY event_date ASC", $loan_id
+            "SELECT * FROM {$this->dbPrefix}ksf_loan_events WHERE loan_id = %d ORDER BY event_date ASC", $loan_id
         ), ARRAY_A);
         return array_map(fn($row) => new LoanEvent($row), $results);
     }
     public function updateLoanEvent(LoanEvent $event): void {
-        $this->wpdb->update($this->dbPrefix . 'loan_events', [
+        $this->wpdb->update($this->dbPrefix . 'ksf_loan_events', [
             'event_type' => $event->event_type,
             'event_date' => $event->event_date,
             'amount' => $event->amount,
@@ -38,6 +38,6 @@ class WPLoanEventProvider implements LoanEventProviderInterface {
         ], ['id' => $event->id]);
     }
     public function deleteLoanEvent(int $event_id): void {
-        $this->wpdb->delete($this->dbPrefix . 'loan_events', ['id' => $event_id]);
+        $this->wpdb->delete($this->dbPrefix . 'ksf_loan_events', ['id' => $event_id]);
     }
 }

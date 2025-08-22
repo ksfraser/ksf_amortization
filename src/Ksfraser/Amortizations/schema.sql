@@ -1,5 +1,5 @@
--- Table: 0_ksf_loans
-CREATE TABLE 0_ksf_loans (
+-- Table: 0_ksf_loans_summary
+CREATE TABLE 0_ksf_loans_summary (
     id INT AUTO_INCREMENT PRIMARY KEY,
     borrower_id INT NOT NULL,
     amount_financed DECIMAL(15,2) NOT NULL,
@@ -26,5 +26,5 @@ CREATE TABLE 0_ksf_amortization_staging (
     trans_no INT,
     trans_type INT,
     voided TINYINT(1) DEFAULT 0,
-    FOREIGN KEY (loan_id) REFERENCES 0_ksf_loans(id)
+    FOREIGN KEY (loan_id) REFERENCES 0_ksf_loans_summary(id)
 );
