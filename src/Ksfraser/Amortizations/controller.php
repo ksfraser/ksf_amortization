@@ -38,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'interest_rate' => $_POST['interest_rate'],
             'payment_frequency' => $_POST['payment_frequency'],
             'interest_calc_frequency' => $_POST['interest_calc_frequency'],
-            'num_payments' => $_POST['num_payments'],
+            'loan_term_years' => $_POST['loan_term_years'],
+            'payments_per_year' => $_POST['payments_per_year'],
             'regular_payment' => $_POST['regular_payment'],
             'override_payment' => isset($_POST['override_payment']) ? 1 : 0,
             'first_payment_date' => $_POST['first_payment_date'],
@@ -46,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'created_by' => 1, // Replace with logged-in user
             // legacy fields for compatibility
             'principal' => $_POST['amount_financed'],
-            'term_months' => $_POST['num_payments'],
+            // 'term_months' replaced by loan_term_years and payments_per_year
             'repayment_schedule' => $_POST['payment_frequency'],
             'start_date' => $_POST['first_payment_date'],
             'end_date' => $_POST['last_payment_date']
@@ -56,13 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $loanId = $_POST['edit_loan_id'];
             // Calculate payment if not overridden
             if (!$data['override_payment']) {
-                $data['regular_payment'] = round($model->calculatePayment($data['amount_financed'], $data['interest_rate'], $data['num_payments']), 2);
+                $num_payments = (int)$data['loan_term_years'] * (int)$data['payments_per_year'];
+                $data['regular_payment'] = round($model->calculatePayment($data['amount_financed'], $data['interest_rate'], $num_payments), 2);
             }
             $model->updateLoan($loanId, $data);
         } else {
             // Calculate payment if not overridden
             if (!$data['override_payment']) {
-                $data['regular_payment'] = round($model->calculatePayment($data['amount_financed'], $data['interest_rate'], $data['num_payments']), 2);
+                $num_payments = (int)$data['loan_term_years'] * (int)$data['payments_per_year'];
+                $data['regular_payment'] = round($model->calculatePayment($data['amount_financed'], $data['interest_rate'], $num_payments), 2);
             }
             $model->createLoan($data);
         }

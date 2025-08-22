@@ -2,9 +2,12 @@
 CREATE TABLE 0_ksf_loans_summary (
     id INT AUTO_INCREMENT PRIMARY KEY,
     borrower_id INT NOT NULL,
+    borrower_type VARCHAR(32) NOT NULL,
     amount_financed DECIMAL(15,2) NOT NULL,
     interest_rate DECIMAL(5,2) NOT NULL,
-    num_payments INT NOT NULL,
+    loan_term_years INT NOT NULL,
+    payments_per_year INT NOT NULL,
+    -- num_payments is now a calculated field: loan_term_years * payments_per_year
     first_payment_date DATE NOT NULL,
     regular_payment DECIMAL(15,2) NOT NULL,
     override_payment TINYINT(1) DEFAULT 0,

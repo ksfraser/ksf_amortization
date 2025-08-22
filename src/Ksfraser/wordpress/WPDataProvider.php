@@ -26,6 +26,10 @@ class WPDataProvider implements DataProviderInterface
     {
         $table = $this->wpdb->prefix . 'amortization_loans';
         $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM $table WHERE id = %d", $loan_id), ARRAY_A);
+        // Ensure borrower_type is present
+        if ($row && !isset($row['borrower_type'])) {
+            $row['borrower_type'] = null;
+        }
         return $row ?: [];
     }
 
@@ -35,6 +39,10 @@ class WPDataProvider implements DataProviderInterface
     public function insertLoan(array $data): int
     {
         $table = $this->wpdb->prefix . 'amortization_loans';
+        // Ensure borrower_type is set
+        if (!isset($data['borrower_type'])) {
+            $data['borrower_type'] = null;
+        }
         $this->wpdb->insert($table, $data);
         return (int)$this->wpdb->insert_id;
     }

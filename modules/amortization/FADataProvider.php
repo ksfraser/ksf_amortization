@@ -35,9 +35,23 @@ class FADataProvider implements DataProviderInterface {
     }
 
     public function insertLoan(array $data): int {
-        // Implement insert logic here
-        // ...existing code...
-        return 0; // placeholder
+        $fields = [
+            'borrower_id', 'borrower_type', 'amount_financed', 'interest_rate', 'loan_term_years',
+            'payments_per_year', 'first_payment_date', 'regular_payment', 'override_payment', 'loan_type',
+            'interest_calc_frequency', 'status'
+        ];
+        $columns = [];
+        $params = [];
+        foreach ($fields as $field) {
+            if (isset($data[$field])) {
+                $columns[] = $field;
+                $params[":" . $field] = $data[$field];
+            }
+        }
+        $sql = "INSERT INTO " . $this->dbPrefix . "ksf_loans_summary (" . implode(", ", $columns) . ") VALUES (" . implode(", ", array_keys($params)) . ")";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int)$this->pdo->lastInsertId();
     }
 
     public function getLoan(int $loan_id): array {
@@ -54,10 +68,9 @@ class FADataProvider implements DataProviderInterface {
     public function updateLoan(int $loan_id, array $data): void {
         // Update all editable fields
         $fields = [
-            'loan_type', 'description', 'amount_financed', 'interest_rate', 'payment_frequency',
-            'interest_calc_frequency', 'num_payments', 'regular_payment', 'override_payment',
-            'first_payment_date', 'last_payment_date', 'principal', 'term_months',
-            'repayment_schedule', 'start_date', 'end_date'
+            'borrower_id', 'borrower_type', 'amount_financed', 'interest_rate', 'loan_term_years',
+            'payments_per_year', 'first_payment_date', 'regular_payment', 'override_payment', 'loan_type',
+            'interest_calc_frequency', 'status'
         ];
         $set = [];
         $params = [];

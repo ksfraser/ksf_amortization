@@ -70,7 +70,9 @@ class AmortizationModel {
         $loan = $this->getLoan($loan_id);
         $principal = $loan['amount_financed'];
         $rate = $loan['interest_rate'];
-        $n = $loan['num_payments'];
+        $n = isset($loan['loan_term_years']) && isset($loan['payments_per_year'])
+            ? (int)$loan['loan_term_years'] * (int)$loan['payments_per_year']
+            : (isset($loan['num_payments']) ? (int)$loan['num_payments'] : 0);
         $payment = $loan['override_payment'] ? $loan['regular_payment'] : $this->calculatePayment($principal, $rate, $n);
         $balance = $principal;
         $date = new \DateTime($loan['first_payment_date']);

@@ -22,16 +22,24 @@ class SuiteCRMDataProviderTest extends TestCase
 
     public function testGetLoanReturnsArray()
     {
-        $this->provider->method('getLoan')->willReturn(['id' => 1, 'principal' => 1000]);
+        $this->provider->method('getLoan')->willReturn([
+            'id' => 1,
+            'principal' => 1000,
+            'borrower_type' => 'Supplier'
+        ]);
         $result = $this->provider->getLoan(1);
         $this->assertIsArray($result);
         $this->assertEquals(1, $result['id']);
+        $this->assertEquals('Supplier', $result['borrower_type']);
     }
 
     public function testInsertLoanReturnsId()
     {
         $this->provider->method('insertLoan')->willReturn(42);
-        $result = $this->provider->insertLoan(['principal' => 1000]);
+        $result = $this->provider->insertLoan([
+            'principal' => 1000,
+            'borrower_type' => 'Customer'
+        ]);
         $this->assertEquals(42, $result);
     }
 

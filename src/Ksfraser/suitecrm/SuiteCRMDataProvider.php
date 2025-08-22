@@ -15,7 +15,11 @@ class SuiteCRMDataProvider implements DataProviderInterface
     public function getLoan(int $loan_id): array
     {
         $bean = \BeanFactory::getBean('AmortizationLoans', $loan_id);
-        return $bean ? $bean->toArray() : [];
+        $data = $bean ? $bean->toArray() : [];
+        if ($data && !isset($data['borrower_type'])) {
+            $data['borrower_type'] = null;
+        }
+        return $data;
     }
 
     /**
@@ -24,6 +28,9 @@ class SuiteCRMDataProvider implements DataProviderInterface
     public function insertLoan(array $data): int
     {
         $bean = \BeanFactory::newBean('AmortizationLoans');
+        if (!isset($data['borrower_type'])) {
+            $data['borrower_type'] = null;
+        }
         foreach ($data as $key => $value) {
             $bean->$key = $value;
         }
