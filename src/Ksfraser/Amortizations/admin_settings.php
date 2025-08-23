@@ -1,11 +1,18 @@
-
-
 <?php
+
+global $path_to_root;
+
+if( ! isset( $path_to_root ) )
+{
+	$path_to_root = __DIR__ . "/../../../../../";
+}
+
 class AdminSettings
 {
     public static function render($selected = [])
     {
-        require_once FA_PATH . '/gl/includes/db/gl_db_accounts.inc';
+	global $path_to_root;
+        require_once $path_to_root . '/gl/includes/db/gl_db_accounts.inc';
 
         // Get GL accounts by category
         $liability_gls = get_gl_accounts(CL_LIABILITIES);
