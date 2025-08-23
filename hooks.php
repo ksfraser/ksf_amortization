@@ -44,13 +44,22 @@ class hooks_ksf_amortization extends hooks {
 		//	$ok = db_import($path_to_root.'/modules/'.$this->module_name.'/sql/'.$file,
 
 	//$updates = array( 'update.sql' => array($this->module_name) );
-	$updates = array( array( 'schema_events.sql' => $this->module_name ),
-			array( 'schema_selectors.sql' => $this->module_name  ),
-			array( 'schema.sql' => $this->module_name  )
+	$events = array( 'schema_events.sql' => array( $this->module_name ) );
+
+	$updates = array( 'schema_events.sql' => array( 'ksf_loan_events' ) ,
+			  'schema_selectors.sql' => array( 'ksf_selectors'  ),
+			  'schema.sql' => array( 'ksf_loans_summary' )
 		 );
 	return $this->update_databases($company, $updates, $check_only);
 	return true;
     }
+/*
+    function deactivate_extension($company, $check_only=true) {
+        global $db_connections;
+        $updates = array('remove.sql' => array('ksf_amortization'));
+        return $this->update_databases($company, $updates, $check_only);
+    }
+*/
 
     //this is required to cancel bank transactions when a voiding operation occurs
 	//@todo refactor to use my eventloop functions
