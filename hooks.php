@@ -36,7 +36,18 @@ class hooks_ksf_amortization extends hooks {
 
 
     function activate_extension($company, $check_only=true) {
-	$updates = array( 'update.sql' => array($this->module_name) );
+		//updates array:
+		//	foreach($updates as $file => $update) {
+		//	$table = @$update[0];
+		//	$field = @$update[1];
+		//	$properties = @$update[2];
+		//	$ok = db_import($path_to_root.'/modules/'.$this->module_name.'/sql/'.$file,
+
+	//$updates = array( 'update.sql' => array($this->module_name) );
+	$updates = array( array( 'schema_events.sql' ),
+			array( 'schema_selectors.sql' ),
+			array( 'schema.sql' )
+		 );
 	return $this->update_databases($company, $updates, $check_only);
 	return true;
     }
