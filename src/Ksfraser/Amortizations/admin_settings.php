@@ -1,4 +1,5 @@
 
+
 <?php
 class AdminSettings
 {
@@ -12,11 +13,14 @@ class AdminSettings
         $expense_gls = get_gl_accounts(CL_AMORTIZATION);
         $asset_value_gls = get_gl_accounts(CL_FIXEDASSETS);
 
-        // Render selectors
+        echo '<h2>Amortization Module - Admin Settings</h2>';
+        echo '<form method="post">';
         self::gl_selector('liability_gl', $liability_gls, $selected['liability_gl'] ?? '');
         self::gl_selector('asset_gl', $asset_gls, $selected['asset_gl'] ?? '');
         self::gl_selector('expenses_gl', $expense_gls, $selected['expenses_gl'] ?? '');
         self::gl_selector('asset_value_gl', $asset_value_gls, $selected['asset_value_gl'] ?? '');
+        echo '<button type="submit">Save Settings</button>';
+        echo '</form>';
     }
 
     private static function gl_selector($name, $accounts, $selected = '')
@@ -30,9 +34,6 @@ class AdminSettings
         echo "</select>";
     }
 }
-?>
-<h2>Amortization Module - Admin Settings</h2>
-<form method="post">
-  <?php AdminSettings::render(); ?>
-  <button type="submit">Save Settings</button>
-</form>
+
+// Render the form
+AdminSettings::render();
