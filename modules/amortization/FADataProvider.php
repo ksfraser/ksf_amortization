@@ -114,4 +114,136 @@ class FADataProvider implements DataProviderInterface {
         $stmt->execute([':loan_id' => $loan_id]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Insert a loan event (extra payment or skip payment)
+     *
+     * @param int $loanId Loan database ID
+     * @param LoanEvent $event Event object with type, date, amount
+     *
+     * @return int Event ID
+     */
+    public function insertLoanEvent(int $loanId, LoanEvent $event): int {
+        $sql = "INSERT INTO " . $this->dbPrefix . "ksf_loan_events 
+                (loan_id, event_type, event_date, amount, notes, created_at) 
+                VALUES (:loan_id, :event_type, :event_date, :amount, :notes, :created_at)";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':loan_id' => $loanId,
+            ':event_type' => $event->event_type,
+            ':event_date' => $event->event_date,
+            ':amount' => $event->amount,
+            ':notes' => $event->notes ?? '',
+            ':created_at' => date('Y-m-d H:i:s')
+        ]);
+        
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    /**
+     * Get all events for a loan
+     *
+     * @param int $loanId Loan database ID
+     *
+     * @return array Array of event records
+     */
+    public function getLoanEvents(int $loanId): array {
+        $sql = "SELECT * FROM " . $this->dbPrefix . "ksf_loan_events 
+                WHERE loan_id = :loan_id 
+                ORDER BY event_date ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':loan_id' => $loanId]);
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Delete schedule rows after a given date
+     *
+     * @param int $loanId Loan database ID
+     * @param string $date Date in YYYY-MM-DD format
+     *
+     * @return void
+     */
+    public function deleteScheduleAfterDate(int $loanId, string $date): void {
+        $sql = "DELETE FROM " . $this->dbPrefix . "ksf_amortization_staging 
+                WHERE loan_id = :loan_id AND payment_date > :date AND posted_to_gl = 0";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':loan_id' => $loanId,
+            ':date' => $date
+        ]);
+    }
+
+    /**
+     * Get schedule rows after a given date
+     *
+     * @param int $loanId Loan database ID
+     * @param string $date Date in YYYY-MM-DD format
+     *
+     * @return array Array of schedule rows
+     */
+    public function getScheduleRowsAfterDate(int $loanId, string $date): array {
+        $sql = "SELECT * FROM " . $this->dbPrefix . "ksf_amortization_staging 
+                WHERE loan_id = :loan_id AND payment_date > :date 
+                ORDER BY payment_date ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':loan_id' => $loanId,
+            ':date' => $date
+        ]);
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Update a single schedule row
+     *
+     * @param int $stagingId Schedule row ID
+     * @param array $updates Fields to update (key => value pairs)
+     *
+     * @return void
+     */
+    public function updateScheduleRow(int $stagingId, array $updates): void {
+        if (empty($updates)) {
+            return;
+        }
+        
+        $setClauses = [];
+        $params = [':id' => $stagingId];
+        
+        foreach ($updates as $field => $value) {
+            $setClauses[] = "$field = :$field";
+            $params[":$field"] = $value;
+        }
+        
+        $sql = "UPDATE " . $this->dbPrefix . "ksf_amortization_staging 
+                SET " . implode(', ', $setClauses) . ", updated_at = NOW() 
+                WHERE id = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    /**
+     * Get all schedule rows for a loan
+     *
+     * @param int $loanId Loan database ID
+     *
+     * @return array Array of all schedule rows ordered by payment date
+     */
+    public function getScheduleRows(int $loanId): array {
+        $sql = "SELECT * FROM " . $this->dbPrefix . "ksf_amortization_staging 
+                WHERE loan_id = :loan_id 
+                ORDER BY payment_date ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':loan_id' => $loanId]);
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
