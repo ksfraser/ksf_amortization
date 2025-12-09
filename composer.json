@@ -8,7 +8,8 @@
             "Ksfraser\\Amortizations\\": "src/Ksfraser/Amortizations/",
             "Ksfraser\\Amortizations\\FA\\": "modules/fa/",
             "Ksfraser\\Amortizations\\WordPress\\": "modules/wordpress/",
-            "Ksfraser\\Amortizations\\SuiteCRM\\": "modules/suitecrm/"
+            "Ksfraser\\Amortizations\\SuiteCRM\\": "modules/suitecrm/",
+            "Ksfraser\\Amortizations\\Tests\\": "tests/"
         }
     },
     "require": {},
