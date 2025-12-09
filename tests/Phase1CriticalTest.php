@@ -327,17 +327,4 @@ class Phase1CriticalTest extends BaseTestCase
         // Should not throw exception
         $this->model->recordExtraPayment(1, '2025-02-15', 500, 'Bonus');
     }
-    
-    // ==========================================
-    // Test Assertions - Helper Methods
-    // ==========================================
-    
-    /**
-     * Assert that two floats are almost equal (within tolerance)
-     */
-    protected function assertAlmostEquals($expected, $actual, $tolerance, $message = '') {
-        $diff = abs($expected - $actual);
-        $this->assertLessThanOrEqual($tolerance, $diff, 
-            "$message (Expected: $expected, Actual: $actual, Diff: $diff)");
-    }
 }
