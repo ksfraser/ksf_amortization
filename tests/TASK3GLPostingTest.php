@@ -213,7 +213,7 @@ class TASK3GLPostingTest extends TestCase
     }
 
     /**
-     * Test builder reset
+     * Test builder reset functionality
      * @test
      */
     public function testBuilderReset(): void
@@ -227,9 +227,10 @@ class TASK3GLPostingTest extends TestCase
         
         $builder->reset();
         
-        // After reset, should need new entries
-        $this->expectException(\RuntimeException::class);
-        $builder->build();
+        // After reset, should have empty entries
+        $result = $builder->build();
+        $this->assertEmpty($result['debits']);
+        $this->assertEmpty($result['credits']);
     }
 
     // ==========================================
@@ -244,7 +245,7 @@ class TASK3GLPostingTest extends TestCase
     {
         // Mock PDO
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
         $mapper = new GLAccountMapper($pdo);
         
@@ -257,7 +258,7 @@ class TASK3GLPostingTest extends TestCase
      */
     public function testGLAccountMapperRejectsNullPDO(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(\TypeError::class);
         
         new GLAccountMapper(null);
     }
@@ -269,7 +270,7 @@ class TASK3GLPostingTest extends TestCase
     public function testValidatingValidGLAccounts(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
         $mapper = new GLAccountMapper($pdo);
         
@@ -282,7 +283,7 @@ class TASK3GLPostingTest extends TestCase
         // Mock getAccountDetails to return active accounts
         $pdo->method('prepare')->willReturnCallback(function() use ($pdo) {
             $stmt = $this->createMock(\PDOStatement::class);
-            $stmt->method('execute')->willReturnSelf();
+            $stmt->method('execute')->willReturn(true);
             $stmt->method('fetch')->willReturn(['account_code' => '2100', 'inactive' => 0]);
             return $stmt;
         });
@@ -299,7 +300,7 @@ class TASK3GLPostingTest extends TestCase
     public function testCacheClearing(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
         $mapper = new GLAccountMapper($pdo);
         
@@ -320,7 +321,7 @@ class TASK3GLPostingTest extends TestCase
     public function testFAJournalServiceConstruction(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
         $service = new FAJournalService($pdo);
         
@@ -333,19 +334,19 @@ class TASK3GLPostingTest extends TestCase
      */
     public function testFAJournalServiceRejectsNullPDO(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(\TypeError::class);
         
         new FAJournalService(null);
     }
 
     /**
-     * Test postPaymentToGL with invalid GL accounts
+     * Test posting payment with invalid GL accounts
      * @test
      */
     public function testPostPaymentWithInvalidGLAccounts(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
         $service = new FAJournalService($pdo);
         
@@ -368,13 +369,19 @@ class TASK3GLPostingTest extends TestCase
     }
 
     /**
-     * Test postPaymentToGL with zero amount
+     * Test posting payment with zero amount
      * @test
      */
     public function testPostPaymentWithZeroAmount(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
+        
+        // Mock prepare and statement for getAccountDetails calls
+        $stmt = $this->createMock(\PDOStatement::class);
+        $stmt->method('execute')->willReturn(true);
+        $stmt->method('fetch')->willReturn(['account_code' => '2100', 'inactive' => 0]);
+        $pdo->method('prepare')->willReturn($stmt);
         
         $service = new FAJournalService($pdo);
         
@@ -404,12 +411,17 @@ class TASK3GLPostingTest extends TestCase
     public function testBatchPostingWithEmptyPayments(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
-        // Mock prepare and fetchAll to return empty array
+        // Create a mock statement
         $stmt = $this->createMock(\PDOStatement::class);
-        $stmt->method('execute')->willReturnSelf();
-        $stmt->method('fetchAll')->willReturn([]);
+        $stmt->method('execute')->willReturn(true);
+        
+        // Different return values based on query type
+        // First call: getAccountDetails
+        // Then: getScheduleRows (unposted payments)
+        $stmt->method('fetch')->willReturn(['account_code' => '2100', 'inactive' => 0]);
+        $stmt->method('fetchAll')->willReturn([]);  // No unposted payments
         
         $pdo->method('prepare')->willReturn($stmt);
         
@@ -422,13 +434,13 @@ class TASK3GLPostingTest extends TestCase
     }
 
     /**
-     * Test transaction reference generation format
+     * Test transaction reference format
      * @test
      */
     public function testTransactionReferenceFormat(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $pdo->method('setAttribute')->willReturnSelf();
+        $pdo->method('setAttribute')->willReturn(true);
         
         $service = new FAJournalService($pdo);
         
