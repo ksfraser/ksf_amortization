@@ -145,22 +145,22 @@ class PartialPaymentIntegrationTest extends TestCase
         $this->arrearsRepo->save($arrears);
 
         // Apply payment - should be applied in priority order
-        // Payment: 100 (covers penalty fully)
-        $payment1 = 100.00;
-        $arrears->applyPayment($payment1);
-        $this->assertEqualsWithDelta(0, $arrears->getPenaltyAmount(), 0.01);
-        $this->assertEqualsWithDelta(200.00, $arrears->getInterestAmount(), 0.01);
+        // Payment: 100 (covers penalty 50, then 50 to interest)
+        $remaining = $arrears->applyPayment(100.00);
+        $this->assertEqualsWithDelta(0, $remaining, 0.01, "All payment should be applied");
+        $this->assertEqualsWithDelta(0, $arrears->getPenaltyAmount(), 0.01, "Penalty should be cleared");
+        $this->assertEqualsWithDelta(150.00, $arrears->getInterestAmount(), 0.01, "Interest should be reduced by 50");
 
-        // Payment: 150 (covers remaining penalty + partial interest)
-        $payment2 = 150.00;
-        $arrears->applyPayment($payment2);
-        $this->assertEqualsWithDelta(50.00, $arrears->getInterestAmount(), 0.01);
-        $this->assertEqualsWithDelta(1000.00, $arrears->getPrincipalAmount(), 0.01);
+        // Payment: 200 (covers remaining interest 150 + 50 to principal)
+        $remaining = $arrears->applyPayment(200.00);
+        $this->assertEqualsWithDelta(0, $remaining, 0.01, "All payment should be applied");
+        $this->assertEqualsWithDelta(0, $arrears->getInterestAmount(), 0.01, "Interest should be cleared");
+        $this->assertEqualsWithDelta(950.00, $arrears->getPrincipalAmount(), 0.01, "Principal should be reduced by 50");
 
-        // Payment: 1100 (covers remaining interest + principal)
-        $payment3 = 1100.00;
-        $arrears->applyPayment($payment3);
-        $this->assertTrue($arrears->isCleared());
+        // Payment: 1000 (covers remaining principal, with excess)
+        $remaining = $arrears->applyPayment(1000.00);
+        $this->assertEqualsWithDelta(50.00, $remaining, 0.01, "Should have 50 remaining");
+        $this->assertTrue($arrears->isCleared(), "Arrears should be cleared");
     }
 
     /**
@@ -185,14 +185,18 @@ class PartialPaymentIntegrationTest extends TestCase
         // Verify arrears is active
         $activeArrears = $this->arrearsRepo->findActiveByLoanId($loanId);
         $this->assertCount(1, $activeArrears);
-        $this->assertFalse($activeArrears[0]->isCleared());
+
+        // Get first arrears record - use array values to ensure it's not null
+        $savedArrears = array_values($activeArrears)[0];
+        $this->assertNotNull($savedArrears);
+        $this->assertFalse($savedArrears->isCleared());
 
         // Apply payment to clear arrears
-        $arrears->applyPayment(443.56);
-        $this->assertTrue($arrears->isCleared());
+        $savedArrears->applyPayment(443.56);
+        $this->assertTrue($savedArrears->isCleared());
 
         // Update arrears in repository
-        $this->arrearsRepo->save($arrears);
+        $this->arrearsRepo->save($savedArrears);
 
         // Query should show no active arrears
         $activeArrears = $this->arrearsRepo->findActiveByLoanId($loanId);
