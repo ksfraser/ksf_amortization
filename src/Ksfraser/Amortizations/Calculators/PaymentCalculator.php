@@ -174,4 +174,28 @@ class PaymentCalculator
         }
         return self::$frequencyConfig[$frequency];
     }
+
+    /**
+     * Get number of days per payment period
+     * 
+     * Calculates approximate days between payments for a given frequency.
+     * Used for date calculations in schedule generation.
+     * 
+     * @param string $frequency Payment frequency ('monthly', 'biweekly', etc)
+     * 
+     * @return int Approximate number of days per payment period
+     * 
+     * @throws \InvalidArgumentException If frequency not supported
+     */
+    public function getPaymentIntervalDays(string $frequency): int
+    {
+        $frequency = strtolower(trim($frequency));
+        $periodsPerYear = self::getPeriodsPerYear($frequency);
+
+        if ($periodsPerYear == 0) {
+            throw new \InvalidArgumentException("Invalid periods per year: $periodsPerYear");
+        }
+
+        return (int)round(365 / $periodsPerYear);
+    }
 }

@@ -1,4 +1,4 @@
-{
+05{
     "// This is a PHP project - disable Python extension for this workspace": "",
     "[python]": {
         "editor.formatOnSave": false
