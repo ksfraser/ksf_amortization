@@ -1,13 +1,26 @@
 <?php
 namespace Ksfraser\Amortizations\WordPress;
 
-use Ksfraser\Amortizations\DataProviderInterface;
+use Ksfraser\Amortizations\DataProviderAdaptor;
+use Ksfraser\Amortizations\Exceptions\DataNotFoundException;
+use Ksfraser\Amortizations\Exceptions\DataValidationException;
+use Ksfraser\Amortizations\Exceptions\DataPersistenceException;
 
 /**
  * WordPress adaptor for Amortization business logic.
- * Implements DataProviderInterface for WP integration.
+ * Extends DataProviderAdaptor to inherit standardized error handling and validation.
+ *
+ * ### Platform Details
+ * - Database: WordPress wpdb with custom tables
+ * - Tables: {prefix}amortization_loans, {prefix}amortization_schedules, {prefix}amortization_events
+ * - Error Handling: Uses standardized exception types from DataProviderAdaptor
+ *
+ * @package   Ksfraser\Amortizations\WordPress
+ * @author    KSF Development Team
+ * @version   2.0.0 (Updated to extend DataProviderAdaptor)
+ * @since     2025-12-17
  */
-class WPDataProvider implements DataProviderInterface
+class WPDataProvider extends DataProviderAdaptor
 {
     /**
      * @var \wpdb
@@ -21,40 +34,101 @@ class WPDataProvider implements DataProviderInterface
 
     /**
      * Fetch loan data from WP custom table
+     *
+     * @param int $loan_id Loan ID
+     * @return array Loan data
+     *
+     * @throws DataNotFoundException If loan not found
+     * @throws DataPersistenceException If query fails
      */
     public function getLoan(int $loan_id): array
     {
-        $table = $this->wpdb->prefix . 'amortization_loans';
-        $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM $table WHERE id = %d", $loan_id), ARRAY_A);
-        // Ensure borrower_type is present
-        if ($row && !isset($row['borrower_type'])) {
-            $row['borrower_type'] = null;
+        try {
+            $this->validatePositive($loan_id, 'loan_id');
+            $table = $this->wpdb->prefix . 'amortization_loans';
+            $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM $table WHERE id = %d", $loan_id), ARRAY_A);
+            $this->validateRecordExists($row, "Loan with ID {$loan_id}");
+            
+            // Ensure borrower_type is present
+            if ($row && !isset($row['borrower_type'])) {
+                $row['borrower_type'] = null;
+            }
+            return $row;
+        } catch (\Exception $e) {
+            if ($e instanceof DataNotFoundException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve loan: {$e->getMessage()}");
         }
-        return $row ?: [];
     }
 
     /**
      * Insert a new loan record
+     *
+     * @param array $data Loan data with required fields
+     * @return int Loan ID
+     *
+     * @throws DataValidationException If required fields missing or invalid
+     * @throws DataPersistenceException If insert fails
      */
     public function insertLoan(array $data): int
     {
-        $table = $this->wpdb->prefix . 'amortization_loans';
-        // Ensure borrower_type is set
-        if (!isset($data['borrower_type'])) {
-            $data['borrower_type'] = null;
+        try {
+            $this->validateRequiredKeys($data, ['loan_type', 'principal', 'interest_rate', 'term_months']);
+            $this->validatePositive($data['principal'], 'principal');
+            $this->validatePositive($data['interest_rate'], 'interest_rate');
+            $this->validatePositive($data['term_months'], 'term_months');
+            
+            $table = $this->wpdb->prefix . 'amortization_loans';
+            // Ensure borrower_type is set
+            if (!isset($data['borrower_type'])) {
+                $data['borrower_type'] = null;
+            }
+            $this->wpdb->insert($table, $data);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+            
+            return (int)$this->wpdb->insert_id;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to insert loan: {$e->getMessage()}");
         }
-        $this->wpdb->insert($table, $data);
-        return (int)$this->wpdb->insert_id;
     }
 
     /**
      * Insert a schedule row for a loan
+     *
+     * @param int $loan_id Loan ID
+     * @param array $schedule_row Payment schedule data
+     * @return void
+     *
+     * @throws DataValidationException If required fields missing or invalid
+     * @throws DataPersistenceException If insert fails
      */
     public function insertSchedule(int $loan_id, array $schedule_row): void
     {
-        $table = $this->wpdb->prefix . 'amortization_schedules';
-        $schedule_row['loan_id'] = $loan_id;
-        $this->wpdb->insert($table, $schedule_row);
+        try {
+            $this->validatePositive($loan_id, 'loan_id');
+            $this->validateRequiredKeys($schedule_row, ['payment_date', 'payment_amount', 'principal_payment', 'interest_payment', 'remaining_balance']);
+            $this->validateDate($schedule_row['payment_date'], 'payment_date');
+            
+            $table = $this->wpdb->prefix . 'amortization_schedules';
+            $schedule_row['loan_id'] = $loan_id;
+            $this->wpdb->insert($table, $schedule_row);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to insert schedule: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -64,20 +138,42 @@ class WPDataProvider implements DataProviderInterface
      * @param \Ksfraser\Amortizations\LoanEvent $event Event object
      *
      * @return int Event ID
+     *
+     * @throws DataValidationException If event data invalid
+     * @throws DataPersistenceException If insert fails
      */
     public function insertLoanEvent(int $loanId, \Ksfraser\Amortizations\LoanEvent $event): int
     {
-        $table = $this->wpdb->prefix . 'amortization_events';
-        $data = [
-            'loan_id' => $loanId,
-            'event_type' => $event->event_type,
-            'event_date' => $event->event_date,
-            'amount' => $event->amount,
-            'notes' => $event->notes ?? '',
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-        $this->wpdb->insert($table, $data);
-        return (int)$this->wpdb->insert_id;
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $this->validateNotEmpty($event->event_type, 'event_type');
+            $this->validateDate($event->event_date, 'event_date');
+            if ($event->amount !== null && $event->amount != 0) {
+                $this->validatePositive($event->amount, 'amount');
+            }
+            
+            $table = $this->wpdb->prefix . 'amortization_events';
+            $data = [
+                'loan_id' => $loanId,
+                'event_type' => $event->event_type,
+                'event_date' => $event->event_date,
+                'amount' => $event->amount ?? 0,
+                'notes' => $event->notes ?? '',
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            $this->wpdb->insert($table, $data);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+            
+            return (int)$this->wpdb->insert_id;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to insert loan event: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -86,15 +182,31 @@ class WPDataProvider implements DataProviderInterface
      * @param int $loanId Loan ID
      *
      * @return array Array of event records
+     *
+     * @throws DataValidationException If loanId invalid
+     * @throws DataPersistenceException If query fails
      */
     public function getLoanEvents(int $loanId): array
     {
-        $table = $this->wpdb->prefix . 'amortization_events';
-        $results = $this->wpdb->get_results($this->wpdb->prepare(
-            "SELECT * FROM $table WHERE loan_id = %d ORDER BY event_date ASC",
-            $loanId
-        ), ARRAY_A);
-        return $results ?: [];
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $table = $this->wpdb->prefix . 'amortization_events';
+            $results = $this->wpdb->get_results($this->wpdb->prepare(
+                "SELECT * FROM $table WHERE loan_id = %d ORDER BY event_date ASC",
+                $loanId
+            ), ARRAY_A);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+            
+            return $results ?: [];
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve loan events: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -104,15 +216,31 @@ class WPDataProvider implements DataProviderInterface
      * @param string $date Date in YYYY-MM-DD format
      *
      * @return void
+     *
+     * @throws DataValidationException If parameters invalid
+     * @throws DataPersistenceException If delete fails
      */
     public function deleteScheduleAfterDate(int $loanId, string $date): void
     {
-        $table = $this->wpdb->prefix . 'amortization_schedules';
-        $this->wpdb->query($this->wpdb->prepare(
-            "DELETE FROM $table WHERE loan_id = %d AND payment_date > %s AND posted_to_gl = 0",
-            $loanId,
-            $date
-        ));
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $this->validateDate($date, 'date');
+            $table = $this->wpdb->prefix . 'amortization_schedules';
+            $this->wpdb->query($this->wpdb->prepare(
+                "DELETE FROM $table WHERE loan_id = %d AND payment_date > %s AND posted_to_gl = 0",
+                $loanId,
+                $date
+            ));
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to delete schedule rows: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -122,16 +250,33 @@ class WPDataProvider implements DataProviderInterface
      * @param string $date Date in YYYY-MM-DD format
      *
      * @return array Array of schedule rows
+     *
+     * @throws DataValidationException If parameters invalid
+     * @throws DataPersistenceException If query fails
      */
     public function getScheduleRowsAfterDate(int $loanId, string $date): array
     {
-        $table = $this->wpdb->prefix . 'amortization_schedules';
-        $results = $this->wpdb->get_results($this->wpdb->prepare(
-            "SELECT * FROM $table WHERE loan_id = %d AND payment_date > %s ORDER BY payment_date ASC",
-            $loanId,
-            $date
-        ), ARRAY_A);
-        return $results ?: [];
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $this->validateDate($date, 'date');
+            $table = $this->wpdb->prefix . 'amortization_schedules';
+            $results = $this->wpdb->get_results($this->wpdb->prepare(
+                "SELECT * FROM $table WHERE loan_id = %d AND payment_date > %s ORDER BY payment_date ASC",
+                $loanId,
+                $date
+            ), ARRAY_A);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+            
+            return $results ?: [];
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve schedule rows: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -141,16 +286,31 @@ class WPDataProvider implements DataProviderInterface
      * @param array $updates Fields to update
      *
      * @return void
+     *
+     * @throws DataValidationException If stagingId invalid or updates empty
+     * @throws DataPersistenceException If update fails
      */
     public function updateScheduleRow(int $stagingId, array $updates): void
     {
-        if (empty($updates)) {
-            return;
-        }
+        try {
+            $this->validatePositive($stagingId, 'stagingId');
+            if (empty($updates)) {
+                return;
+            }
 
-        $table = $this->wpdb->prefix . 'amortization_schedules';
-        $updates['updated_at'] = date('Y-m-d H:i:s');
-        $this->wpdb->update($table, $updates, ['id' => $stagingId]);
+            $table = $this->wpdb->prefix . 'amortization_schedules';
+            $updates['updated_at'] = date('Y-m-d H:i:s');
+            $this->wpdb->update($table, $updates, ['id' => $stagingId]);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to update schedule row: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -159,15 +319,31 @@ class WPDataProvider implements DataProviderInterface
      * @param int $loanId Loan ID
      *
      * @return array Array of all schedule rows
+     *
+     * @throws DataValidationException If loanId invalid
+     * @throws DataPersistenceException If query fails
      */
     public function getScheduleRows(int $loanId): array
     {
-        $table = $this->wpdb->prefix . 'amortization_schedules';
-        $results = $this->wpdb->get_results($this->wpdb->prepare(
-            "SELECT * FROM $table WHERE loan_id = %d ORDER BY payment_date ASC",
-            $loanId
-        ), ARRAY_A);
-        return $results ?: [];
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $table = $this->wpdb->prefix . 'amortization_schedules';
+            $results = $this->wpdb->get_results($this->wpdb->prepare(
+                "SELECT * FROM $table WHERE loan_id = %d ORDER BY payment_date ASC",
+                $loanId
+            ), ARRAY_A);
+            
+            if ($this->wpdb->last_error) {
+                throw new \Exception($this->wpdb->last_error);
+            }
+            
+            return $results ?: [];
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve schedule rows: {$e->getMessage()}");
+        }
     }
 
     /**

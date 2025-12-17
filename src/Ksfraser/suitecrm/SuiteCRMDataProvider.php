@@ -1,54 +1,121 @@
 <?php
 namespace Ksfraser\Amortizations\SuiteCRM;
 
-use Ksfraser\Amortizations\DataProviderInterface;
+use Ksfraser\Amortizations\DataProviderAdaptor;
+use Ksfraser\Amortizations\Exceptions\DataNotFoundException;
+use Ksfraser\Amortizations\Exceptions\DataValidationException;
+use Ksfraser\Amortizations\Exceptions\DataPersistenceException;
 
 /**
  * SuiteCRM adaptor for Amortization business logic.
- * Implements DataProviderInterface for SuiteCRM integration.
+ * Extends DataProviderAdaptor to inherit standardized error handling and validation.
+ *
+ * ### Platform Details
+ * - Database: SuiteCRM through Bean Factory pattern
+ * - Modules: AmortizationLoans, AmortizationSchedules, AmortizationEvents
+ * - Error Handling: Uses standardized exception types from DataProviderAdaptor
+ * - Conversion: Beans are automatically converted to arrays via toArray()
+ *
+ * @package   Ksfraser\Amortizations\SuiteCRM
+ * @author    KSF Development Team
+ * @version   2.0.0 (Updated to extend DataProviderAdaptor)
+ * @since     2025-12-17
  */
-class SuiteCRMDataProvider implements DataProviderInterface
+class SuiteCRMDataProvider extends DataProviderAdaptor
 {
     /**
      * Fetch loan data from SuiteCRM module
+     *
+     * @param int $loan_id Loan ID
+     * @return array Loan data as array
+     *
+     * @throws DataNotFoundException If loan not found
+     * @throws DataPersistenceException If retrieval fails
      */
     public function getLoan(int $loan_id): array
     {
-        $bean = \BeanFactory::getBean('AmortizationLoans', $loan_id);
-        $data = $bean ? $bean->toArray() : [];
-        if ($data && !isset($data['borrower_type'])) {
-            $data['borrower_type'] = null;
+        try {
+            $this->validatePositive($loan_id, 'loan_id');
+            $bean = \BeanFactory::getBean('AmortizationLoans', $loan_id);
+            $this->validateRecordExists($bean, "Loan with ID {$loan_id}");
+            
+            $data = $bean->toArray();
+            
+            if ($data && !isset($data['borrower_type'])) {
+                $data['borrower_type'] = null;
+            }
+            return $data;
+        } catch (\Exception $e) {
+            if ($e instanceof DataNotFoundException || $e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve loan from SuiteCRM: {$e->getMessage()}");
         }
-        return $data;
     }
 
     /**
      * Insert a new loan record
+     *
+     * @param array $data Loan data with required fields
+     * @return int Loan ID
+     *
+     * @throws DataValidationException If required fields missing or invalid
+     * @throws DataPersistenceException If insert fails
      */
     public function insertLoan(array $data): int
     {
-        $bean = \BeanFactory::newBean('AmortizationLoans');
-        if (!isset($data['borrower_type'])) {
-            $data['borrower_type'] = null;
+        try {
+            $this->validateRequiredKeys($data, ['loan_type', 'principal', 'interest_rate', 'term_months']);
+            $this->validatePositive($data['principal'], 'principal');
+            $this->validatePositive($data['interest_rate'], 'interest_rate');
+            $this->validatePositive($data['term_months'], 'term_months');
+            
+            $bean = \BeanFactory::newBean('AmortizationLoans');
+            if (!isset($data['borrower_type'])) {
+                $data['borrower_type'] = null;
+            }
+            foreach ($data as $key => $value) {
+                $bean->$key = $value;
+            }
+            $bean->save();
+            return (int)$bean->id;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to insert loan in SuiteCRM: {$e->getMessage()}");
         }
-        foreach ($data as $key => $value) {
-            $bean->$key = $value;
-        }
-        $bean->save();
-        return (int)$bean->id;
     }
 
     /**
      * Insert a schedule row for a loan
+     *
+     * @param int $loan_id Loan ID
+     * @param array $schedule_row Payment schedule data
+     * @return void
+     *
+     * @throws DataValidationException If required fields missing or invalid
+     * @throws DataPersistenceException If insert fails
      */
     public function insertSchedule(int $loan_id, array $schedule_row): void
     {
-        $bean = \BeanFactory::newBean('AmortizationSchedules');
-        $bean->loan_id = $loan_id;
-        foreach ($schedule_row as $key => $value) {
-            $bean->$key = $value;
+        try {
+            $this->validatePositive($loan_id, 'loan_id');
+            $this->validateRequiredKeys($schedule_row, ['payment_date', 'payment_amount', 'principal_portion', 'interest_portion', 'remaining_balance']);
+            $this->validateDate($schedule_row['payment_date'], 'payment_date');
+            
+            $bean = \BeanFactory::newBean('AmortizationSchedules');
+            $bean->loan_id = $loan_id;
+            foreach ($schedule_row as $key => $value) {
+                $bean->$key = $value;
+            }
+            $bean->save();
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to insert schedule in SuiteCRM: {$e->getMessage()}");
         }
-        $bean->save();
     }
 
     /**
@@ -58,18 +125,35 @@ class SuiteCRMDataProvider implements DataProviderInterface
      * @param \Ksfraser\Amortizations\LoanEvent $event Event object
      *
      * @return int Event ID
+     *
+     * @throws DataValidationException If event data invalid
+     * @throws DataPersistenceException If insert fails
      */
     public function insertLoanEvent(int $loanId, \Ksfraser\Amortizations\LoanEvent $event): int
     {
-        $bean = \BeanFactory::newBean('AmortizationEvents');
-        $bean->loan_id = $loanId;
-        $bean->event_type = $event->event_type;
-        $bean->event_date = $event->event_date;
-        $bean->amount = $event->amount;
-        $bean->notes = $event->notes ?? '';
-        $bean->created_at = date('Y-m-d H:i:s');
-        $bean->save();
-        return (int)$bean->id;
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $this->validateNotEmpty($event->event_type, 'event_type');
+            $this->validateDate($event->event_date, 'event_date');
+            if ($event->amount !== null && $event->amount != 0) {
+                $this->validatePositive($event->amount, 'amount');
+            }
+            
+            $bean = \BeanFactory::newBean('AmortizationEvents');
+            $bean->loan_id = $loanId;
+            $bean->event_type = $event->event_type;
+            $bean->event_date = $event->event_date;
+            $bean->amount = $event->amount ?? 0;
+            $bean->notes = $event->notes ?? '';
+            $bean->created_at = date('Y-m-d H:i:s');
+            $bean->save();
+            return (int)$bean->id;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to insert loan event in SuiteCRM: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -78,17 +162,28 @@ class SuiteCRMDataProvider implements DataProviderInterface
      * @param int $loanId Loan ID
      *
      * @return array Array of event records
+     *
+     * @throws DataValidationException If loanId invalid
+     * @throws DataPersistenceException If query fails
      */
     public function getLoanEvents(int $loanId): array
     {
-        $bean = \BeanFactory::newBean('AmortizationEvents');
-        $where = "amortization_events.loan_id = '$loanId'";
-        $beans = $bean->get_list('event_date', $where);
-        $events = [];
-        foreach ($beans['list'] as $eventBean) {
-            $events[] = $eventBean->toArray();
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $bean = \BeanFactory::newBean('AmortizationEvents');
+            $where = "amortization_events.loan_id = '$loanId'";
+            $beans = $bean->get_list('event_date', $where);
+            $events = [];
+            foreach ($beans['list'] ?? [] as $eventBean) {
+                $events[] = $eventBean->toArray();
+            }
+            return $events;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve loan events from SuiteCRM: {$e->getMessage()}");
         }
-        return $events;
     }
 
     /**
@@ -98,14 +193,26 @@ class SuiteCRMDataProvider implements DataProviderInterface
      * @param string $date Date in YYYY-MM-DD format
      *
      * @return void
+     *
+     * @throws DataValidationException If parameters invalid
+     * @throws DataPersistenceException If delete fails
      */
     public function deleteScheduleAfterDate(int $loanId, string $date): void
     {
-        $bean = \BeanFactory::newBean('AmortizationSchedules');
-        $where = "amortization_schedules.loan_id = '$loanId' AND amortization_schedules.payment_date > '$date' AND amortization_schedules.posted_to_gl = 0";
-        $beans = $bean->get_list('payment_date', $where);
-        foreach ($beans['list'] as $scheduleBean) {
-            $scheduleBean->mark_deleted($scheduleBean->id);
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $this->validateDate($date, 'date');
+            $bean = \BeanFactory::newBean('AmortizationSchedules');
+            $where = "amortization_schedules.loan_id = '$loanId' AND amortization_schedules.payment_date > '$date' AND amortization_schedules.posted_to_gl = 0";
+            $beans = $bean->get_list('payment_date', $where);
+            foreach ($beans['list'] ?? [] as $scheduleBean) {
+                $scheduleBean->mark_deleted($scheduleBean->id);
+            }
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to delete schedule rows from SuiteCRM: {$e->getMessage()}");
         }
     }
 
@@ -116,17 +223,29 @@ class SuiteCRMDataProvider implements DataProviderInterface
      * @param string $date Date in YYYY-MM-DD format
      *
      * @return array Array of schedule rows
+     *
+     * @throws DataValidationException If parameters invalid
+     * @throws DataPersistenceException If query fails
      */
     public function getScheduleRowsAfterDate(int $loanId, string $date): array
     {
-        $bean = \BeanFactory::newBean('AmortizationSchedules');
-        $where = "amortization_schedules.loan_id = '$loanId' AND amortization_schedules.payment_date > '$date'";
-        $beans = $bean->get_list('payment_date', $where);
-        $rows = [];
-        foreach ($beans['list'] as $scheduleBean) {
-            $rows[] = $scheduleBean->toArray();
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $this->validateDate($date, 'date');
+            $bean = \BeanFactory::newBean('AmortizationSchedules');
+            $where = "amortization_schedules.loan_id = '$loanId' AND amortization_schedules.payment_date > '$date'";
+            $beans = $bean->get_list('payment_date', $where);
+            $rows = [];
+            foreach ($beans['list'] ?? [] as $scheduleBean) {
+                $rows[] = $scheduleBean->toArray();
+            }
+            return $rows;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve schedule rows from SuiteCRM: {$e->getMessage()}");
         }
-        return $rows;
     }
 
     /**
@@ -136,16 +255,31 @@ class SuiteCRMDataProvider implements DataProviderInterface
      * @param array $updates Fields to update
      *
      * @return void
+     *
+     * @throws DataValidationException If stagingId invalid or updates empty
+     * @throws DataPersistenceException If update fails
      */
     public function updateScheduleRow(int $stagingId, array $updates): void
     {
-        $bean = \BeanFactory::getBean('AmortizationSchedules', $stagingId);
-        if ($bean) {
+        try {
+            $this->validatePositive($stagingId, 'stagingId');
+            if (empty($updates)) {
+                return;
+            }
+            
+            $bean = \BeanFactory::getBean('AmortizationSchedules', $stagingId);
+            $this->validateRecordExists($bean, "Schedule row with ID {$stagingId}");
+            
             foreach ($updates as $key => $value) {
                 $bean->$key = $value;
             }
             $bean->updated_at = date('Y-m-d H:i:s');
             $bean->save();
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException || $e instanceof DataNotFoundException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to update schedule row in SuiteCRM: {$e->getMessage()}");
         }
     }
 
@@ -155,17 +289,28 @@ class SuiteCRMDataProvider implements DataProviderInterface
      * @param int $loanId Loan ID
      *
      * @return array Array of all schedule rows
+     *
+     * @throws DataValidationException If loanId invalid
+     * @throws DataPersistenceException If query fails
      */
     public function getScheduleRows(int $loanId): array
     {
-        $bean = \BeanFactory::newBean('AmortizationSchedules');
-        $where = "amortization_schedules.loan_id = '$loanId'";
-        $beans = $bean->get_list('payment_date', $where);
-        $rows = [];
-        foreach ($beans['list'] as $scheduleBean) {
-            $rows[] = $scheduleBean->toArray();
+        try {
+            $this->validatePositive($loanId, 'loanId');
+            $bean = \BeanFactory::newBean('AmortizationSchedules');
+            $where = "amortization_schedules.loan_id = '$loanId'";
+            $beans = $bean->get_list('payment_date', $where);
+            $rows = [];
+            foreach ($beans['list'] ?? [] as $scheduleBean) {
+                $rows[] = $scheduleBean->toArray();
+            }
+            return $rows;
+        } catch (\Exception $e) {
+            if ($e instanceof DataValidationException) {
+                throw $e;
+            }
+            throw new DataPersistenceException("Failed to retrieve schedule rows from SuiteCRM: {$e->getMessage()}");
         }
-        return $rows;
     }
 
     /**
