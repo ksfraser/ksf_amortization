@@ -1,0 +1,19 @@
+{
+    "// This is a PHP project - disable Python extension for this workspace": "",
+    "[python]": {
+        "editor.formatOnSave": false
+    },
+    "python.autoComplete.disabled": true,
+    "python.linting.enabled": false,
+    "python.languageServer": "None",
+    
+    "// PHP project settings": "",
+    "[php]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "bmewburn.vscode-intelephp-client"
+    },
+    "php.executablePath": "php",
+    
+    "// Test settings": "",
+    "testing.automaticallyOpenPeekView": "failInRun"
+}
