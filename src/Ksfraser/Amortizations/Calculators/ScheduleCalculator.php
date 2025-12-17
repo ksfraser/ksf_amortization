@@ -12,11 +12,17 @@ namespace Ksfraser\Amortizations\Calculators;
  * - Support different interest calculation frequencies
  * - Calculate interest, principal, and remaining balance for each payment
  * - Pure functions: no persistence, no external state changes
+ * - Delegates periodic interest calculation to PeriodicInterestCalculator (SRP)
+ *
+ * ### Dependencies
+ * - PaymentCalculator: Calculate fixed payment amounts
+ * - PeriodicInterestCalculator: Calculate periodic interest on balance
  *
  * ### Usage Example
  * ```php
  * $paymentCalc = new PaymentCalculator();
- * $scheduleCalc = new ScheduleCalculator($paymentCalc);
+ * $interestCalc = new PeriodicInterestCalculator();
+ * $scheduleCalc = new ScheduleCalculator($paymentCalc, $interestCalc);
  *
  * $schedule = $scheduleCalc->generateSchedule(
  *     principal: 100000,
@@ -44,14 +50,15 @@ namespace Ksfraser\Amortizations\Calculators;
  * ```
  *
  * ### Design Principles
- * - Single Responsibility: Only calculation, no persistence
- * - Dependency Injection: PaymentCalculator injected
+ * - Single Responsibility: Only schedule calculation, no persistence
+ * - Dependency Injection: All dependencies injected
  * - Immutability: No internal state changes
  * - Pure Functions: Same input always = same output
+ * - SRP Delegation: Uses specialized calculators for specific tasks
  *
  * @package   Ksfraser\Amortizations\Calculators
  * @author    KSF Development Team
- * @version   1.0.0
+ * @version   1.1.0 (Refactored to delegate interest to PeriodicInterestCalculator)
  * @since     2025-12-17
  */
 class ScheduleCalculator
@@ -62,6 +69,11 @@ class ScheduleCalculator
     private $paymentCalculator;
 
     /**
+     * @var PeriodicInterestCalculator Interest calculator for periodic interest calculations
+     */
+    private $periodicInterestCalculator;
+
+    /**
      * @var int Decimal precision for calculations
      */
     private $precision = 4;
@@ -70,15 +82,20 @@ class ScheduleCalculator
      * Constructor with dependency injection
      *
      * @param PaymentCalculator $paymentCalculator Calculator for payment amounts
+     * @param PeriodicInterestCalculator $periodicInterestCalculator Calculator for periodic interest (optional)
      *
-     * @throws InvalidArgumentException If calculator is null
+     * @throws InvalidArgumentException If paymentCalculator is null
      */
-    public function __construct(PaymentCalculator $paymentCalculator)
+    public function __construct(
+        PaymentCalculator $paymentCalculator,
+        PeriodicInterestCalculator $periodicInterestCalculator = null
+    )
     {
         if (!$paymentCalculator) {
             throw new InvalidArgumentException('PaymentCalculator required');
         }
         $this->paymentCalculator = $paymentCalculator;
+        $this->periodicInterestCalculator = $periodicInterestCalculator ?? new PeriodicInterestCalculator();
     }
 
     /**
@@ -164,9 +181,13 @@ class ScheduleCalculator
 
         // Generate each payment row
         for ($paymentNum = 1; $paymentNum <= $numberOfPayments; $paymentNum++) {
-            // Calculate interest for this period
+            // Calculate interest for this period using PeriodicInterestCalculator
             // Interest = Balance * (annual rate / 100) / (periods per year)
-            $interestAmount = $balance * ($annualRate / 100) / $periodsPerYear;
+            $interestAmount = $this->periodicInterestCalculator->calculate(
+                $balance,
+                $annualRate,
+                $interestCalcFrequency
+            );
 
             // Calculate principal portion
             $principalAmount = $paymentAmount - $interestAmount;
