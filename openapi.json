@@ -1,0 +1,1017 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "KSF Amortization API",
+    "description": "Comprehensive REST API for loan amortization management with event handling, analysis, and forecasting capabilities",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@ksf-amortization.local"
+    },
+    "license": {
+      "name": "Apache 2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.ksf-amortization.local",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/api/v1/loans": {
+      "get": {
+        "tags": ["Loans"],
+        "summary": "List all loans",
+        "description": "Retrieve a paginated list of all loans in the system",
+        "operationId": "listLoans",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of records to skip",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved loans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "status_code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Loan"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "status_code": 200,
+                  "data": [
+                    {
+                      "id": 1,
+                      "principal": 30000,
+                      "annual_rate": 0.045,
+                      "months": 60,
+                      "current_balance": 25000,
+                      "status": "active"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Loans"],
+        "summary": "Create a new loan",
+        "description": "Create a new loan with specified terms",
+        "operationId": "createLoan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanRequest"
+              },
+              "example": {
+                "principal": 30000,
+                "annual_rate": 0.045,
+                "months": 60
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Loan created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "status_code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Loan"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid loan data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/loans/{id}": {
+      "get": {
+        "tags": ["Loans"],
+        "summary": "Get loan by ID",
+        "description": "Retrieve a specific loan by its ID",
+        "operationId": "getLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Loan ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "status_code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Loan"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Loans"],
+        "summary": "Update loan",
+        "description": "Update an existing loan",
+        "operationId": "updateLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Loan ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Loan updated successfully"
+          },
+          "404": {
+            "description": "Loan not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Loans"],
+        "summary": "Delete loan",
+        "description": "Delete a loan and all associated records",
+        "operationId": "deleteLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Loan ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan deleted successfully"
+          },
+          "404": {
+            "description": "Loan not found"
+          }
+        }
+      }
+    },
+    "/api/v1/loans/{id}/schedule": {
+      "get": {
+        "tags": ["Schedule"],
+        "summary": "Get amortization schedule",
+        "description": "Retrieve the complete amortization schedule for a loan",
+        "operationId": "getSchedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Loan ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedule retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "status_code": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ScheduleEntry"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/loans/{id}/schedule/generate": {
+      "post": {
+        "tags": ["Schedule"],
+        "summary": "Generate amortization schedule",
+        "description": "Generate a new amortization schedule for a loan",
+        "operationId": "generateSchedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Loan ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Schedule generated successfully"
+          }
+        }
+      }
+    },
+    "/api/v1/loans/{id}/schedule/after/{date}": {
+      "delete": {
+        "tags": ["Schedule"],
+        "summary": "Delete schedule entries after date",
+        "description": "Delete all schedule entries after a specific date",
+        "operationId": "deleteScheduleAfterDate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Loan ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "description": "Date in YYYY-MM-DD format",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedule entries deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "List all events",
+        "description": "Retrieve a list of all events in the system",
+        "operationId": "listEvents",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/record": {
+      "post": {
+        "tags": ["Events"],
+        "summary": "Record a new event",
+        "description": "Record a new event on a loan (extra payment, skip payment, rate change, etc.)",
+        "operationId": "recordEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordEventRequest"
+              },
+              "examples": {
+                "extraPayment": {
+                  "summary": "Extra Payment",
+                  "value": {
+                    "loan_id": 1,
+                    "event_type": "extra_payment",
+                    "amount": 500,
+                    "date": "2025-02-01"
+                  }
+                },
+                "skipPayment": {
+                  "summary": "Skip Payment",
+                  "value": {
+                    "loan_id": 1,
+                    "event_type": "skip_payment",
+                    "date": "2025-02-01"
+                  }
+                },
+                "rateChange": {
+                  "summary": "Rate Change",
+                  "value": {
+                    "loan_id": 1,
+                    "event_type": "rate_change",
+                    "new_rate": 0.035,
+                    "date": "2025-02-01"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Event"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event data"
+          }
+        }
+      }
+    },
+    "/api/v1/events/{id}": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get event by ID",
+        "operationId": "getEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Events"],
+        "summary": "Delete event",
+        "operationId": "deleteEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/compare": {
+      "get": {
+        "tags": ["Analysis"],
+        "summary": "Compare multiple loans",
+        "description": "Compare multiple loans side-by-side with detailed metrics",
+        "operationId": "compareLoans",
+        "parameters": [
+          {
+            "name": "loan_ids",
+            "in": "query",
+            "description": "Comma-separated list of loan IDs",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1,2,3"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan comparison retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoanComparison"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/forecast": {
+      "post": {
+        "tags": ["Analysis"],
+        "summary": "Forecast early payoff",
+        "description": "Model the impact of extra payments on loan payoff timeline",
+        "operationId": "forecastEarlyPayoff",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForecastRequest"
+              },
+              "example": {
+                "loan_id": 1,
+                "extra_payment_amount": 500,
+                "frequency": "monthly"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Forecast generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PayoffForecast"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid forecast parameters"
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/recommendations": {
+      "get": {
+        "tags": ["Analysis"],
+        "summary": "Get debt recommendations",
+        "description": "Get debt management recommendations based on loan analysis",
+        "operationId": "getRecommendations",
+        "parameters": [
+          {
+            "name": "loan_ids",
+            "in": "query",
+            "description": "Comma-separated list of loan IDs",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recommendations retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Recommendations"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/timeline": {
+      "get": {
+        "tags": ["Analysis"],
+        "summary": "Get payoff timeline",
+        "description": "Get visual timeline of debt payoff with milestone dates",
+        "operationId": "getPayoffTimeline",
+        "parameters": [
+          {
+            "name": "loan_ids",
+            "in": "query",
+            "description": "Comma-separated list of loan IDs",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeline retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PayoffTimeline"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Loan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique loan identifier"
+          },
+          "principal": {
+            "type": "number",
+            "format": "float",
+            "description": "Original loan principal amount"
+          },
+          "annual_rate": {
+            "type": "number",
+            "format": "float",
+            "description": "Annual interest rate (as decimal, e.g., 0.045 for 4.5%)"
+          },
+          "months": {
+            "type": "integer",
+            "description": "Loan term in months"
+          },
+          "current_balance": {
+            "type": "number",
+            "format": "float",
+            "description": "Remaining loan balance"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "paid_off", "delinquent"],
+            "description": "Current loan status"
+          }
+        }
+      },
+      "CreateLoanRequest": {
+        "type": "object",
+        "required": ["principal", "annual_rate", "months"],
+        "properties": {
+          "principal": {
+            "type": "number",
+            "format": "float",
+            "description": "Loan principal amount"
+          },
+          "annual_rate": {
+            "type": "number",
+            "format": "float",
+            "description": "Annual interest rate (as decimal)"
+          },
+          "months": {
+            "type": "integer",
+            "description": "Loan term in months"
+          }
+        }
+      },
+      "UpdateLoanRequest": {
+        "type": "object",
+        "properties": {
+          "principal": {
+            "type": "number",
+            "format": "float"
+          },
+          "annual_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "months": {
+            "type": "integer"
+          }
+        }
+      },
+      "ScheduleEntry": {
+        "type": "object",
+        "properties": {
+          "payment_number": {
+            "type": "integer"
+          },
+          "payment_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "payment_amount": {
+            "type": "number",
+            "format": "float"
+          },
+          "principal": {
+            "type": "number",
+            "format": "float"
+          },
+          "interest": {
+            "type": "number",
+            "format": "float"
+          },
+          "balance": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "loan_id": {
+            "type": "integer"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": ["extra_payment", "skip_payment", "rate_change", "loan_modification", "payment_applied", "accrual"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "float"
+          },
+          "event_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "RecordEventRequest": {
+        "type": "object",
+        "required": ["loan_id", "event_type"],
+        "properties": {
+          "loan_id": {
+            "type": "integer"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": ["extra_payment", "skip_payment", "rate_change", "loan_modification", "payment_applied", "accrual"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "float"
+          },
+          "new_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "LoanComparison": {
+        "type": "object",
+        "properties": {
+          "loans": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "principal": {
+                  "type": "number"
+                },
+                "rate": {
+                  "type": "number"
+                },
+                "months": {
+                  "type": "integer"
+                },
+                "monthly_payment": {
+                  "type": "number"
+                },
+                "total_interest": {
+                  "type": "number"
+                },
+                "total_cost": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "cheapest_by_interest": {
+                "type": "integer"
+              },
+              "shortest_term": {
+                "type": "integer"
+              },
+              "lowest_payment": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "PayoffForecast": {
+        "type": "object",
+        "properties": {
+          "original_payoff": {
+            "type": "object",
+            "properties": {
+              "months": {
+                "type": "integer"
+              },
+              "total_interest": {
+                "type": "number"
+              }
+            }
+          },
+          "with_extra_payments": {
+            "type": "object",
+            "properties": {
+              "months": {
+                "type": "integer"
+              },
+              "total_interest": {
+                "type": "number"
+              }
+            }
+          },
+          "savings": {
+            "type": "object",
+            "properties": {
+              "months_saved": {
+                "type": "integer"
+              },
+              "interest_saved": {
+                "type": "number"
+              },
+              "percentage_saved": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "Recommendations": {
+        "type": "object",
+        "properties": {
+          "total_debt": {
+            "type": "number"
+          },
+          "highest_rate_loan": {
+            "type": "integer"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "estimated_savings": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PayoffTimeline": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "total_debt": {
+            "type": "number"
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "percentage": {
+                  "type": "integer"
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ForecastRequest": {
+        "type": "object",
+        "required": ["loan_id", "extra_payment_amount", "frequency"],
+        "properties": {
+          "loan_id": {
+            "type": "integer"
+          },
+          "extra_payment_amount": {
+            "type": "number",
+            "format": "float"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": ["monthly", "quarterly", "annual"]
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "status_code": {
+            "type": "integer"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
