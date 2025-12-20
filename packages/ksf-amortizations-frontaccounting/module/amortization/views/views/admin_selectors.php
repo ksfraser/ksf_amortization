@@ -19,26 +19,27 @@ use Ksfraser\HTML\Elements\HtmlHidden;
 use Ksfraser\HTML\Elements\HtmlSubmit;
 use Ksfraser\HTML\Elements\HtmlScript;
 use Ksfraser\HTML\Elements\SelectEditJSHandler;
+use Ksfraser\Amortizations\Repository\SelectorRepository;
 
 // Get table prefix from FrontAccounting constant
 $dbPrefix = defined('TB_PREF') ? TB_PREF : '0_';
 
+// Initialize repository for data access
+$selectorRepo = new SelectorRepository($db, 'ksf_selectors', $dbPrefix);
+
 // Handle add/edit/delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add'])) {
-        $stmt = $db->prepare("INSERT INTO " . $dbPrefix . "ksf_selectors (selector_name, option_name, option_value) VALUES (?, ?, ?)");
-        $stmt->execute([$_POST['selector_name'], $_POST['option_name'], $_POST['option_value']]);
+        $selectorRepo->add($_POST['selector_name'], $_POST['option_name'], $_POST['option_value']);
     } elseif (isset($_POST['edit'])) {
-        $stmt = $db->prepare("UPDATE " . $dbPrefix . "ksf_selectors SET selector_name=?, option_name=?, option_value=? WHERE id=?");
-        $stmt->execute([$_POST['selector_name'], $_POST['option_name'], $_POST['option_value'], $_POST['id']]);
+        $selectorRepo->update($_POST['id'], $_POST['selector_name'], $_POST['option_name'], $_POST['option_value']);
     } elseif (isset($_POST['delete'])) {
-        $stmt = $db->prepare("DELETE FROM " . $dbPrefix . "ksf_selectors WHERE id=?");
-        $stmt->execute([$_POST['id']]);
+        $selectorRepo->delete($_POST['id']);
     }
 }
 
 // Fetch all selector options
-$options = $db->query("SELECT * FROM " . $dbPrefix . "ksf_selectors ORDER BY selector_name, option_name")->fetchAll(PDO::FETCH_ASSOC);
+$options = $selectorRepo->getAll();
 
 // Build heading
 (new Heading(2))->setText('Selector Options Admin')->toHtml();
