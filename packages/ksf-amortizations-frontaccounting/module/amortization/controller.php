@@ -3,7 +3,7 @@
 /**
  * FrontAccounting Amortization Module Controller
  * 
- * Routes requests to appropriate views/actions:
+ * Routes requests to appropriate views/actions using Ksfraser\HTML builder:
  * - Default: List loans
  * - ?action=admin: Admin settings
  * - ?action=create: Create new loan
@@ -11,6 +11,11 @@
  * 
  * @package AmortizationModule
  */
+
+use Ksfraser\HTML\Elements\Div;
+use Ksfraser\HTML\Elements\Heading;
+use Ksfraser\HTML\Elements\Link;
+use Ksfraser\HTML\Elements\Paragraph;
 
 global $path_to_root, $db;
 
@@ -48,8 +53,8 @@ switch ($action) {
         if (file_exists(__DIR__ . '/reporting.php')) {
             include __DIR__ . '/reporting.php';
         } else {
-            echo '<h3>Amortization Reports</h3>';
-            echo '<p>Reports feature coming soon...</p>';
+            echo (new Heading(3))->setText('Amortization Reports');
+            echo (new Paragraph())->setText('Reports feature coming soon...');
             // TODO: Implement reporting interface
         }
         break;
@@ -57,15 +62,43 @@ switch ($action) {
     case 'default':
     default:
         // List loans and provide navigation
-        echo '<h2>Amortization Loans</h2>';
-        echo '<div style="margin-bottom: 20px;">';
-        echo '<a href="' . $path_to_root . '/modules/amortization/modules/amortization/controller.php?action=create" class="button">Add New Loan</a> ';
-        echo '<a href="' . $path_to_root . '/modules/amortization/modules/amortization/controller.php?action=admin" class="button">Admin Settings</a> ';
-        echo '<a href="' . $path_to_root . '/modules/amortization/modules/amortization/controller.php?action=admin_selectors" class="button">Manage Selectors</a> ';
-        echo '<a href="' . $path_to_root . '/modules/amortization/modules/amortization/controller.php?action=report" class="button">Reports</a>';
-        echo '</div>';
+        echo (new Heading(2))->setText('Amortization Loans');
+        
+        $nav = (new Div())
+            ->addAttribute('class', 'module-nav')
+            ->addAttribute('style', 'margin-bottom: 20px;');
+        
+        $nav->appendChild(
+            (new Link())
+                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=create')
+                ->setText('Add New Loan')
+                ->addAttribute('class', 'button')
+        );
+        
+        $nav->appendChild(
+            (new Link())
+                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=admin')
+                ->setText('Admin Settings')
+                ->addAttribute('class', 'button')
+        );
+        
+        $nav->appendChild(
+            (new Link())
+                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=admin_selectors')
+                ->setText('Manage Selectors')
+                ->addAttribute('class', 'button')
+        );
+        
+        $nav->appendChild(
+            (new Link())
+                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=report')
+                ->setText('Reports')
+                ->addAttribute('class', 'button')
+        );
+        
+        echo $nav;
         
         // TODO: Implement loan list view
-        echo '<p>Loan list view coming soon...</p>';
+        echo (new Paragraph())->setText('Loan list view coming soon...');
         break;
 }
