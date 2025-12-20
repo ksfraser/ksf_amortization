@@ -5,6 +5,7 @@
 use Ksfraser\HTML\Elements\Label;
 use Ksfraser\HTML\Elements\Select;
 use Ksfraser\HTML\Elements\Option;
+use Ksfraser\HTML\Elements\AjaxSelectPopulator;
 
 // Build type selector
 $typeLabel = (new Label())->setFor('borrower_type')->setText('Borrower Type:');
@@ -29,23 +30,12 @@ echo "\n";
 $borrowerSelect->toHtml();
 echo "\n";
 
-// Output JavaScript
-echo "<script>\n";
-echo "function faFetchBorrowers() {\n";
-echo "  var type = document.getElementById('borrower_type').value;\n";
-echo "  if (!type) return;\n";
-echo "  var xhr = new XMLHttpRequest();\n";
-echo "  xhr.open('GET', 'borrower_ajax.php?type=' + encodeURIComponent(type));\n";
-echo "  xhr.onload = function() {\n";
-echo "    if (xhr.status === 200) {\n";
-echo "      var data = JSON.parse(xhr.responseText);\n";
-echo "      var select = document.getElementById('borrower_id');\n";
-echo "      select.innerHTML = '<option value=\"\">Select Borrower</option>';\n";
-echo "      data.forEach(function(b) {\n";
-echo "        select.innerHTML += '<option value=\"' + b.id + '\">' + b.name + '</option>';\n";
-echo "      });\n";
-echo "    }\n";
-echo "  };\n";
-echo "  xhr.send();\n";
-echo "}\n";
-echo "</script>\n";
+// Output JavaScript using specialized populator class
+$populator = (new AjaxSelectPopulator())
+    ->setFunctionName('faFetchBorrowers')
+    ->setSourceFieldId('borrower_type')
+    ->setTargetFieldId('borrower_id')
+    ->setEndpoint('borrower_ajax.php')
+    ->setQueryParam('type')
+    ->setPlaceholder('Select Borrower');
+$populator->toHtml();
