@@ -1,0 +1,51 @@
+---
+# ansible/roles/frontaccounting/tasks/main.yml
+# Main tasks for FrontAccounting container deployment
+
+- name: Update system packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: packages
+
+- name: Install Docker and Docker Compose
+  include_tasks: docker.yml
+  tags: docker
+
+- name: Create FrontAccounting directory structure
+  include_tasks: directory-setup.yml
+  tags: setup
+
+- name: Generate Docker Compose configuration
+  include_tasks: docker-compose.yml
+  tags: docker-compose
+
+- name: Generate environment file
+  include_tasks: environment.yml
+  tags: environment
+
+- name: Start containers
+  include_tasks: containers.yml
+  tags: containers
+
+- name: Configure FrontAccounting
+  include_tasks: frontaccounting-config.yml
+  tags: config
+
+- name: Set up backups
+  include_tasks: backups.yml
+  tags: backups
+
+- name: Display deployment summary
+  debug:
+    msg: |
+      ✓ FrontAccounting Container Deployment Complete!
+      
+      Access your installation:
+        URL: http://{{ ansible_host }}:8080
+        
+      Manage containers:
+        - docker-compose -f {{ fa_path }}/docker-compose.yml ps
+        - docker-compose -f {{ fa_path }}/docker-compose.yml logs -f
+        
+      Default credentials in: {{ fa_path }}/.env

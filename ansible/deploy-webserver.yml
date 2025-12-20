@@ -1,0 +1,73 @@
+---
+# ansible/deploy-webserver.yml
+# Deploy KSF Amortizations to standalone webserver
+#
+# ### Deployment Steps
+# 1. System packages (nginx, PHP, MySQL client)
+# 2. PHP configuration and extensions
+# 3. Clone application repository
+# 4. Install PHP dependencies (Composer)
+# 5. Configure nginx vhost
+# 6. Set permissions and ownership
+# 7. Start services (nginx, PHP-FPM)
+#
+# ### Requirements
+# - Ubuntu/Debian-based system
+# - SSH access as root or sudoer
+# - Internet access for package downloads
+#
+# ### Usage
+# Interactive:
+#   ansible-playbook -i inventory.yml deploy-webserver.yml --ask-become-pass
+#
+# Specific host:
+#   ansible-playbook -i inventory.yml deploy-webserver.yml -l web01
+#
+# Check mode (dry run):
+#   ansible-playbook -i inventory.yml deploy-webserver.yml --check
+#
+# ### Verification
+# After deployment:
+#   curl https://your_server_ip/
+#   curl https://your_server_ip/api/health
+
+- name: Deploy KSF Amortizations to Webserver
+  hosts: webservers
+  become: true
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: Display deployment info
+      debug:
+        msg: |
+          Deploying KSF Amortizations {{ app_version }}
+          Target: {{ inventory_hostname }}
+          PHP Version: {{ php_version }}
+          App Root: {{ app_root }}
+    
+    - name: Validate Ubuntu/Debian system
+      assert:
+        that:
+          - ansible_os_family == 'Debian'
+        fail_msg: "This playbook requires Ubuntu/Debian. Detected: {{ ansible_os_family }}"
+  
+  roles:
+    - webserver
+  
+  post_tasks:
+    - name: Display deployment summary
+      debug:
+        msg: |
+          ✓ Deployment Complete!
+          
+          Access your application:
+            - HTTP:  http://{{ ansible_host }}/
+            - HTTPS: https://{{ ansible_host }}/
+          
+          Check status:
+            - nginx:   sudo systemctl status nginx
+            - php-fpm: sudo systemctl status php{{ php_version }}-fpm
+          
+          View logs:
+            - nginx:   tail -f /var/log/nginx/access.log
+            - app:     tail -f {{ app_root }}/storage/logs/app.log

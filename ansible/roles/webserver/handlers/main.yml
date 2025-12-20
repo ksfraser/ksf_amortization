@@ -1,0 +1,43 @@
+---
+# ansible/roles/webserver/handlers/main.yml
+# Event handlers for webserver role
+
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+    daemon_reload: yes
+  tags: nginx
+
+- name: reload nginx
+  systemd:
+    name: nginx
+    state: reloaded
+    daemon_reload: yes
+  tags: nginx
+
+- name: restart php-fpm
+  systemd:
+    name: "php{{ php_version }}-fpm"
+    state: restarted
+    daemon_reload: yes
+  tags: php
+
+- name: reload php-fpm
+  systemd:
+    name: "php{{ php_version }}-fpm"
+    state: reloaded
+    daemon_reload: yes
+  tags: php
+
+- name: restart mysql
+  systemd:
+    name: mysql
+    state: restarted
+    daemon_reload: yes
+  tags: mysql
+
+- name: validate nginx
+  command: nginx -t
+  changed_when: false
+  tags: nginx

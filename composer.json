@@ -23,6 +23,7 @@
         }
     ],
     "require": {
+        "php": ">=7.3",
         "brick/math": "^0.11",
         "ksfraser/amortizations-core": "^1.0",
         "ksfraser/amortizations-frontaccounting": "^1.0",
@@ -44,6 +45,9 @@
     },
     "scripts": {
         "test": "phpunit --bootstrap vendor/autoload.php tests/",
+        "test-php73": "phpunit --bootstrap vendor/autoload.php --configuration phpunit-php73.xml tests/",
+        "test-php74+": "phpunit --bootstrap vendor/autoload.php --configuration phpunit.xml tests/",
+        "test-version": "php -v && composer test",
         "test-core": "cd packages/ksf-amortizations-core && composer test",
         "test-fa": "cd packages/ksf-amortizations-frontaccounting && composer test",
         "test-wp": "cd packages/ksf-amortizations-wordpress && composer test",

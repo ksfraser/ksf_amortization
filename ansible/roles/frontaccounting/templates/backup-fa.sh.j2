@@ -1,0 +1,59 @@
+#!/bin/bash
+# {{ ansible_managed }}
+# FrontAccounting automated backup script
+# Backs up database and uploaded files
+# Scheduled: Daily at 2:00 AM
+
+set -e
+
+# Configuration
+BACKUP_DIR="{{ fa_path }}/backups"
+DATA_DIR="{{ fa_path }}/data"
+CONTAINER_NAME="fa-db"
+DB_NAME="${FA_DB_NAME:-frontaccounting}"
+RETENTION_DAYS=30
+LOG_FILE="{{ fa_path }}/logs/backup.log"
+
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
+
+# Backup timestamp
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="$BACKUP_DIR/fa_backup_${TIMESTAMP}.sql.gz"
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting FrontAccounting backup..." >> "$LOG_FILE"
+
+# Backup database
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backing up database..." >> "$LOG_FILE"
+docker-compose -f {{ fa_path }}/docker-compose.yml exec -T db mysqldump \
+  -u root -p${FA_DB_ROOT_PASSWORD} \
+  --single-transaction \
+  --quick \
+  --lock-tables=false \
+  $DB_NAME | gzip > "$BACKUP_FILE"
+
+if [ -f "$BACKUP_FILE" ]; then
+  SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] Database backup successful: $BACKUP_FILE ($SIZE)" >> "$LOG_FILE"
+else
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: Database backup failed!" >> "$LOG_FILE"
+  exit 1
+fi
+
+# Backup uploaded files
+UPLOADS_BACKUP="$BACKUP_DIR/fa_uploads_${TIMESTAMP}.tar.gz"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backing up uploaded files..." >> "$LOG_FILE"
+
+if [ -d "$DATA_DIR/frontaccounting/uploads" ]; then
+  tar -czf "$UPLOADS_BACKUP" -C "$DATA_DIR" frontaccounting/uploads
+  UPLOADS_SIZE=$(du -h "$UPLOADS_BACKUP" | cut -f1)
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] File backup successful: $UPLOADS_BACKUP ($UPLOADS_SIZE)" >> "$LOG_FILE"
+fi
+
+# Clean up old backups (keep last 30 days)
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Cleaning up old backups..." >> "$LOG_FILE"
+find "$BACKUP_DIR" -type f -name "fa_*.sql.gz" -mtime +$RETENTION_DAYS -delete
+find "$BACKUP_DIR" -type f -name "fa_uploads_*.tar.gz" -mtime +$RETENTION_DAYS -delete
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup completed successfully!" >> "$LOG_FILE"
+echo "" >> "$LOG_FILE"

@@ -1,0 +1,46 @@
+---
+# ansible/roles/webserver/tasks/nginx.yml
+# Configure nginx as reverse proxy and web server
+
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+  tags: nginx
+
+- name: Create nginx configuration for KSF Amortizations
+  template:
+    src: nginx-vhost.j2
+    dest: "/etc/nginx/sites-available/ksf-amortizations"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginx
+  tags: nginx
+
+- name: Enable nginx vhost
+  file:
+    src: "/etc/nginx/sites-available/ksf-amortizations"
+    dest: "/etc/nginx/sites-enabled/ksf-amortizations"
+    state: link
+  notify: restart nginx
+  tags: nginx
+
+- name: Disable default nginx site
+  file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+  notify: restart nginx
+  tags: nginx
+
+- name: Test nginx configuration
+  command: nginx -t
+  changed_when: false
+  tags: nginx
+
+- name: Enable nginx service
+  systemd:
+    name: nginx
+    enabled: yes
+    daemon_reload: yes
+  tags: nginx

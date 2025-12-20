@@ -1,0 +1,53 @@
+---
+# ansible/inventory.yml
+# Inventory configuration for KSF Amortization deployment
+#
+# Usage:
+#   ansible-inventory -i inventory.yml --list
+#   ansible-playbook -i inventory.yml deploy-webserver.yml
+#
+# Customize 'your_server_ip' and credentials for your environment
+
+all:
+  vars:
+    # Global variables
+    ansible_user: root
+    ansible_port: 22
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    
+    # Application variables
+    app_name: ksf-amortizations
+    app_version: "1.0.0"
+    app_repo: "https://github.com/ksfraser/amortizations.git"
+    app_branch: "main"
+    app_root: "/var/www/ksf-amortizations"
+    
+    # PHP configuration
+    php_version: "7.4"
+    php_extensions:
+      - php-cli
+      - php-fpm
+      - php-mysql
+      - php-curl
+      - php-json
+      - php-mbstring
+      - php-xml
+      - php-zip
+    
+    # Composer
+    composer_home: "/root/.composer"
+
+  children:
+    webservers:
+      hosts:
+        web01:
+          ansible_host: your_server_ip
+          server_role: "web"
+          
+    frontaccounting:
+      hosts:
+        fa01:
+          ansible_host: your_fa_server_ip
+          server_role: "fa"
+          fa_version: "2.4.x"
+          fa_path: "/var/www/frontaccounting"

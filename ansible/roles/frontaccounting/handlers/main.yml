@@ -1,0 +1,23 @@
+---
+# ansible/roles/frontaccounting/handlers/main.yml
+# Event handlers for FrontAccounting container role
+
+- name: restart docker containers
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml restart"
+  tags: docker
+
+- name: rebuild docker images
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml up --build -d"
+  tags: docker
+
+- name: restart nginx container
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml restart nginx"
+  tags: nginx
+
+- name: restart app container
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml restart app"
+  tags: app
+
+- name: restart db container
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml restart db"
+  tags: db

@@ -1,0 +1,37 @@
+---
+# ansible/roles/webserver/tasks/services.yml
+# Start and enable all services
+
+- name: Start nginx service
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+  tags: services
+
+- name: Start PHP-FPM service
+  systemd:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: yes
+  tags: services
+
+- name: Verify nginx is running
+  shell: "systemctl is-active --quiet nginx && echo 'nginx is running'"
+  register: nginx_status
+  changed_when: false
+  tags: services
+
+- name: Verify PHP-FPM is running
+  shell: "systemctl is-active --quiet php{{ php_version }}-fpm && echo 'php-fpm is running'"
+  register: php_status
+  changed_when: false
+  tags: services
+
+- name: Display service status
+  debug:
+    msg: |
+      Services Status:
+      {{ nginx_status.stdout_lines }}
+      {{ php_status.stdout_lines }}
+  tags: services

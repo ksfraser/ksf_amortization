@@ -1,0 +1,29 @@
+---
+# ansible/roles/frontaccounting/tasks/containers.yml
+# Start and manage Docker containers
+
+- name: Pull Docker images
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml pull"
+  changed_when: true
+  tags: containers
+
+- name: Start Docker containers
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml up -d"
+  changed_when: true
+  tags: containers
+
+- name: Wait for containers to be healthy
+  pause:
+    seconds: 30
+  tags: containers
+
+- name: Verify containers are running
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml ps"
+  changed_when: false
+  register: docker_ps
+  tags: containers
+
+- name: Display container status
+  debug:
+    var: docker_ps.stdout_lines
+  tags: containers

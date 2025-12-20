@@ -1,0 +1,69 @@
+---
+# ansible/roles/webserver/tasks/application.yml
+# Clone and configure the KSF Amortizations application
+
+- name: Create application root directory
+  file:
+    path: "{{ app_root }}"
+    state: directory
+    mode: '0755'
+
+- name: Check if app is already cloned
+  stat:
+    path: "{{ app_root }}/.git"
+  register: app_git_stat
+
+- name: Clone application from repository
+  git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_root }}"
+    version: "{{ app_branch }}"
+    update: yes
+  when: not app_git_stat.stat.exists
+  tags: git
+
+- name: Update application (if already cloned)
+  shell: "cd {{ app_root }} && git pull origin {{ app_branch }}"
+  when: app_git_stat.stat.exists
+  changed_when: false
+  tags: git
+
+- name: Create required directories
+  file:
+    path: "{{ app_root }}/{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: www-data
+    group: www-data
+  loop:
+    - storage
+    - storage/logs
+    - storage/cache
+    - storage/uploads
+    - bootstrap/cache
+    - tmp
+
+- name: Install PHP dependencies with Composer
+  shell: "cd {{ app_root }} && composer install --no-dev --optimize-autoloader"
+  environment:
+    COMPOSER_HOME: "{{ composer_home }}"
+  tags: composer
+
+- name: Create .env file from example
+  shell: "cp -n {{ app_root }}/.env.example {{ app_root }}/.env || true"
+  tags: config
+
+- name: Generate application key (if applicable)
+  shell: "cd {{ app_root }} && php artisan key:generate || true"
+  environment:
+    APP_ENV: production
+  tags: config
+
+- name: Copy application configuration
+  template:
+    src: .env.j2
+    dest: "{{ app_root }}/.env"
+    owner: www-data
+    group: www-data
+    mode: '0600'
+  tags: config

@@ -1,0 +1,61 @@
+---
+# ansible/roles/webserver/tasks/php-fpm.yml
+# Configure PHP-FPM
+
+- name: Install PHP-FPM
+  apt:
+    name: "php{{ php_version }}-fpm"
+    state: present
+  tags: php
+
+- name: Get PHP-FPM version
+  command: "php-fpm{{ php_version }} -v"
+  register: php_fpm_version
+  changed_when: false
+  tags: php
+
+- name: Display PHP-FPM version
+  debug:
+    var: php_fpm_version.stdout
+  tags: php
+
+- name: Configure PHP-FPM pool
+  template:
+    src: php-fpm-pool.j2
+    dest: "/etc/php/{{ php_version }}/fpm/pool.d/ksf-amortizations.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart php-fpm
+  tags: php
+
+- name: Configure PHP main settings
+  lineinfile:
+    path: "/etc/php/{{ php_version }}/fpm/php.ini"
+    regexp: "^{{ item.setting }} ="
+    line: "{{ item.setting }} = {{ item.value }}"
+    state: present
+  loop:
+    - setting: "upload_max_filesize"
+      value: "32M"
+    - setting: "post_max_size"
+      value: "32M"
+    - setting: "memory_limit"
+      value: "256M"
+    - setting: "max_execution_time"
+      value: "300"
+    - setting: "display_errors"
+      value: "Off"
+    - setting: "log_errors"
+      value: "On"
+    - setting: "error_log"
+      value: "/var/log/php-fpm.log"
+  notify: restart php-fpm
+  tags: php
+
+- name: Enable PHP-FPM service
+  systemd:
+    name: "php{{ php_version }}-fpm"
+    enabled: yes
+    daemon_reload: yes
+  tags: php

@@ -1,0 +1,98 @@
+---
+# ansible/deploy-frontaccounting-container.yml
+# Deploy FrontAccounting with KSF Amortizations in Docker container
+#
+# ### Container Architecture
+# Creates a Docker container with:
+# - FrontAccounting ERP system
+# - KSF Amortizations plugin/module
+# - MySQL database
+# - nginx reverse proxy
+# - PHP-FPM application server
+#
+# ### Features
+# - Docker Compose for orchestration
+# - Volume mounts for persistence
+# - Environment-based configuration
+# - Health checks
+# - Automatic backups
+#
+# ### Requirements
+# - Docker and Docker Compose installed
+# - SSH access to target host
+# - 2GB+ RAM, 10GB+ disk space
+#
+# ### Usage
+# Basic deployment:
+#   ansible-playbook -i inventory.yml deploy-frontaccounting-container.yml
+#
+# Specific host:
+#   ansible-playbook -i inventory.yml deploy-frontaccounting-container.yml -l fa01
+#
+# Custom FrontAccounting version:
+#   ansible-playbook -i inventory.yml deploy-frontaccounting-container.yml \
+#     -e "fa_version=2.4.10"
+#
+# ### Verification
+# Check container status:
+#   docker ps | grep frontaccounting
+#   docker-compose logs -f
+#
+# Access FrontAccounting:
+#   http://your_server_ip:8080
+#   Default credentials in .env file
+
+- name: Deploy FrontAccounting with KSF Amortizations in Docker
+  hosts: frontaccounting
+  become: true
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: Display container deployment info
+      debug:
+        msg: |
+          Deploying FrontAccounting {{ fa_version }} + KSF Amortizations
+          Target: {{ inventory_hostname }}
+          Container Path: {{ fa_path }}
+          Docker Compose: {{ fa_path }}/docker-compose.yml
+    
+    - name: Validate system requirements
+      assert:
+        that:
+          - ansible_memory_mb.real.total >= 2048
+          - ansible_os_family == 'Debian'
+        fail_msg: "Requires Ubuntu/Debian with 2GB+ RAM"
+    
+    - name: Check Docker installation
+      command: docker --version
+      register: docker_version
+      changed_when: false
+      failed_when: docker_version.rc != 0
+  
+  roles:
+    - frontaccounting
+  
+  post_tasks:
+    - name: Display container deployment summary
+      debug:
+        msg: |
+          ✓ FrontAccounting Container Deployed!
+          
+          Access the application:
+            - URL: http://{{ ansible_host }}:8080
+            - SSH into container: docker exec -it fa-app bash
+          
+          Manage containers:
+            - Start:     docker-compose -f {{ fa_path }}/docker-compose.yml up -d
+            - Stop:      docker-compose -f {{ fa_path }}/docker-compose.yml down
+            - Logs:      docker-compose -f {{ fa_path }}/docker-compose.yml logs -f
+            - Restart:   docker-compose -f {{ fa_path }}/docker-compose.yml restart
+          
+          Database management:
+            - Container: fa-db
+            - User: frontaccounting
+            - Password: Check {{ fa_path }}/.env
+          
+          Backup and restore:
+            - Backup:    docker-compose -f {{ fa_path }}/docker-compose.yml exec db mysqldump -u root -p --all-databases > backup.sql
+            - Restore:   docker-compose -f {{ fa_path }}/docker-compose.yml exec -T db mysql -u root -p < backup.sql

@@ -1,0 +1,51 @@
+---
+# ansible/roles/frontaccounting/tasks/frontaccounting-config.yml
+# Configure FrontAccounting and install KSF Amortizations
+
+- name: Wait for FrontAccounting container to be ready
+  pause:
+    seconds: 10
+
+- name: Create FrontAccounting database
+  shell: >
+    docker-compose -f {{ fa_path }}/docker-compose.yml exec -T db mysql -u root
+    -p{{ fa_db_root_password }} -e "CREATE DATABASE IF NOT EXISTS {{ fa_db_name }};"
+  environment:
+    MYSQL_PWD: "{{ fa_db_root_password }}"
+  changed_when: false
+  tags: config
+
+- name: Create FrontAccounting database user
+  shell: >
+    docker-compose -f {{ fa_path }}/docker-compose.yml exec -T db mysql -u root
+    -p{{ fa_db_root_password }} -e
+    "GRANT ALL PRIVILEGES ON {{ fa_db_name }}.* TO '{{ fa_db_user }}'@'%' 
+    IDENTIFIED BY '{{ fa_db_password }}'; FLUSH PRIVILEGES;"
+  environment:
+    MYSQL_PWD: "{{ fa_db_root_password }}"
+  changed_when: false
+  tags: config
+
+- name: Create KSF Amortizations directory in FrontAccounting
+  shell: |
+    docker-compose -f {{ fa_path }}/docker-compose.yml exec -T fa \
+    mkdir -p /var/www/frontaccounting/modules/ksf-amortizations
+  changed_when: false
+  tags: config
+
+- name: Clone KSF Amortizations into FrontAccounting
+  shell: |
+    docker-compose -f {{ fa_path }}/docker-compose.yml exec -T fa \
+    sh -c 'cd /var/www/frontaccounting/modules && \
+    git clone {{ app_repo }} ksf-amortizations'
+  changed_when: false
+  ignore_errors: yes
+  tags: config
+
+- name: Install KSF Amortizations dependencies
+  shell: |
+    docker-compose -f {{ fa_path }}/docker-compose.yml exec -T fa \
+    sh -c 'cd /var/www/frontaccounting/modules/ksf-amortizations && \
+    composer install --no-dev --optimize-autoloader'
+  changed_when: false
+  tags: config

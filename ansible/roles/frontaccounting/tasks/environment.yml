@@ -1,0 +1,17 @@
+---
+# ansible/roles/frontaccounting/tasks/environment.yml
+# Create environment configuration file
+
+- name: Create .env file for container
+  template:
+    src: .env.fa.j2
+    dest: "{{ fa_path }}/.env"
+    owner: root
+    group: root
+    mode: '0600'
+  tags: environment
+
+- name: Display .env file created
+  debug:
+    msg: "Environment file created at {{ fa_path }}/.env"
+  tags: environment

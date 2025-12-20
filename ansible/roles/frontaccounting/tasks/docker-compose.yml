@@ -1,0 +1,17 @@
+---
+# ansible/roles/frontaccounting/tasks/docker-compose.yml
+# Generate Docker Compose configuration
+
+- name: Create docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ fa_path }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  tags: docker-compose
+
+- name: Validate docker-compose.yml
+  command: "docker-compose -f {{ fa_path }}/docker-compose.yml config"
+  changed_when: false
+  tags: docker-compose

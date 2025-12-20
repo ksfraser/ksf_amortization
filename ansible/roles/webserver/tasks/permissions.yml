@@ -1,0 +1,41 @@
+---
+# ansible/roles/webserver/tasks/permissions.yml
+# Set proper file permissions and ownership
+
+- name: Set application root ownership
+  file:
+    path: "{{ app_root }}"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+    recurse: yes
+
+- name: Set storage directory permissions
+  file:
+    path: "{{ app_root }}/storage"
+    owner: www-data
+    group: www-data
+    mode: '0775'
+    recurse: yes
+
+- name: Set bootstrap cache permissions
+  file:
+    path: "{{ app_root }}/bootstrap/cache"
+    owner: www-data
+    group: www-data
+    mode: '0775'
+    recurse: yes
+
+- name: Ensure www-data user has home directory
+  user:
+    name: www-data
+    home: /var/www
+    shell: /usr/sbin/nologin
+    state: present
+
+- name: Set secure permissions on config files
+  file:
+    path: "{{ app_root }}/.env"
+    owner: www-data
+    group: www-data
+    mode: '0600'

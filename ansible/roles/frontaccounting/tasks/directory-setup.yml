@@ -1,0 +1,41 @@
+---
+# ansible/roles/frontaccounting/tasks/directory-setup.yml
+# Create directory structure for FrontAccounting
+
+- name: Create FrontAccounting base directory
+  file:
+    path: "{{ fa_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Create FrontAccounting subdirectories
+  file:
+    path: "{{ fa_path }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - config
+    - data
+    - database
+    - logs
+    - backups
+    - plugins
+    - extensions
+
+- name: Create nginx config directory
+  file:
+    path: "{{ fa_path }}/nginx/conf.d"
+    state: directory
+    mode: '0755'
+
+- name: Create PHP config directory
+  file:
+    path: "{{ fa_path }}/php"
+    state: directory
+    mode: '0755'
+
+- name: Create Docker network
+  docker_network:
+    name: fa-network
+    driver: bridge
+    state: present

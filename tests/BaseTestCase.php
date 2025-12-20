@@ -531,6 +531,64 @@ SQL;
 
         return true;
     }
+
+    /**
+     * Skip test if running on PHP 7.3 (legacy)
+     *
+     * Use in setUp() or test methods to skip arrow function tests
+     *
+     * @param string $reason Optional reason for skipping
+     * @return void
+     * @throws \PHPUnit\Framework\SkippedTestError
+     */
+    protected function skipIfLegacyPHP(string $reason = ''): void
+    {
+        VersionCompatibility::skipIfLegacy($reason);
+    }
+
+    /**
+     * Create a version-aware callback for array operations
+     *
+     * @param mixed $arrowFunction Arrow function (PHP 7.4+)
+     * @param callable|null $legacyCallback Traditional closure (PHP 7.3)
+     * @return callable The appropriate callback
+     */
+    protected function createCallback($arrowFunction, ?callable $legacyCallback = null): callable
+    {
+        return VersionCompatibility::createCallback($arrowFunction, $legacyCallback);
+    }
+
+    /**
+     * Check if running on modern PHP with arrow function support
+     *
+     * @return bool True if PHP 7.4 or higher
+     */
+    protected function isModernPHP(): bool
+    {
+        return VersionCompatibility::supportsArrowFunctions();
+    }
+
+    /**
+     * Check if running on PHP 7.3 or lower
+     *
+     * @return bool True if PHP 7.3 or lower
+     */
+    protected function isLegacyPHP(): bool
+    {
+        return VersionCompatibility::isLegacy();
+    }
+
+    /**
+     * Conditionally execute code based on PHP version
+     *
+     * @param callable $modernCallback Code for PHP 7.4+
+     * @param callable|null $legacyCallback Code for PHP 7.3
+     * @return mixed Result from executed callback
+     */
+    protected function ifModernPHP(callable $modernCallback, ?callable $legacyCallback = null)
+    {
+        return VersionCompatibility::ifSupportsArrowFunctions($modernCallback, $legacyCallback);
+    }
 }
 
 ?>

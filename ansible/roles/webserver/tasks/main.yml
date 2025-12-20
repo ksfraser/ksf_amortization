@@ -1,0 +1,61 @@
+---
+# ansible/roles/webserver/tasks/main.yml
+# Main tasks for webserver role
+# Orchestrates system setup, PHP installation, app deployment
+
+- name: Update system packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: packages
+
+- name: Install system dependencies
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - curl
+      - wget
+      - git
+      - unzip
+      - sqlite3
+      - build-essential
+      - software-properties-common
+  tags: packages
+
+- name: Add PHP PPA repository
+  apt_repository:
+    repo: "ppa:ondrej/php"
+    state: present
+  tags: packages
+
+- name: Install PHP and extensions
+  apt:
+    name: "{{ php_extensions }}"
+    state: present
+  tags: php
+
+- name: Install Composer
+  include_tasks: composer.yml
+  tags: composer
+
+- name: Configure application
+  include_tasks: application.yml
+  tags: application
+
+- name: Configure nginx
+  include_tasks: nginx.yml
+  tags: nginx
+
+- name: Configure PHP-FPM
+  include_tasks: php-fpm.yml
+  tags: php
+
+- name: Set up application permissions
+  include_tasks: permissions.yml
+  tags: permissions
+
+- name: Start and enable services
+  include_tasks: services.yml
+  tags: services
