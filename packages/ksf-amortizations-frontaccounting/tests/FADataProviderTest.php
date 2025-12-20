@@ -15,7 +15,8 @@ class FADataProviderTest extends TestCase {
 
     protected function setUp(): void {
         $this->pdo = $this->createMock(\PDO::class);
-        $this->provider = new FADataProvider($this->pdo);
+        // FrontAccounting uses TB_PREF as table prefix (typically '0_')
+        $this->provider = new FADataProvider($this->pdo, '0_');
     }
 
     public function testInsertLoanReturnsInt() {
