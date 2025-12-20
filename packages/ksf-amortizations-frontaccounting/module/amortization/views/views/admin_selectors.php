@@ -17,6 +17,8 @@ use Ksfraser\HTML\Elements\DeleteButton;
 use Ksfraser\HTML\Elements\HtmlString;
 use Ksfraser\HTML\Elements\HtmlHidden;
 use Ksfraser\HTML\Elements\HtmlSubmit;
+use Ksfraser\HTML\Elements\HtmlScript;
+use Ksfraser\HTML\Elements\SelectEditJSHandler;
 
 // Handle add/edit/delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -113,12 +115,6 @@ foreach ($options as $opt) {
 
 $table->toHtml();
 
-// Output JavaScript
-echo "<script>\n";
-echo "function editOption(id, selector, name, value) {\n";
-echo "  document.getElementById('edit_id').value = id;\n";
-echo "  document.getElementById('selector_name').value = selector;\n";
-echo "  document.getElementById('option_name').value = name;\n";
-echo "  document.getElementById('option_value').value = value;\n";
-echo "}\n";
-echo "</script>\n";
+// Output JavaScript using specialized handler class
+$editHandler = new SelectEditJSHandler();
+$editHandler->getHtml();
