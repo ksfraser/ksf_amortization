@@ -15,6 +15,8 @@ use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\Elements\EditButton;
 use Ksfraser\HTML\Elements\DeleteButton;
 use Ksfraser\HTML\Elements\HtmlString;
+use Ksfraser\HTML\Elements\HtmlHidden;
+use Ksfraser\HTML\Elements\HtmlSubmit;
 
 // Handle add/edit/delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -38,7 +40,7 @@ $options = $db->query("SELECT * FROM 0_ksf_selectors ORDER BY selector_name, opt
 
 // Build form
 $form = (new Form())->setMethod('post');
-$form->appendChild((new Input())->setType('hidden')->setName('id')->setId('edit_id'));
+$form->appendChild((new HtmlHidden())->setName('id')->setId('edit_id'));
 
 $form->appendChild((new Label())->setFor('selector_name')->setText('Selector Name:'));
 $form->appendChild((new Input())->setType('text')->setName('selector_name')->setId('selector_name')->addAttribute('required', 'required'));
@@ -49,8 +51,8 @@ $form->appendChild((new Input())->setType('text')->setName('option_name')->setId
 $form->appendChild((new Label())->setFor('option_value')->setText('Option Value:'));
 $form->appendChild((new Input())->setType('text')->setName('option_value')->setId('option_value')->addAttribute('required', 'required'));
 
-$form->appendChild((new Button())->setType('submit')->setName('add')->setText('Add Option'));
-$form->appendChild((new Button())->setType('submit')->setName('edit')->setText('Edit Option'));
+$form->appendChild((new HtmlSubmit(new HtmlString('Add Option')))->setName('add'));
+$form->appendChild((new HtmlSubmit(new HtmlString('Edit Option')))->setName('edit'));
 
 $form->toHtml();
 
@@ -94,7 +96,7 @@ foreach ($options as $opt) {
     
     // Delete button with form submission
     $deleteForm = (new Form())->setMethod('post')->addAttribute('style', 'display:inline');
-    $deleteForm->appendChild((new Input())->setType('hidden')->setName('id')->setValue((string)$opt['id']));
+    $deleteForm->appendChild((new HtmlHidden())->setName('id')->setValue((string)$opt['id']));
     
     $deleteBtn = new DeleteButton(new HtmlString('Delete'), (string)$opt['id']);
     $deleteBtn->setName('delete_btn')->setType('submit'); // Make it a submit button
