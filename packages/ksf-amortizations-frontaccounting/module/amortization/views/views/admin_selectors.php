@@ -19,6 +19,7 @@ use Ksfraser\HTML\Elements\HtmlHidden;
 use Ksfraser\HTML\Elements\HtmlSubmit;
 use Ksfraser\HTML\Elements\HtmlScript;
 use Ksfraser\HTML\Elements\SelectEditJSHandler;
+use Ksfraser\HTML\Elements\TableBuilder;
 use Ksfraser\Amortizations\Repository\SelectorRepository;
 
 // Get table prefix from FrontAccounting constant
@@ -65,14 +66,14 @@ $form->toHtml();
 // Build table
 $table = (new Table())->addAttribute('border', '1');
 
-// Build header row
-$headerRow = (new TableRow());
-$headerRow->appendChild((new TableHeaderCell())->setText('ID'));
-$headerRow->appendChild((new TableHeaderCell())->setText('Selector Name'));
-$headerRow->appendChild((new TableHeaderCell())->setText('Option Name'));
-$headerRow->appendChild((new TableHeaderCell())->setText('Option Value'));
-$headerRow->appendChild((new TableHeaderCell())->setText('Actions'));
-
+// Build header row using TableBuilder
+$headerRow = TableBuilder::createHeaderRow([
+    'ID',
+    'Selector Name',
+    'Option Name',
+    'Option Value',
+    'Actions'
+]);
 $table->appendChild($headerRow);
 
 // Build data rows
