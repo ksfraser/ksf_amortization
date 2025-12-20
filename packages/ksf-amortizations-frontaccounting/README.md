@@ -83,6 +83,10 @@ use Ksfraser\Amortizations\FA\AmortizationGLController;
 
 // Initialize services
 $pdo = new PDO('mysql:host=localhost;dbname=frontaccounting', $user, $pass);
+
+// Get FrontAccounting table prefix (TB_PREF is defined by FA, typically '0_')
+$dbPrefix = defined('TB_PREF') ? TB_PREF : '0_';
+
 $dataProvider = new FADataProvider($pdo, $dbPrefix);
 $amortizationModel = new AmortizationModel($dataProvider);
 $glController = new AmortizationGLController($amortizationModel, $glPostingService, $dataProvider);

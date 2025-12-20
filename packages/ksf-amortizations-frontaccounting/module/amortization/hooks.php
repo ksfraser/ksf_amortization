@@ -77,10 +77,13 @@ class hooks_amortization extends hooks {
         return $this->update_databases($company, $updates, $check_only);
     }
     function db_prevoid($trans_type, $trans_no) {
-        // Assuming $db is a PDO instance available in scope
-        // You may need to adjust how $db is retrieved in your environment
+        // Called when GL entry is voided - reset posting info for any related amortization staging records
         global $db;
-        $provider = new FADataProvider($db);
+        
+        // Get FrontAccounting table prefix (TB_PREF is defined by FA, typically '0_')
+        $dbPrefix = defined('TB_PREF') ? TB_PREF : '0_';
+        
+        $provider = new FADataProvider($db, $dbPrefix);
         $provider->resetPostedToGL($trans_no, $trans_type);
     }
     
