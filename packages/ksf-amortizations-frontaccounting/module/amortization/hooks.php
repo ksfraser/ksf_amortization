@@ -45,11 +45,9 @@ class hooks_amortization extends hooks {
         }
         
         // Get DB adapter and prefix from FA environment
-        global $db, $dbPrefix;
-        // Fallback for FA: $db is PDO, $dbPrefix is usually '0_'
-        if (!isset($dbPrefix)) {
-            $dbPrefix = '0_';
-        }
+        global $db;
+        // FrontAccounting defines TB_PREF as table prefix (e.g., '0_')
+        $dbPrefix = defined('TB_PREF') ? TB_PREF : '0_';
         
         // Run generic installer
         $installer = new \Ksfraser\Amortizations\AmortizationModuleInstaller($db, $dbPrefix);
