@@ -1,0 +1,3 @@
+[submodule "vendor-src/ksfraser-html"]
+	path = vendor-src/ksfraser-html
+	url = https://github.com/ksfraser/html.git
