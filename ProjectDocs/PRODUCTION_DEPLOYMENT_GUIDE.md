@@ -153,75 +153,106 @@ composer --version
 
 ## 3. Database Setup
 
-### Option A: SQLite (Recommended for Simplicity)
+### Platform-Specific Schema Management
 
-**Pros:**
-- No server required
-- Easy backup (single file)
-- Zero configuration
-- Fast for small datasets
-- Perfect for 1-2 users
+**Important:** KSF Amortizations uses platform-native schema management. The database schema and initialization is handled by each platform's module installation process, NOT by manual migrations.
 
-**Cons:**
-- Single-user locking (not an issue for 1-2 users)
-- Limited to local storage
+#### FrontAccounting Module
 
-#### SQLite Setup
+Schema setup is handled by FrontAccounting's module installer:
 
 ```bash
-# Create database directory
-mkdir -p /var/www/ksf-amortization/data
-chmod 755 /var/www/ksf-amortization/data
+# 1. Database is created by FrontAccounting admin interface
+# 2. Copy module files to FrontAccounting
+cp -r packages/ksf-amortizations-frontaccounting/module/amortization /path/to/frontaccounting/modules/
 
-# Create database file
-touch /var/www/ksf-amortization/data/amortization.db
-chmod 666 /var/www/ksf-amortization/data/amortization.db
+# 3. Initialize via FrontAccounting Admin:
+# Setup → System Setup → Modules → Amortizations → Install
+# (This runs the module's schema.sql automatically)
 
-# Initialize schema (using your migration tool)
-php artisan migrate --database=sqlite
-# Or run schema.sql if provided
+# 4. No manual SQL needed - FA handles all table creation
 ```
 
-#### Configuration
+#### SuiteCRM Integration
 
-```php
-// config/database.php
-'default' => 'sqlite',
-'connections' => [
-    'sqlite' => [
-        'driver' => 'sqlite',
-        'database' => env('DB_DATABASE', storage_path('app/amortization.db')),
-        'prefix' => '',
-    ],
-],
+Schema setup uses SuiteCRM's module installer:
+
+```bash
+# 1. Install via Composer
+composer require ksfraser/amortizations-suitecrm
+
+# 2. Run SuiteCRM module repair:
+php bin/console cache:clear
+php bin/console module:repair
+
+# 3. Module schema automatically applied (SuiteCRM handles this)
+```
+
+#### WordPress Plugin
+
+Schema setup uses WordPress's plugin installer:
+
+```bash
+# 1. Install via Composer or manual placement
+composer require ksfraser/amortizations-wordpress
+
+# 2. Activate plugin in WordPress admin
+# Plugins → Amortizations → Activate
+# (WordPress hooks handle table creation on activation)
+
+# 3. No manual SQL needed - WordPress activation hook handles schema
+```
+
+#### Standalone Core Library
+
+For standalone deployments (PHP CLI, custom frameworks):
+
+```bash
+# Use the core schema files from packages/ksf-amortizations-core/
+# These are provided as reference SQL files, not migrations:
+
+# - schema.sql              (main tables)
+# - schema_events.sql       (event/payment tables)
+# - schema_selectors.sql    (selector configuration)
+
+# Apply manually if needed:
+mysql ksf_amortization < packages/ksf-amortizations-core/schema.sql
+mysql ksf_amortization < packages/ksf-amortizations-core/schema_events.sql
+mysql ksf_amortization < packages/ksf-amortizations-core/schema_selectors.sql
 ```
 
 ---
 
-### Option B: MySQL (For Reliability)
+### Database Choice: SQLite vs MySQL
 
-**Pros:**
-- Better for concurrent connections
-- Transaction support
-- Professional backup tools
+**SQLite (Recommended for Small-Scale)**
+- No server required, zero configuration
+- Perfect for single-user or 1-2 concurrent users
+- Easy backup (single file copy)
+- Fast for typical amortization workloads
+- Built-in with PHP, no installation needed
+
+**MySQL (For Reliability & Multi-User)**
+- Better transaction support
+- Professional backup and replication tools
+- Suitable if expanding to 3+ concurrent users
 - Network accessible if needed
 
-**Cons:**
-- Requires configuration
-- Memory overhead
-- More complex backup
+**For FrontAccounting:** Defer to FA's database choice (FA controls the database, not the module)
 
-#### MySQL Setup
+**For SuiteCRM:** Uses the SuiteCRM database directly
+
+**For WordPress:** Uses the WordPress database directly
+
+---
+
+### Database Installation (Standalone Only)
+
+If deploying the core library standalone:
 
 ```bash
-# Install MySQL Server (if not already done)
-sudo apt-get install -y mysql-server
-
-# Secure installation
-sudo mysql_secure_installation
-
-# Create database and user
-sudo mysql -u root -p << EOF
+# Create database
+mysql -u root -p << EOF
 CREATE DATABASE ksf_amortization CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'ksf_user'@'localhost' IDENTIFIED BY 'strong_password_here';
 GRANT ALL PRIVILEGES ON ksf_amortization.* TO 'ksf_user'@'localhost';
@@ -229,11 +260,13 @@ FLUSH PRIVILEGES;
 EXIT;
 EOF
 
-# Initialize schema
-php artisan migrate
+# Apply schema
+mysql -u ksf_user -p ksf_amortization < packages/ksf-amortizations-core/schema.sql
+mysql -u ksf_user -p ksf_amortization < packages/ksf-amortizations-core/schema_events.sql
+mysql -u ksf_user -p ksf_amortization < packages/ksf-amortizations-core/schema_selectors.sql
 ```
 
-#### MySQL Optimization for Small Load
+### MySQL Optimization for Small Load
 
 ```sql
 -- my.cnf / mysql.conf.d/mysqld.cnf
@@ -261,96 +294,213 @@ long_query_time = 2
 
 ## 4. Application Deployment
 
-### Directory Structure
+### Platform-Specific Deployment Process
 
-```
-/var/www/ksf-amortization/
-├── public/              # Web root
-├── src/                 # Application code
-├── config/              # Configuration files
-├── data/                # SQLite database (if using)
-├── logs/                # Application logs
-├── backups/             # Database backups
-├── .env                 # Environment configuration
-├── .env.production      # Production-specific config
-└── composer.json        # Dependencies
-```
+The deployment process depends on which platform you're deploying to:
 
-### Deployment Steps
+#### FrontAccounting Deployment
 
 ```bash
 #!/bin/bash
-# Production Deployment Script
+# FrontAccounting Amortization Module Installation
 
-# 1. Clone or update repository
-cd /var/www/ksf-amortization
-git pull origin main
-# Or first deployment:
-git clone https://github.com/your-org/ksf-amortization.git
+# 1. Install via Composer (into FrontAccounting directory)
+cd /path/to/frontaccounting
+composer require ksfraser/amortizations-core
+composer require ksfraser/amortizations-frontaccounting
 
-# 2. Install dependencies
-composer install --no-dev --optimize-autoloader
+# 2. Copy module files to FrontAccounting modules directory
+cp -r vendor/ksfraser/amortizations-frontaccounting/module/amortization ./modules/
 
 # 3. Set permissions
-chmod -R 755 /var/www/ksf-amortization
-chmod -R 777 /var/www/ksf-amortization/data  # For SQLite writes
-chmod -R 777 /var/www/ksf-amortization/logs  # For log files
+chmod -R 755 ./modules/amortization
+chmod -R 755 ./modules/amortization/views
 
-# 4. Configuration
-cp .env.example .env
-# Edit .env with production values
-nano .env
+# 4. Initialize database via FrontAccounting admin:
+# - Log in as administrator
+# - Navigate to: Setup → System Setup → Modules
+# - Find "Amortizations" in module list
+# - Click "Install"
+# (FrontAccounting will run the module's schema.sql automatically)
 
-# 5. Database migration
-php artisan migrate --force
+# 5. Configure module settings
+# - GL Account mappings
+# - Payment posting behavior
+# - Selector options
 
-# 6. Cache clearing
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# 7. Restart services
-sudo systemctl restart php8.4-fpm nginx
-
-# 8. Verify deployment
-curl http://localhost/
+echo "FrontAccounting Amortization Module deployed successfully"
 ```
 
-### Environment Configuration (.env)
+#### SuiteCRM Deployment
+
+```bash
+#!/bin/bash
+# SuiteCRM Amortization Module Installation
+
+# 1. Install via Composer
+cd /path/to/suitecrm
+composer require ksfraser/amortizations-core
+composer require ksfraser/amortizations-suitecrm
+
+# 2. Module files are placed automatically by Composer
+
+# 3. Repair modules (applies schema)
+php bin/console cache:clear
+php bin/console module:repair
+
+# 4. Log in to SuiteCRM admin to verify module installed
+# - Verify in: Administration → Module Manager
+
+echo "SuiteCRM Amortization Module deployed successfully"
+```
+
+#### WordPress Deployment
+
+```bash
+#!/bin/bash
+# WordPress Amortization Plugin Installation
+
+# 1. Install via Composer (in WordPress root)
+cd /path/to/wordpress
+composer require ksfraser/amortizations-wordpress
+
+# 2. Or manual placement:
+# Copy plugin files to: wp-content/plugins/ksf-amortizations/
+
+# 3. Set permissions
+chmod -R 755 wp-content/plugins/ksf-amortizations
+
+# 4. Activate plugin in WordPress admin
+# - Plugins → All Plugins
+# - Find "KSF Amortizations"
+# - Click "Activate"
+# (WordPress activation hook handles database schema creation)
+
+# 5. Configure plugin settings
+# - Navigate to: Settings → KSF Amortizations
+# - Configure your settings
+
+echo "WordPress Amortization Plugin deployed successfully"
+```
+
+#### Standalone Core Library
+
+```bash
+#!/bin/bash
+# Standalone Core Library Deployment
+
+# 1. Install via Composer
+composer require ksfraser/amortizations-core
+
+# 2. Create database (if not using FA/SuiteCRM/WP)
+mysql -u root -p << EOF
+CREATE DATABASE ksf_amortization CHARACTER SET utf8mb4;
+CREATE USER 'ksf_user'@'localhost' IDENTIFIED BY 'strong_password';
+GRANT ALL PRIVILEGES ON ksf_amortization.* TO 'ksf_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+EOF
+
+# 3. Apply schema from core package
+cd /path/to/application
+mysql -u ksf_user -p ksf_amortization < vendor/ksfraser/amortizations-core/schema.sql
+mysql -u ksf_user -p ksf_amortization < vendor/ksfraser/amortizations-core/schema_events.sql
+mysql -u ksf_user -p ksf_amortization < vendor/ksfraser/amortizations-core/schema_selectors.sql
+
+# 4. Configure your application to use the core library
+# See: vendor/ksfraser/amortizations-core/README.md
+
+echo "Standalone Core Library deployed successfully"
+```
+
+### Directory Structure (Post-Deployment)
+
+The directory structure depends on which platform:
+
+**FrontAccounting:**
+```
+/path/to/frontaccounting/
+├── modules/amortization/    (KSF module - added by deployment)
+├── config/
+├── includes/
+└── (rest of FA structure)
+```
+
+**SuiteCRM:**
+```
+/path/to/suitecrm/
+├── modules/KsfAmortizations/  (KSF module - added by Composer)
+├── public/
+└── (rest of SuiteCRM structure)
+```
+
+**WordPress:**
+```
+/path/to/wordpress/
+├── wp-content/plugins/
+│   └── ksf-amortizations/     (KSF plugin - added by Composer)
+├── wp-admin/
+└── (rest of WordPress structure)
+```
+
+**Standalone:**
+```
+/path/to/application/
+├── vendor/
+│   └── ksfraser/amortizations-core/
+├── config/
+├── src/
+├── data/              (SQLite database, if using)
+└── logs/
+```
+
+### Environment Configuration
+
+**FrontAccounting & SuiteCRM:**
+- Database configuration handled by the platform
+- Module configuration done through admin interfaces
+- No .env file needed (uses platform config)
+
+**WordPress:**
+- Database configuration in wp-config.php
+- Plugin settings in WordPress admin
+- No .env file needed
+
+**Standalone:**
+- Create application-specific configuration
+- May use .env for database credentials if desired
 
 ```env
-# Production Environment
-APP_ENV=production
-APP_DEBUG=false
-APP_KEY=your-app-key-here
-
-# Database Configuration
-DB_CONNECTION=sqlite          # or mysql
-DB_DATABASE=/var/www/ksf-amortization/data/amortization.db
-
-# If using MySQL instead:
-# DB_CONNECTION=mysql
-# DB_HOST=localhost
-# DB_PORT=3306
-# DB_DATABASE=ksf_amortization
-# DB_USERNAME=ksf_user
-# DB_PASSWORD=strong_password
-
-# Application Settings
-APP_NAME="KSF Amortization"
-APP_URL=https://your-domain.com
-
-# Timezone
-APP_TIMEZONE=UTC
-
-# Logging
-LOG_CHANNEL=daily
-LOG_LEVEL=info
-
-# Cache (in-memory)
-CACHE_DRIVER=array
-SESSION_DRIVER=cookie
+# For standalone deployments only
+DB_HOST=localhost
+DB_NAME=ksf_amortization
+DB_USER=ksf_user
+DB_PASSWORD=strong_password
 ```
+
+### Post-Deployment Verification
+
+```bash
+# For FrontAccounting
+# Test by creating a loan via the module interface
+# Verify GL entries created in: Transactions → General Ledger
+
+# For SuiteCRM
+# Test by creating an amortization record
+# Verify in: Amortizations module
+
+# For WordPress
+# Test by accessing: wp-admin → KSF Amortizations
+# Create a test amortization schedule
+
+# For Standalone
+# Test by running PHP scripts that use the core library
+php -r "require 'vendor/autoload.php'; echo 'Core library loaded';"
+```
+
+---
+
+### Standalone Core Library Deployment (Detailed)
 
 ---
 
@@ -507,81 +657,198 @@ header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 
 ### Backup Strategy
 
+The backup strategy depends on your platform:
+
+**FrontAccounting:**
+- Backup the entire FrontAccounting database (which contains KSF module data)
+- Daily backups of the database
+- Weekly full filesystem backups
+
+**SuiteCRM:**
+- Backup the entire SuiteCRM database
+- Weekly backups (schema changes are less frequent)
+- Module data is stored in SuiteCRM's database
+
+**WordPress:**
+- Database backup (all plugin data included)
+- Plugin files backup (for code recovery)
+- Weekly automation recommended
+
+**Standalone:**
+- Database backup (SQLite file or MySQL dump)
+- Configuration backup
+- Daily schedule recommended
+
+**Retention & Scheduling:**
 ```
 Daily Backup:   Database + Configuration
-Weekly Backup:  Full filesystem
+Weekly Backup:  Full filesystem backup
 Monthly:        Offsite backup
 Retention:      30 days local, 12 months offsite
 ```
 
-### Backup Script
+### Backup Script - FrontAccounting
 
 ```bash
 #!/bin/bash
-# /usr/local/bin/backup-ksf.sh
+# /usr/local/bin/backup-fa.sh
+# Backup FrontAccounting with KSF module data
+
+BACKUP_DIR="/var/backups/frontaccounting"
+FA_DB_NAME="frontaccounting"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p $BACKUP_DIR
+
+# Backup FrontAccounting database (includes KSF module tables)
+mysqldump -u fa_user -p $FA_DB_NAME | gzip > $BACKUP_DIR/fa_$DATE.sql.gz
+
+# Keep 30 days
+find $BACKUP_DIR -name "fa_*.sql.gz" -mtime +30 -delete
+
+echo "FrontAccounting backup completed: $BACKUP_DIR/fa_$DATE.sql.gz"
+```
+
+### Backup Script - SuiteCRM
+
+```bash
+#!/bin/bash
+# /usr/local/bin/backup-suitecrm.sh
+# Backup SuiteCRM with KSF module data
+
+BACKUP_DIR="/var/backups/suitecrm"
+SUITE_DB_NAME="suitecrm"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p $BACKUP_DIR
+
+# Backup SuiteCRM database (includes KSF module tables)
+mysqldump -u suite_user -p $SUITE_DB_NAME | gzip > $BACKUP_DIR/suite_$DATE.sql.gz
+
+# Keep 30 days
+find $BACKUP_DIR -name "suite_*.sql.gz" -mtime +30 -delete
+
+echo "SuiteCRM backup completed: $BACKUP_DIR/suite_$DATE.sql.gz"
+```
+
+### Backup Script - WordPress
+
+```bash
+#!/bin/bash
+# /usr/local/bin/backup-wordpress.sh
+# Backup WordPress with KSF plugin data
+
+BACKUP_DIR="/var/backups/wordpress"
+WP_DB_NAME="wordpress"
+WP_ROOT="/var/www/wordpress"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p $BACKUP_DIR
+
+# Backup WordPress database (includes KSF plugin tables)
+mysqldump -u wp_user -p $WP_DB_NAME | gzip > $BACKUP_DIR/wp_$DATE.sql.gz
+
+# Backup plugin files
+tar -czf $BACKUP_DIR/wp_files_$DATE.tar.gz \
+  -C $WP_ROOT wp-content/plugins/ksf-amortizations/ \
+  -C $WP_ROOT wp-config.php
+
+# Keep 30 days
+find $BACKUP_DIR -name "wp_*.sql.gz" -mtime +30 -delete
+find $BACKUP_DIR -name "wp_files_*.tar.gz" -mtime +30 -delete
+
+echo "WordPress backup completed"
+```
+
+### Backup Script - Standalone
+
+```bash
+#!/bin/bash
+# /usr/local/bin/backup-standalone.sh
+# Backup standalone KSF deployment
 
 BACKUP_DIR="/var/backups/ksf-amortization"
 DB_FILE="/var/www/ksf-amortization/data/amortization.db"
 DATE=$(date +%Y%m%d_%H%M%S)
 
-# Create backup directory
 mkdir -p $BACKUP_DIR
 
 # SQLite backup
-cp $DB_FILE $BACKUP_DIR/amortization_$DATE.db
-gzip $BACKUP_DIR/amortization_$DATE.db
+if [ -f "$DB_FILE" ]; then
+  cp $DB_FILE $BACKUP_DIR/amortization_$DATE.db
+  gzip $BACKUP_DIR/amortization_$DATE.db
+fi
 
 # Or MySQL backup
 # mysqldump -u ksf_user -p ksf_amortization | gzip > $BACKUP_DIR/amortization_$DATE.sql.gz
 
-# Keep only 30 days
+# Keep 30 days
 find $BACKUP_DIR -name "amortization_*.db.gz" -mtime +30 -delete
 
-# Sync to offsite storage (optional)
-# rsync -a $BACKUP_DIR/ backup@offsite-server:/backups/ksf-amortization/
-
-echo "Backup completed: $BACKUP_DIR/amortization_$DATE.db.gz"
+echo "Standalone backup completed: $BACKUP_DIR/amortization_$DATE.db.gz"
 ```
 
-### Cron Job for Daily Backups
+### Cron Job for Automated Backups
 
 ```bash
 # Add to crontab
 # sudo crontab -e
 
-# Daily backup at 2 AM
-0 2 * * * /usr/local/bin/backup-ksf.sh
+# FrontAccounting - Daily backup at 2 AM
+0 2 * * * /usr/local/bin/backup-fa.sh
 
-# Weekly full backup at 3 AM Sunday
-0 3 * * 0 /usr/local/bin/backup-full-ksf.sh
+# SuiteCRM - Weekly backup at 3 AM Sunday
+0 3 * * 0 /usr/local/bin/backup-suitecrm.sh
+
+# WordPress - Weekly backup at 4 AM Sunday
+0 4 * * 0 /usr/local/bin/backup-wordpress.sh
+
+# Standalone - Daily backup at 2 AM
+0 2 * * * /usr/local/bin/backup-standalone.sh
 ```
 
-### Recovery Procedure
+### Recovery Procedure - General
 
+Recovery procedures vary by platform:
+
+**FrontAccounting Recovery:**
 ```bash
-#!/bin/bash
-# Recovery from backup
+# 1. Stop FrontAccounting (optional)
+sudo systemctl stop php8.4-fpm
 
-BACKUP_FILE="/var/backups/ksf-amortization/amortization_20251216_020000.db.gz"
+# 2. Restore database from backup
+BACKUP_FILE="/var/backups/frontaccounting/fa_20251216_020000.sql.gz"
+gunzip -c $BACKUP_FILE | mysql -u fa_user -p frontaccounting
 
-# 1. Stop application
+# 3. Restart
+sudo systemctl start php8.4-fpm
+```
+
+**SuiteCRM Recovery:**
+```bash
+# Similar to FrontAccounting
+gunzip -c /var/backups/suitecrm/suite_*.sql.gz | mysql -u suite_user -p suitecrm
+```
+
+**WordPress Recovery:**
+```bash
+# 1. Restore database
+gunzip -c /var/backups/wordpress/wp_*.sql.gz | mysql -u wp_user -p wordpress
+
+# 2. Restore plugin files (if needed)
+tar -xzf /var/backups/wordpress/wp_files_*.tar.gz -C /var/www/wordpress
+```
+
+**Standalone Recovery:**
+```bash
+# 1. Stop application (if applicable)
 sudo systemctl stop php8.4-fpm
 
 # 2. Restore database
-gunzip -c $BACKUP_FILE > /var/www/ksf-amortization/data/amortization.db.restored
-sudo chown www-data:www-data /var/www/ksf-amortization/data/amortization.db.restored
+gunzip -c /var/backups/ksf-amortization/amortization_*.db.gz > /var/www/ksf-amortization/data/amortization.db
 
-# 3. Verify restoration
-# ... verify data integrity ...
-
-# 4. Replace active database
-sudo mv /var/www/ksf-amortization/data/amortization.db /var/www/ksf-amortization/data/amortization.db.bak
-sudo mv /var/www/ksf-amortization/data/amortization.db.restored /var/www/ksf-amortization/data/amortization.db
-
-# 5. Restart application
+# 3. Restart
 sudo systemctl start php8.4-fpm
-
-echo "Recovery completed"
 ```
 
 ---
