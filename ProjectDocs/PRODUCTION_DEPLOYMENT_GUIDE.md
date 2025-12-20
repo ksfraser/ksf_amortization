@@ -300,36 +300,74 @@ The deployment process depends on which platform you're deploying to:
 
 #### FrontAccounting Deployment
 
+**Automated Installation (Recommended):**
+
 ```bash
 #!/bin/bash
-# FrontAccounting Amortization Module Installation
+# FrontAccounting Amortization Module Installation - Automated
 
-# 1. Install via Composer (into FrontAccounting directory)
-cd /path/to/frontaccounting
-composer require ksfraser/amortizations-core
-composer require ksfraser/amortizations-frontaccounting
+# 1. Copy module files to FrontAccounting modules directory
+# (Download or extract from package)
+cp -r amortization /path/to/frontaccounting/modules/
 
-# 2. Copy module files to FrontAccounting modules directory
-cp -r vendor/ksfraser/amortizations-frontaccounting/module/amortization ./modules/
+# 2. Set permissions
+chmod -R 755 /path/to/frontaccounting/modules/amortization
+chmod -R 755 /path/to/frontaccounting/modules/amortization/views
 
-# 3. Set permissions
-chmod -R 755 ./modules/amortization
-chmod -R 755 ./modules/amortization/views
-
-# 4. Initialize database via FrontAccounting admin:
+# 3. Initialize via FrontAccounting admin (handles everything automatically):
 # - Log in as administrator
 # - Navigate to: Setup → System Setup → Modules
 # - Find "Amortizations" in module list
 # - Click "Install"
-# (FrontAccounting will run the module's schema.sql automatically)
+#
+# The install hook (hooks.php) now automatically:
+#   - Detects if Composer dependencies are missing
+#   - Runs 'composer install' in the module directory
+#   - Initializes database schema
+#
+# No manual composer install needed!
 
-# 5. Configure module settings
+# 4. Configure module settings
 # - GL Account mappings
 # - Payment posting behavior
 # - Selector options
 
 echo "FrontAccounting Amortization Module deployed successfully"
 ```
+
+**Manual Installation (If Automated Fails):**
+
+If Composer execution fails (restricted environment), install manually:
+
+```bash
+#!/bin/bash
+# Manual Composer Installation (if automated fails)
+
+cd /path/to/frontaccounting/modules/amortization
+composer install --no-dev --optimize-autoloader
+
+# Then use FrontAccounting admin UI to initialize schema
+```
+
+**How It Works:**
+
+The `hooks.php` file now includes automatic Composer dependency installation:
+
+1. **Detection**: When FA admin clicks "Install", `hooks.php` runs
+2. **Check**: Looks for `vendor/autoload.php` in module directory
+3. **Install**: If missing, runs `composer install` automatically
+4. **Load**: Loads Composer autoloader and AmortizationModuleInstaller
+5. **Execute**: Runs database schema creation
+
+The system intelligently searches for Composer in:
+- System PATH (`/usr/bin/composer`, `/usr/local/bin/composer`, Windows paths)
+- FA root directory (`composer.phar`)
+- Module directory (`composer.phar`)
+
+**Requirements:**
+- PHP command-line access (usually available in FA environments)
+- Composer available in system PATH or as `composer.phar`
+- Write permissions to module directory
 
 #### SuiteCRM Deployment
 
