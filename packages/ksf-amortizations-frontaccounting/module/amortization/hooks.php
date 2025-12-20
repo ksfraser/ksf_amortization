@@ -64,9 +64,24 @@ class hooks_amortization extends hooks {
         global $path_to_root;
         switch($app->id) {
             case 'GL':
-                $app->add_lapp_function(3, _("Amortization (Amortization)"),
+                // Generic amortization interface (default view)
+                $app->add_lapp_function(3, _("Amortization"),
                     $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php", 'SA_CUSTOMER', MENU_AMORTIZATIONS);
-                $app->add_lapp_function(3, _("Amortization (Banking)"),
+                
+                // Admin functions
+                $app->add_lapp_function(3, _("Amortization Admin"),
+                    $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php?action=admin", 'SA_CUSTOMER', MENU_AMORTIZATIONS);
+                
+                // Create new loan
+                $app->add_lapp_function(3, _("Create Loan"),
+                    $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php?action=create", 'SA_CUSTOMER', MENU_AMORTIZATIONS);
+                
+                // Reports
+                $app->add_lapp_function(3, _("Amortization Reports"),
+                    $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php?action=report", 'SA_CUSTOMER', MENU_AMORTIZATIONS);
+                
+                // Banking menu
+                $app->add_lapp_function(3, _("Amortization Payments (Banking)"),
                     $path_to_root."/modules/".$this->module_name."/modules/amortization/controller.php", 'SA_CUSTOMER', MENU_BANKING);
                 break;
             }
