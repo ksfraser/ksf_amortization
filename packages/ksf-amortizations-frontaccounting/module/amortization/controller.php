@@ -53,8 +53,8 @@ switch ($action) {
         if (file_exists(__DIR__ . '/reporting.php')) {
             include __DIR__ . '/reporting.php';
         } else {
-            echo (new Heading(3))->setText('Amortization Reports');
-            echo (new Paragraph())->setText('Reports feature coming soon...');
+            (new Heading(3))->setText('Amortization Reports')->toHtml();
+            (new Paragraph())->setText('Reports feature coming soon...')->toHtml();
             // TODO: Implement reporting interface
         }
         break;
@@ -62,7 +62,7 @@ switch ($action) {
     case 'default':
     default:
         // List loans and provide navigation
-        echo (new Heading(2))->setText('Amortization Loans');
+        (new Heading(2))->setText('Amortization Loans')->toHtml();
         
         $nav = (new Div())
             ->addAttribute('class', 'module-nav')
@@ -96,7 +96,7 @@ switch ($action) {
                 ->addAttribute('class', 'button')
         );
         
-        echo $nav;
+        $nav->toHtml();
         
         // TODO: Implement loan list view
         echo (new Paragraph())->setText('Loan list view coming soon...');
