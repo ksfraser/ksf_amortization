@@ -12,6 +12,9 @@ use Ksfraser\HTML\Elements\TableRow;
 use Ksfraser\HTML\Elements\TableCell;
 use Ksfraser\HTML\Elements\TableHeaderCell;
 use Ksfraser\HTML\Elements\Div;
+use Ksfraser\HTML\Elements\EditButton;
+use Ksfraser\HTML\Elements\DeleteButton;
+use Ksfraser\HTML\Elements\HtmlString;
 
 // Handle add/edit/delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -74,20 +77,29 @@ foreach ($options as $opt) {
     
     // Actions cell
     $actionsDiv = (new Div());
-    $editBtn = (new Button())
-        ->setText('Edit')
-        ->addAttribute('onclick', sprintf(
+    
+    // Edit button using specialized EditButton class
+    $editBtn = new EditButton(
+        new HtmlString('Edit'),
+        (string)$opt['id'],
+        sprintf(
             "editOption(%d, '%s', '%s', '%s')",
             $opt['id'],
             addslashes($opt['selector_name']),
             addslashes($opt['option_name']),
             addslashes($opt['option_value'])
-        ));
+        )
+    );
     $actionsDiv->appendChild($editBtn);
     
+    // Delete button with form submission
     $deleteForm = (new Form())->setMethod('post')->addAttribute('style', 'display:inline');
     $deleteForm->appendChild((new Input())->setType('hidden')->setName('id')->setValue((string)$opt['id']));
-    $deleteForm->appendChild((new Button())->setType('submit')->setName('delete')->setText('Delete'));
+    
+    $deleteBtn = new DeleteButton(new HtmlString('Delete'), (string)$opt['id']);
+    $deleteBtn->setName('delete_btn')->setType('submit'); // Make it a submit button
+    $deleteForm->appendChild($deleteBtn);
+    
     $actionsDiv->appendChild($deleteForm);
     
     $actionCell = (new TableCell());
