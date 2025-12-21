@@ -10,6 +10,7 @@ use Ksfraser\HTML\Elements\Form;
 use Ksfraser\HTML\Elements\Input;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
+use Ksfraser\HTML\ScriptHandlers\LoanTypeScriptHandler;
 
 /**
  * LoanTypeTable - Displays and manages loan types
@@ -137,57 +138,18 @@ class LoanTypeTable {
         $form->append($formContainer);
         $output .= $form->render();
         
-        // Add JavaScript handlers
-        $output .= self::getScripts();
+        // Add handler scripts
+        $scriptHandler = new LoanTypeScriptHandler();
+        $output .= $scriptHandler->render();
         
         return $output;
     }
     
     /**
-     * Get JavaScript for table functionality
-     * 
-     * @return string HTML with script tag
+     * Get stylesheets for this view
      */
     private static function getStylesheets(): string {
         return StylesheetManager::getStylesheets('loan-types');
-    }
-    
-    /**
-     * Get JavaScript for table functionality
-     * 
-     * @return string HTML with script tag
-     */
-    private static function getScripts(): string {
-        return <<<HTML
-<script src="/js/handlers/BaseHandler.js"></script>
-<script src="/js/handlers/LoanTypeHandler.js"></script>
-<script>
-// Event listeners for handler responses
-document.addEventListener('loanTypeEdit', (e) => {
-    console.log('Loan type edit event:', e.detail);
-    // TODO: Open edit form with loan type data
-    // window.showEditLoanTypeForm(e.detail.data);
-});
-
-document.addEventListener('loanTypeDeleted', (e) => {
-    console.log('Loan type deleted event:', e.detail);
-    // TODO: Reload table or remove row from DOM
-    // window.location.reload();
-});
-
-document.addEventListener('loanTypeCreated', (e) => {
-    console.log('Loan type created event:', e.detail);
-    // TODO: Reload table or add new row to DOM
-    // window.location.reload();
-});
-
-document.addEventListener('loanTypeUpdated', (e) => {
-    console.log('Loan type updated event:', e.detail);
-    // TODO: Update table row with new data
-    // window.location.reload();
-});
-</script>
-HTML;
     }
 }
 

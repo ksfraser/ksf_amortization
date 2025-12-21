@@ -8,6 +8,7 @@ use Ksfraser\HTML\Elements\TableData;
 use Ksfraser\HTML\Elements\TableHeader;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
+use Ksfraser\HTML\ScriptHandlers\LoanScriptHandler;
 
 /**
  * LoanSummaryTable - Displays loan summary information
@@ -102,7 +103,10 @@ class LoanSummaryTable {
         }
         
         $output .= $table->render();
-        $output .= self::getScripts();
+        
+        // Add handler scripts
+        $scriptHandler = new LoanScriptHandler();
+        $output .= $scriptHandler->render();
         
         return $output;
     }
@@ -112,36 +116,6 @@ class LoanSummaryTable {
      */
     private static function getStylesheets(): string {
         return StylesheetManager::getStylesheets('loan-summary');
-    }
-    
-    /**
-     * Get JavaScript handlers
-     */
-    private static function getScripts(): string {
-        return <<<HTML
-<script src="/js/handlers/BaseHandler.js"></script>
-<script src="/js/handlers/LoanHandler.js"></script>
-<script>
-// Event listeners for handler responses
-document.addEventListener('loanViewed', (e) => {
-    console.log('Loan viewed event:', e.detail);
-    // TODO: Display loan details modal/panel
-    // window.showLoanDetailsModal(e.detail.data);
-});
-
-document.addEventListener('loanEdit', (e) => {
-    console.log('Loan edit event:', e.detail);
-    // TODO: Open edit form with loan data
-    // window.showEditLoanForm(e.detail.data);
-});
-
-document.addEventListener('loanUpdated', (e) => {
-    console.log('Loan updated event:', e.detail);
-    // TODO: Update table row or reload
-    // window.location.reload();
-});
-</script>
-HTML;
     }
 }
 

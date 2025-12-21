@@ -10,6 +10,7 @@ use Ksfraser\HTML\Elements\Form;
 use Ksfraser\HTML\Elements\Input;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
+use Ksfraser\HTML\ScriptHandlers\InterestFreqScriptHandler;
 
 /**
  * InterestCalcFrequencyTable - Displays and manages interest calculation frequencies
@@ -127,7 +128,9 @@ class InterestCalcFrequencyTable {
         $form->append($formContainer);
         $output .= $form->render();
         
-        $output .= self::getScripts();
+        // Add handler scripts
+        $scriptHandler = new InterestFreqScriptHandler();
+        $output .= $scriptHandler->render();
         
         return $output;
     }
@@ -137,42 +140,6 @@ class InterestCalcFrequencyTable {
      */
     private static function getStylesheets(): string {
         return StylesheetManager::getStylesheets('interest-freq');
-    }
-    
-    /**
-     * Get JavaScript handlers
-     */
-    private static function getScripts(): string {
-        return <<<HTML
-<script src="/js/handlers/BaseHandler.js"></script>
-<script src="/js/handlers/InterestFreqHandler.js"></script>
-<script>
-// Event listeners for handler responses
-document.addEventListener('interestFreqEdit', (e) => {
-    console.log('Frequency edit event:', e.detail);
-    // TODO: Open edit modal/form with frequency data
-    // window.showEditFrequencyModal(e.detail.data);
-});
-
-document.addEventListener('interestFreqDeleted', (e) => {
-    console.log('Frequency deleted event:', e.detail);
-    // TODO: Reload table or remove row from DOM
-    // window.location.reload();
-});
-
-document.addEventListener('interestFreqCreated', (e) => {
-    console.log('Frequency created event:', e.detail);
-    // TODO: Reload table or add new row to DOM
-    // window.location.reload();
-});
-
-document.addEventListener('interestFreqUpdated', (e) => {
-    console.log('Frequency updated event:', e.detail);
-    // TODO: Update table row with new data
-    // window.location.reload();
-});
-</script>
-HTML;
     }
 }
 
