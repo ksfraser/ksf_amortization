@@ -41,7 +41,9 @@
     "autoload": {
         "psr-4": {
             "Ksfraser\\Amortizations\\": "src/Ksfraser/Amortizations/",
-            "Ksfraser\\Caching\\": "src/Ksfraser/Caching/"
+            "Ksfraser\\Caching\\": "src/Ksfraser/Caching/",
+            "Ksfraser\\Performance\\": "src/Ksfraser/Performance/",
+            "Ksfraser\\Security\\": "src/Ksfraser/Security/"
         }
     },
     "autoload-dev": {
