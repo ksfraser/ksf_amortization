@@ -1,14 +1,20 @@
 <?php
-// WordPress Loan Borrower Selector UI
-?>
-<label for="borrower_id">Borrower (User):</label>
-<select name="borrower_id" id="borrower_id">
-  <option value="">Select User</option>
-  <?php
-  $users = get_users(['fields' => ['ID', 'display_name']]);
-  foreach ($users as $user) {
-      $name = esc_html($user->display_name);
-      echo "<option value=\"{$user->ID}\">$name</option>";
-  }
-  ?>
-</select>
+use Ksfraser\HTML\Builders\SelectBuilder;
+use Ksfraser\HTML\ScriptHandlers\AjaxSelectPopulator;
+
+// WordPress Loan Borrower Selector
+// Uses AjaxSelectPopulator for clean AJAX integration
+
+$borrowerPopulator = (new AjaxSelectPopulator())
+    ->setTriggerSelectId('borrower_type')
+    ->setTargetSelectId('borrower_id')
+    ->setAjaxEndpoint('borrower_ajax.php?crm=wordpress')
+    ->setParameterName('type');
+
+echo '<label for="borrower_id">Borrower (User):</label>';
+echo (new SelectBuilder())
+    ->setId('borrower_id')
+    ->setName('borrower_id')
+    ->addOption('', 'Select User')
+    ->toHtml();
+echo $borrowerPopulator->toHtml();

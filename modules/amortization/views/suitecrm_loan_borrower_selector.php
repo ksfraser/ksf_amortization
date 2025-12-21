@@ -1,16 +1,21 @@
 <?php
-// SuiteCRM Loan Borrower Selector UI
-// Assumes $db is the SuiteCRM database connection
-?>
-<label for="borrower_id">Borrower (Contact):</label>
-<select name="borrower_id" id="borrower_id">
-  <option value="">Select Contact</option>
-  <?php
-  $sql = "SELECT id, first_name, last_name FROM contacts";
-  $result = $db->query($sql);
-  while ($row = $db->fetch_assoc($result)) {
-      $name = htmlspecialchars($row['first_name'] . ' ' . $row['last_name']);
-      echo "<option value=\"{$row['id']}\">$name</option>";
-  }
-  ?>
-</select>
+use Ksfraser\HTML\Elements\HtmlSelect;
+use Ksfraser\HTML\Builders\SelectBuilder;
+use Ksfraser\HTML\ScriptHandlers\AjaxSelectPopulator;
+
+// SuiteCRM Loan Borrower Selector
+// Uses AjaxSelectPopulator for clean AJAX integration
+
+$borrowerPopulator = (new AjaxSelectPopulator())
+    ->setTriggerSelectId('borrower_type')
+    ->setTargetSelectId('borrower_id')
+    ->setAjaxEndpoint('borrower_ajax.php?crm=suitecrm')
+    ->setParameterName('type');
+
+echo '<label for="borrower_id">Borrower (Contact):</label>';
+echo (new SelectBuilder())
+    ->setId('borrower_id')
+    ->setName('borrower_id')
+    ->addOption('', 'Select Contact')
+    ->toHtml();
+echo $borrowerPopulator->toHtml();
