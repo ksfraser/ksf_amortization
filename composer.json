@@ -40,6 +40,10 @@
     },
     "autoload": {
         "psr-4": {
+            "Ksfraser\\HTML\\": "src/Ksfraser/HTML/",
+            "Ksfraser\\HTML\\Elements\\": "src/Ksfraser/HTML/Elements/",
+            "Ksfraser\\HTML\\CSS\\": "src/Ksfraser/HTML/CSS/",
+            "Ksfraser\\HTML\\Composites\\": "src/Ksfraser/HTML/Composites/",
             "Ksfraser\\Amortizations\\": "src/Ksfraser/Amortizations/"
         }
     },
