@@ -1,29 +1,41 @@
 <?php
-// User Loan Setup Form using SelectorModel for choices
+use Ksfraser\HTML\Elements\HtmlInput;
+use Ksfraser\HTML\Elements\HtmlForm;
+use Ksfraser\HTML\Builders\SelectBuilder;
 use Ksfraser\Amortizations\SelectorModel;
 
+// User Loan Setup Form with modern patterns
 $selectorModel = new SelectorModel($db);
 $paymentFrequencies = $selectorModel->getOptions('payment_frequency');
 $borrowerTypes = $selectorModel->getOptions('borrower_type');
-?>
-<form method="post">
-  <label for="loan_term_years">Loan Term (Years):</label>
-  <input type="number" name="loan_term_years" id="loan_term_years" min="1" value="1" required>
 
-  <label for="payment_frequency">Payment Frequency:</label>
-  <select name="payment_frequency" id="payment_frequency">
-    <?php foreach ($paymentFrequencies as $opt): ?>
-      <option value="<?= htmlspecialchars($opt['option_value']) ?>"><?= htmlspecialchars($opt['option_name']) ?></option>
-    <?php endforeach; ?>
-  </select>
+$form = (new HtmlForm())->setMethod('post');
 
-  <label for="borrower_type">Borrower Type:</label>
-  <select name="borrower_type" id="borrower_type">
-    <?php foreach ($borrowerTypes as $opt): ?>
-      <option value="<?= htmlspecialchars($opt['option_value']) ?>"><?= htmlspecialchars($opt['option_name']) ?></option>
-    <?php endforeach; ?>
-  </select>
+// Loan term field
+$form->addChild(new HtmlInput()
+    ->setType('number')
+    ->setName('loan_term_years')
+    ->setId('loan_term_years')
+    ->setAttributes(['min' => '1', 'value' => '1', 'required' => 'required']));
 
-  <!-- Add other loan fields as needed -->
-  <button type="submit">Submit</button>
-</form>
+// Payment frequency select
+$freqSelect = (new SelectBuilder())
+    ->setId('payment_frequency')
+    ->setName('payment_frequency')
+    ->addOptionsFromArray($paymentFrequencies, 'option_value', 'option_name');
+$form->addChild($freqSelect);
+
+// Borrower type select
+$borrowerSelect = (new SelectBuilder())
+    ->setId('borrower_type')
+    ->setName('borrower_type')
+    ->addOptionsFromArray($borrowerTypes, 'option_value', 'option_name');
+$form->addChild($borrowerSelect);
+
+// Submit button
+$form->addChild(new HtmlInput()
+    ->setType('submit')
+    ->setName('submit')
+    ->setAttribute('value', 'Submit'));
+
+echo $form->toHtml();

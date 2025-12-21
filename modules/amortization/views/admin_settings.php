@@ -1,37 +1,52 @@
 <?php
+// Admin Settings View - GL Account Configuration
+// This view handles GL account selector configuration for amortization module
 
-exit;
-/***
- * The code in the file should be in admin_settings class
- * 
- * 
- * 
- */
-// FA Admin Settings: GL selectors by category
-require_once FA_PATH . '/gl/includes/db/gl_db_accounts.inc';
+use Ksfraser\HTML\Elements\HtmlForm;
+use Ksfraser\HTML\Elements\HtmlInput;
+use Ksfraser\HTML\Builders\SelectBuilder;
+use Ksfraser\Amortizations\Repositories\GLAccountRepository;
 
-function gl_selector($name, $accounts, $selected = '') {
-    echo "<label for='$name'>" . ucfirst(str_replace('_', ' ', $name)) . ":</label>";
-    echo "<select name='$name' id='$name'>";
-    foreach ($accounts as $acc) {
-        $sel = ($acc['account_code'] == $selected) ? 'selected' : '';
-        echo "<option value='{$acc['account_code']}' $sel>{$acc['account_name']}</option>";
-    }
-    echo "</select>";
-}
+// Initialize GL account repository
+$glRepository = new GLAccountRepository();
 
 // Get GL accounts by category
-$liability_gls = get_gl_accounts(CL_LIABILITIES);
-$asset_gls = get_gl_accounts(CL_ASSETS);
-$expense_gls = get_gl_accounts(CL_AMORTIZATION);
-$asset_value_gls = get_gl_accounts(CL_FIXEDASSETS);
+$liabilityGLs = $glRepository->getAccountsByClass(CL_LIABILITIES);
+$assetGLs = $glRepository->getAccountsByClass(CL_ASSETS);
+$expenseGLs = $glRepository->getAccountsByClass(CL_AMORTIZATION);
+$assetValueGLs = $glRepository->getAccountsByClass(CL_FIXEDASSETS);
 
-// UI
-?>
-<form method="post">
-  <?php gl_selector('liability_gl', $liability_gls); ?>
-  <?php gl_selector('asset_gl', $asset_gls); ?>
-  <?php gl_selector('expenses_gl', $expense_gls); ?>
-  <?php gl_selector('asset_value_gl', $asset_value_gls); ?>
-  <button type="submit">Save Settings</button>
-</form>
+// Build form using modern patterns
+$form = (new HtmlForm())->setMethod('post');
+
+// Liability GL selector
+$form->addChild((new SelectBuilder())
+    ->setId('liability_gl')
+    ->setName('liability_gl')
+    ->addOptionsFromArray($liabilityGLs, 'account_code', 'account_name'));
+
+// Asset GL selector
+$form->addChild((new SelectBuilder())
+    ->setId('asset_gl')
+    ->setName('asset_gl')
+    ->addOptionsFromArray($assetGLs, 'account_code', 'account_name'));
+
+// Expense GL selector
+$form->addChild((new SelectBuilder())
+    ->setId('expenses_gl')
+    ->setName('expenses_gl')
+    ->addOptionsFromArray($expenseGLs, 'account_code', 'account_name'));
+
+// Asset Value GL selector
+$form->addChild((new SelectBuilder())
+    ->setId('asset_value_gl')
+    ->setName('asset_value_gl')
+    ->addOptionsFromArray($assetValueGLs, 'account_code', 'account_name'));
+
+// Submit button
+$form->addChild(new HtmlInput()
+    ->setType('submit')
+    ->setName('submit')
+    ->setAttribute('value', 'Save Settings'));
+
+echo $form->toHtml();
