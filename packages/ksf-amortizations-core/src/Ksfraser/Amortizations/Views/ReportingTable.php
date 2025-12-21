@@ -105,13 +105,6 @@ class ReportingTable {
             $table->append($row);
         }
         
-        // Load CSS
-        if (function_exists('asset_url')) {
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/reporting-table.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/reporting-form.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/reporting-buttons.css') . '">';
-        }
-        
         $output .= $table->render();
         $output .= self::getScripts();
         
@@ -130,83 +123,6 @@ class ReportingTable {
      */
     private static function getScripts(): string {
         return <<<HTML
-<style>
-    .reporting-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        background: white;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    
-    .reporting-table th {
-        background-color: #1976d2;
-        color: white;
-        padding: 12px;
-        text-align: left;
-        font-weight: 600;
-        border: 1px solid #1565c0;
-    }
-    
-    .reporting-table td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .reporting-table tbody tr:hover {
-        background-color: #f5f5f5;
-    }
-    
-    .reporting-table .type-cell {
-        font-weight: 500;
-        color: #333;
-    }
-    
-    .reporting-table .date-cell {
-        font-size: 13px;
-        color: #666;
-    }
-    
-    .reporting-table .actions-cell {
-        text-align: center;
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 5px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    
-    .btn-small {
-        padding: 6px 12px;
-        font-size: 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-    
-    .btn-view {
-        background-color: #1976d2;
-        color: white;
-    }
-    
-    .btn-view:hover {
-        background-color: #1565c0;
-    }
-    
-    .btn-download {
-        background-color: #388e3c;
-        color: white;
-    }
-    
-    .btn-download:hover {
-        background-color: #2e7d32;
-    }
-</style>
-
 <script>
 function viewReport(id) {
     console.log('View report:', id);
@@ -216,4 +132,3 @@ function viewReport(id) {
 HTML;
     }
 }
-
