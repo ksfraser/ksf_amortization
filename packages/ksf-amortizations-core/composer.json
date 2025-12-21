@@ -10,6 +10,12 @@
             "email": "dev@ksfraser.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../vendor-src/ksfraser-html"
+        }
+    ],
     "require": {
         "php": ">=7.4",
         "brick/math": "^0.11",
