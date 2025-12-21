@@ -86,14 +86,14 @@ class LoanSummaryTable {
                 ->setType('button')
                 ->addClass('btn-small btn-view')
                 ->setText('View')
-                ->setAttribute('onclick', 'window.viewLoan ? viewLoan(' . intval($loan->id ?? 0) . ') : console.log("Handler not loaded")');
+                ->setAttribute('onclick', 'window.loanHandler && window.loanHandler.view(' . intval($loan->id ?? 0) . ')');
             $actionsDiv->append($viewBtn);
             
             $editBtn = (new Button())
                 ->setType('button')
                 ->addClass('btn-small btn-edit')
                 ->setText('Edit')
-                ->setAttribute('onclick', 'window.editLoan ? editLoan(' . intval($loan->id ?? 0) . ') : console.log("Handler not loaded")');
+                ->setAttribute('onclick', 'window.loanHandler && window.loanHandler.edit(' . intval($loan->id ?? 0) . ')');
             $actionsDiv->append($editBtn);
             
             $actionsCell->append($actionsDiv);
@@ -119,16 +119,27 @@ class LoanSummaryTable {
      */
     private static function getScripts(): string {
         return <<<HTML
+<script src="/js/handlers/BaseHandler.js"></script>
+<script src="/js/handlers/LoanHandler.js"></script>
 <script>
-function viewLoan(id) {
-    console.log('View loan:', id);
-    // TODO: Implement view loan details
-}
+// Event listeners for handler responses
+document.addEventListener('loanViewed', (e) => {
+    console.log('Loan viewed event:', e.detail);
+    // TODO: Display loan details modal/panel
+    // window.showLoanDetailsModal(e.detail.data);
+});
 
-function editLoan(id) {
-    console.log('Edit loan:', id);
-    // TODO: Implement edit loan form
-}
+document.addEventListener('loanEdit', (e) => {
+    console.log('Loan edit event:', e.detail);
+    // TODO: Open edit form with loan data
+    // window.showEditLoanForm(e.detail.data);
+});
+
+document.addEventListener('loanUpdated', (e) => {
+    console.log('Loan updated event:', e.detail);
+    // TODO: Update table row or reload
+    // window.location.reload();
+});
 </script>
 HTML;
     }

@@ -81,7 +81,7 @@ class LoanTypeTable {
                 ->setType('button')
                 ->addClass('btn-small btn-edit')
                 ->setText('Edit')
-                ->setAttribute('onclick', 'window.editLoanType ? editLoanType(' . intval($type->id ?? 0) . ') : console.log("Handler not loaded")');
+                ->setAttribute('onclick', 'window.loanTypeHandler && window.loanTypeHandler.edit(' . intval($type->id ?? 0) . ')');
             $actionsDiv->append($editBtn);
             
             // Delete button
@@ -89,7 +89,7 @@ class LoanTypeTable {
                 ->setType('button')
                 ->addClass('btn-small btn-delete')
                 ->setText('Delete')
-                ->setAttribute('onclick', 'window.deleteLoanType ? deleteLoanType(' . intval($type->id ?? 0) . ') : console.log("Handler not loaded")');
+                ->setAttribute('onclick', 'window.loanTypeHandler && window.loanTypeHandler.delete(' . intval($type->id ?? 0) . ')');
             $actionsDiv->append($deleteBtn);
             
             $actionsCell->append($actionsDiv);
@@ -159,24 +159,33 @@ class LoanTypeTable {
      */
     private static function getScripts(): string {
         return <<<HTML
+<script src="/js/handlers/BaseHandler.js"></script>
+<script src="/js/handlers/LoanTypeHandler.js"></script>
 <script>
-/**
- * Edit loan type - TODO: Implement edit functionality
- */
-function editLoanType(id) {
-    console.log('Edit loan type:', id);
-    // TODO: Implement edit form or modal
-}
+// Event listeners for handler responses
+document.addEventListener('loanTypeEdit', (e) => {
+    console.log('Loan type edit event:', e.detail);
+    // TODO: Open edit form with loan type data
+    // window.showEditLoanTypeForm(e.detail.data);
+});
 
-/**
- * Delete loan type - TODO: Implement delete functionality
- */
-function deleteLoanType(id) {
-    if (confirm('Delete this loan type?')) {
-        console.log('Delete loan type:', id);
-        // TODO: Implement delete via AJAX or form submission
-    }
-}
+document.addEventListener('loanTypeDeleted', (e) => {
+    console.log('Loan type deleted event:', e.detail);
+    // TODO: Reload table or remove row from DOM
+    // window.location.reload();
+});
+
+document.addEventListener('loanTypeCreated', (e) => {
+    console.log('Loan type created event:', e.detail);
+    // TODO: Reload table or add new row to DOM
+    // window.location.reload();
+});
+
+document.addEventListener('loanTypeUpdated', (e) => {
+    console.log('Loan type updated event:', e.detail);
+    // TODO: Update table row with new data
+    // window.location.reload();
+});
 </script>
 HTML;
     }

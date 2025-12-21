@@ -76,14 +76,14 @@ class InterestCalcFrequencyTable {
                 ->setType('button')
                 ->addClass('btn-small btn-edit')
                 ->setText('Edit')
-                ->setAttribute('onclick', 'window.editInterestFreq ? editInterestFreq(' . intval($freq->id ?? 0) . ') : console.log("Handler not loaded")');
+                ->setAttribute('onclick', 'window.interestFreqHandler && window.interestFreqHandler.edit(' . intval($freq->id ?? 0) . ')');
             $actionsDiv->append($editBtn);
             
             $deleteBtn = (new Button())
                 ->setType('button')
                 ->addClass('btn-small btn-delete')
                 ->setText('Delete')
-                ->setAttribute('onclick', 'window.deleteInterestFreq ? deleteInterestFreq(' . intval($freq->id ?? 0) . ') : console.log("Handler not loaded")');
+                ->setAttribute('onclick', 'window.interestFreqHandler && window.interestFreqHandler.delete(' . intval($freq->id ?? 0) . ')');
             $actionsDiv->append($deleteBtn);
             
             $actionsCell->append($actionsDiv);
@@ -144,18 +144,33 @@ class InterestCalcFrequencyTable {
      */
     private static function getScripts(): string {
         return <<<HTML
+<script src="/js/handlers/BaseHandler.js"></script>
+<script src="/js/handlers/InterestFreqHandler.js"></script>
 <script>
-function editInterestFreq(id) {
-    console.log('Edit interest frequency:', id);
-    // TODO: Implement edit frequency handler
-}
+// Event listeners for handler responses
+document.addEventListener('interestFreqEdit', (e) => {
+    console.log('Frequency edit event:', e.detail);
+    // TODO: Open edit modal/form with frequency data
+    // window.showEditFrequencyModal(e.detail.data);
+});
 
-function deleteInterestFreq(id) {
-    if (confirm('Delete this frequency?')) {
-        console.log('Delete interest frequency:', id);
-        // TODO: Implement delete frequency handler
-    }
-}
+document.addEventListener('interestFreqDeleted', (e) => {
+    console.log('Frequency deleted event:', e.detail);
+    // TODO: Reload table or remove row from DOM
+    // window.location.reload();
+});
+
+document.addEventListener('interestFreqCreated', (e) => {
+    console.log('Frequency created event:', e.detail);
+    // TODO: Reload table or add new row to DOM
+    // window.location.reload();
+});
+
+document.addEventListener('interestFreqUpdated', (e) => {
+    console.log('Frequency updated event:', e.detail);
+    // TODO: Update table row with new data
+    // window.location.reload();
+});
 </script>
 HTML;
     }
