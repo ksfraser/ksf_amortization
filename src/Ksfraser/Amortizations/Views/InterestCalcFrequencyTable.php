@@ -91,13 +91,6 @@ class InterestCalcFrequencyTable {
             $table->append($row);
         }
         
-        // Load CSS
-        if (function_exists('asset_url')) {
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/interest-freq-table.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/interest-freq-form.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/interest-freq-buttons.css') . '">';
-        }
-        
         $output .= $table->render();
         
         // Build add form

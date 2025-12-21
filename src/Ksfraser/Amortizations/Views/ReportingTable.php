@@ -105,13 +105,6 @@ class ReportingTable {
             $table->append($row);
         }
         
-        // Load CSS
-        if (function_exists('asset_url')) {
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/reporting-table.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/reporting-form.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/reporting-buttons.css') . '">';
-        }
-        
         $output .= $table->render();
         $output .= self::getScripts();
         

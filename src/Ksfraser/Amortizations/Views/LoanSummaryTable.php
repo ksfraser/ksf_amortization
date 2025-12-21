@@ -101,13 +101,6 @@ class LoanSummaryTable {
             $table->append($row);
         }
         
-        // Load CSS
-        if (function_exists('asset_url')) {
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/loan-summary-table.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/loan-summary-form.css') . '">';
-            $output .= '<link rel="stylesheet" href="' . asset_url('css/loan-summary-buttons.css') . '">';
-        }
-        
         $output .= $table->render();
         $output .= self::getScripts();
         
