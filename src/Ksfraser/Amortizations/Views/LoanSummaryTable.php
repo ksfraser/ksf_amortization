@@ -5,7 +5,6 @@ use Ksfraser\HTML\Elements\Heading;
 use Ksfraser\HTML\Elements\Table;
 use Ksfraser\HTML\Elements\TableRow;
 use Ksfraser\HTML\Elements\TableData;
-use Ksfraser\HTML\Elements\TableHeader;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\ScriptHandlers\LoanScriptHandler;
@@ -41,13 +40,7 @@ class LoanSummaryTable {
         
         // Header row
         $headerRow = (new TableRow())->addClass('header-row');
-        $headerRow->append(
-            (new TableHeader())->setText('ID'),
-            (new TableHeader())->setText('Borrower'),
-            (new TableHeader())->setText('Amount'),
-            (new TableHeader())->setText('Status'),
-            (new TableHeader())->setText('Actions')
-        );
+        $headerRow->addHeadersFromArray(['ID', 'Borrower', 'Amount', 'Status', 'Actions']);
         $table->append($headerRow);
         
         // Data rows
