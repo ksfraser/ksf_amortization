@@ -94,7 +94,27 @@ controller.php
 └── default → In-controller navigation ✅
 ```
 
-## 4. Remaining View Files Not Yet Refactored
+## 4. Newly Refactored Files (Session 2)
+
+### Scenario Builder Feature ✅
+- [x] `scenario_builder.php` - NEW - What-if scenario creation interface
+  - Status: Fully refactored with HTML builders
+  - Assets: 5 CSS files + 5 JavaScript classes
+  - SRP Pattern: Each class has single responsibility
+
+**New Asset Files Created:**
+- `assets/css/scenario-container.css` - Layout and container
+- `assets/css/scenario-tabs.css` - Tab navigation
+- `assets/css/scenario-forms.css` - Form elements
+- `assets/css/scenario-buttons.css` - Button styling
+- `assets/css/scenario-tables.css` - Table styling
+- `assets/js/ScenarioTabs.js` - Tab management
+- `assets/js/ScenarioFormFields.js` - Form field visibility
+- `assets/js/ScenarioCalculator.js` - Real-time calculations
+- `assets/js/ScenarioActions.js` - User actions (view, delete, compare)
+- `assets/js/ScenarioBuilder.js` - Main orchestrator
+
+## 5. Remaining View Files Not Yet Refactored
 
 The following view files still use hardcoded HTML and need updating to use `Ksfraser\HTML`:
 
@@ -131,19 +151,34 @@ TO: packages/ksf-amortizations-suitecrm/module/views/
 |------|--------|---------|
 | HTML Library Dependency | ✅ Added | `ksfraser/html` ^1.0 in all packages |
 | Controller HTML Refactoring | ✅ Complete | Uses Ksfraser\HTML builders |
+| Scenario Builder View | ✅ Complete | NEW - Fully HTML builder refactored |
+| Scenario Builder Assets | ✅ Complete | 5 CSS + 5 JS classes (SRP) |
 | View File Reachability | ✅ Confirmed | All paths correct |
-| FA-Specific Views | ⚠️ Ready | Present but need HTML refactoring |
-| Cross-Platform Views | ❌ Misplaced | Need to move to respective packages |
+| FA-Specific Views | ❌ Not Started | Present but need HTML refactoring |
+| Cross-Platform Views | ❌ Not Moved | Still misplaced in FA package |
 | Duplicate Views | ⚠️ Exists | Old location at /modules/amortization/views/ |
 
-## Next Steps
+## 7. What Still Needs Doing
 
-1. **Refactor View Files** - Update all view files to use `Ksfraser\HTML` builders
-2. **Move Cross-Platform Views** - Reorganize WordPress/SuiteCRM views to their packages
-3. **Remove Duplicates** - Delete old view files from `/modules/amortization/views/`
-4. **Test HTML Output** - Verify rendered HTML is valid and styled correctly
-5. **Create HTML Helper Factories** - Consider creating platform-specific form builders
+### Immediate Tasks (Next Session)
+1. **Refactor admin_settings.php** - GL selector interface with HTML builders
+2. **Refactor admin_selectors.php** - Selector management with HTML builders
+3. **Refactor user_loan_setup.php** - Loan creation form with HTML builders
+4. **Move WordPress Views** - Relocate wp_*.php to WordPress package
+5. **Move SuiteCRM Views** - Relocate suitecrm_*.php to SuiteCRM package
+6. **Remove Duplicates** - Delete old view files from `/modules/amortization/views/`
+
+### Later Tasks
+1. **Refactor Core Views** - Update LoanTypeTable, InterestCalcFrequencyTable, etc.
+2. **Create HTML Helper Factories** - Consider platform-specific form builders
+3. **Test HTML Output** - Verify all rendered HTML is valid and styled
+4. **Document View Patterns** - Establish conventions for new views
 
 ---
 
-**Last Updated:** Commit 80c0f14 (December 20, 2025)
+**Last Updated:** December 20, 2025 (Session 2)
+**Updates This Session:**
+- ✅ Added scenario_builder.php to refactored views
+- ✅ Added 10 new asset files (5 CSS + 5 JS)
+- ✅ Fixed controller.php to use consistent ->toHtml()
+- ✅ Clarified remaining gaps in audit

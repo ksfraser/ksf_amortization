@@ -7,6 +7,10 @@
     "repositories": [
         {
             "type": "path",
+            "url": "vendor-src/ksfraser-html"
+        },
+        {
+            "type": "path",
             "url": "packages/ksf-amortizations-core"
         },
         {
@@ -25,6 +29,7 @@
     "require": {
         "php": ">=7.3",
         "brick/math": "^0.11",
+        "ksfraser/html": "^1.0",
         "ksfraser/amortizations-core": "^1.0",
         "ksfraser/amortizations-frontaccounting": "^1.0",
         "ksfraser/amortizations-wordpress": "^1.0",

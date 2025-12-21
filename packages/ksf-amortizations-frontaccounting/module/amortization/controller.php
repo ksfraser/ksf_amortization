@@ -99,6 +99,6 @@ switch ($action) {
         $nav->toHtml();
         
         // TODO: Implement loan list view
-        echo (new Paragraph())->setText('Loan list view coming soon...');
+        (new Paragraph())->setText('Loan list view coming soon...')->toHtml();
         break;
 }

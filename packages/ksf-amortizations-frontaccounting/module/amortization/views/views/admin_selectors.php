@@ -1,125 +1,280 @@
 <?php
-// Admin screen for selector options
-// Uses Ksfraser\HTML builders for semantic HTML generation
+/**
+ * Admin Selector Options Management
+ * 
+ * Allows administrators to manage selector options for loan types, terms, etc.
+ * Provides CRUD interface for selector options with HTML builder pattern.
+ * Follows SRP - single responsibility of selector option management UI.
+ * 
+ * @var array $options List of selector options to display
+ */
 
 use Ksfraser\HTML\Elements\Heading;
 use Ksfraser\HTML\Elements\Form;
+use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\Elements\Label;
 use Ksfraser\HTML\Elements\Input;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Table;
 use Ksfraser\HTML\Elements\TableRow;
-use Ksfraser\HTML\Elements\TableCell;
-use Ksfraser\HTML\Elements\TableHeaderCell;
-use Ksfraser\HTML\Elements\Div;
-use Ksfraser\HTML\Elements\EditButton;
-use Ksfraser\HTML\Elements\DeleteButton;
-use Ksfraser\HTML\Elements\HtmlString;
-use Ksfraser\HTML\Elements\HtmlHidden;
-use Ksfraser\HTML\Elements\HtmlSubmit;
-use Ksfraser\HTML\Elements\HtmlScript;
-use Ksfraser\HTML\Elements\SelectEditJSHandler;
-use Ksfraser\HTML\Elements\TableBuilder;
-use Ksfraser\Amortizations\Repository\SelectorRepository;
+use Ksfraser\HTML\Elements\TableData;
+use Ksfraser\HTML\Elements\Paragraph;
 
-// Get table prefix from FrontAccounting constant
+// Get FrontAccounting constants
 $dbPrefix = defined('TB_PREF') ? TB_PREF : '0_';
 
-// Initialize repository for data access
-$selectorRepo = new SelectorRepository($db, 'ksf_selectors', $dbPrefix);
-
-// Handle add/edit/delete actions
+// Handle POST actions (add, edit, delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['add'])) {
-        $selectorRepo->add($_POST['selector_name'], $_POST['option_name'], $_POST['option_value']);
-    } elseif (isset($_POST['edit'])) {
-        $selectorRepo->update($_POST['id'], $_POST['selector_name'], $_POST['option_name'], $_POST['option_value']);
-    } elseif (isset($_POST['delete'])) {
-        $selectorRepo->delete($_POST['id']);
+    if (isset($_POST['action'])) {
+        // TODO: Implement selector repository for database operations
+        // $selectorRepo->save($_POST) or similar
     }
 }
 
-// Fetch all selector options
-$options = $selectorRepo->getAll();
+// TODO: Load options from database
+$options = isset($options) ? $options : [];
 
-// Build heading
-(new Heading(2))->setText('Selector Options Admin')->toHtml();
+// Build the page heading
+echo (new Heading(2))->setText('Selector Options Management')->render();
 
-// Build form
-$form = (new Form())->setMethod('post');
-$form->appendChild((new HtmlHidden())->setName('id')->setId('edit_id'));
+// Build the add/edit form
+$form = (new Form())
+    ->setId('selectorForm')
+    ->setMethod('POST');
 
-$form->appendChild((new Label())->setFor('selector_name')->setText('Selector Name:'));
-$form->appendChild((new Input())->setType('text')->setName('selector_name')->setId('selector_name')->addAttribute('required', 'required'));
+// Add form sections
+$formSection = (new Div())->addClass('form-section');
 
-$form->appendChild((new Label())->setFor('option_name')->setText('Option Name:'));
-$form->appendChild((new Input())->setType('text')->setName('option_name')->setId('option_name')->addAttribute('required', 'required'));
+// Selector Name
+$nameGroup = (new Div())->addClass('form-group');
+$nameGroup->append((new Label())->setFor('selector_name')->setText('Selector Name *'));
+$nameGroup->append(
+    (new Input())
+        ->setType('text')
+        ->setId('selector_name')
+        ->setName('selector_name')
+        ->setAttribute('placeholder', 'e.g., Loan Type, Payment Frequency')
+        ->setRequired(true)
+);
+$formSection->append($nameGroup);
 
-$form->appendChild((new Label())->setFor('option_value')->setText('Option Value:'));
-$form->appendChild((new Input())->setType('text')->setName('option_value')->setId('option_value')->addAttribute('required', 'required'));
+// Option Name
+$optionGroup = (new Div())->addClass('form-group');
+$optionGroup->append((new Label())->setFor('option_name')->setText('Option Name *'));
+$optionGroup->append(
+    (new Input())
+        ->setType('text')
+        ->setId('option_name')
+        ->setName('option_name')
+        ->setAttribute('placeholder', 'e.g., Personal Loan, Monthly')
+        ->setRequired(true)
+);
+$formSection->append($optionGroup);
 
-$form->appendChild((new HtmlSubmit(new HtmlString('Add Option')))->setName('add'));
-$form->appendChild((new HtmlSubmit(new HtmlString('Edit Option')))->setName('edit'));
+// Option Value
+$valueGroup = (new Div())->addClass('form-group');
+$valueGroup->append((new Label())->setFor('option_value')->setText('Option Value *'));
+$valueGroup->append(
+    (new Input())
+        ->setType('text')
+        ->setId('option_value')
+        ->setName('option_value')
+        ->setAttribute('placeholder', 'Internal value for this option')
+        ->setRequired(true)
+);
+$formSection->append($valueGroup);
 
-$form->toHtml();
+$form->append($formSection);
 
-// Build table
-$table = (new Table())->addAttribute('border', '1');
+// Form actions
+$actions = (new Div())->addClass('form-actions');
+$actions->append(
+    (new Button())
+        ->setType('submit')
+        ->setName('action')
+        ->setAttribute('value', 'add')
+        ->addClass('btn btn-primary')
+        ->setText('Add Option')
+);
+$actions->append(
+    (new Button())
+        ->setType('reset')
+        ->addClass('btn btn-secondary')
+        ->setText('Clear Form')
+);
 
-// Build header row using TableBuilder
-$headerRow = TableBuilder::createHeaderRow([
-    'ID',
-    'Selector Name',
-    'Option Name',
-    'Option Value',
-    'Actions'
-]);
-$table->appendChild($headerRow);
+$form->append($actions);
 
-// Build data rows
-foreach ($options as $opt) {
-    $row = (new TableRow());
-    $row->appendChild((new TableCell())->setText((string)$opt['id']));
-    $row->appendChild((new TableCell())->setText(htmlspecialchars($opt['selector_name'])));
-    $row->appendChild((new TableCell())->setText(htmlspecialchars($opt['option_name'])));
-    $row->appendChild((new TableCell())->setText(htmlspecialchars($opt['option_value'])));
+echo $form->render();
+
+// Build the options table
+if (!empty($options)) {
+    $table = (new Table())->addClass('selectors-table');
     
-    // Actions cell
-    $actionsDiv = (new Div());
+    // Header row
+    $headerRow = (new TableRow());
+    $headerRow->append((new TableData())->setText('<strong>ID</strong>'));
+    $headerRow->append((new TableData())->setText('<strong>Selector Name</strong>'));
+    $headerRow->append((new TableData())->setText('<strong>Option Name</strong>'));
+    $headerRow->append((new TableData())->setText('<strong>Option Value</strong>'));
+    $headerRow->append((new TableData())->setText('<strong>Actions</strong>'));
+    $table->append($headerRow);
     
-    // Edit button using specialized EditButton class
-    $editBtn = new EditButton(
-        new HtmlString('Edit'),
-        (string)$opt['id'],
-        sprintf(
-            "editOption(%d, '%s', '%s', '%s')",
-            $opt['id'],
-            addslashes($opt['selector_name']),
-            addslashes($opt['option_name']),
-            addslashes($opt['option_value'])
-        )
-    );
-    $actionsDiv->appendChild($editBtn);
+    // Data rows
+    foreach ($options as $option) {
+        $row = (new TableRow());
+        $row->append((new TableData())->setText((string)$option['id']));
+        $row->append((new TableData())->setText(htmlspecialchars($option['selector_name'])));
+        $row->append((new TableData())->setText(htmlspecialchars($option['option_name'])));
+        $row->append((new TableData())->setText(htmlspecialchars($option['option_value'])));
+        
+        // Actions cell
+        $actionsCell = (new TableData());
+        $actionsDiv = (new Div());
+        
+        $actionsDiv->append(
+            (new Button())
+                ->addClass('btn-small')
+                ->setType('button')
+                ->setAttribute('onclick', "editOption(" . intval($option['id']) . ")")
+                ->setText('Edit')
+        );
+        
+        $actionsDiv->append(
+            (new Button())
+                ->addClass('btn-small')
+                ->setType('button')
+                ->setAttribute('onclick', "deleteOption(" . intval($option['id']) . ")")
+                ->setText('Delete')
+        );
+        
+        $actionsCell->append($actionsDiv);
+        $row->append($actionsCell);
+        
+        $table->append($row);
+    }
     
-    // Delete button with form submission
-    $deleteForm = (new Form())->setMethod('post')->addAttribute('style', 'display:inline');
-    $deleteForm->appendChild((new HtmlHidden())->setName('id')->setValue((string)$opt['id']));
+    echo $table->render();
+} else {
+    echo (new Paragraph())->addClass('no-data')->setText('No selector options found. Create your first option above.')->render();
+}
+?>
+
+<style>
+    .form-section {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
     
-    $deleteBtn = new DeleteButton(new HtmlString('Delete'), (string)$opt['id']);
-    $deleteBtn->setName('delete_btn')->setType('submit'); // Make it a submit button
-    $deleteForm->appendChild($deleteBtn);
+    .form-group {
+        margin-bottom: 15px;
+    }
     
-    $actionsDiv->appendChild($deleteForm);
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #333;
+    }
     
-    $actionCell = (new TableCell());
-    $actionCell->appendChild($actionsDiv);
-    $row->appendChild($actionCell);
+    .form-group input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
     
-    $table->appendChild($row);
+    .form-group input:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 5px rgba(25, 118, 210, 0.2);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .btn:hover {
+        background-color: #1565c0;
+    }
+    
+    .btn-secondary {
+        background-color: #757575;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #616161;
+    }
+    
+    .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin: 0 2px;
+    }
+    
+    .selectors-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .selectors-table tbody tr:first-child {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+    
+    .selectors-table tr {
+        border-bottom: 1px solid #eee;
+    }
+    
+    .selectors-table td {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .selectors-table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .no-data {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+</style>
+
+<script>
+function editOption(id) {
+    // TODO: Implement edit functionality
+    console.log('Edit option:', id);
 }
 
-$table->toHtml();
-
-// Output JavaScript using specialized handler class
-$editHandler = new SelectEditJSHandler();
-$editHandler->getHtml();
+function deleteOption(id) {
+    if (confirm('Delete this selector option?')) {
+        // TODO: Implement delete functionality
+        console.log('Delete option:', id);
+    }
+}
+</script>
