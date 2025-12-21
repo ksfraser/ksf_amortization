@@ -43,7 +43,11 @@
             "Ksfraser\\Amortizations\\": "src/Ksfraser/Amortizations/",
             "Ksfraser\\Caching\\": "src/Ksfraser/Caching/",
             "Ksfraser\\Performance\\": "src/Ksfraser/Performance/",
-            "Ksfraser\\Security\\": "src/Ksfraser/Security/"
+            "Ksfraser\\Security\\": "src/Ksfraser/Security/",
+            "Ksfraser\\Api\\": "src/Ksfraser/Api/",
+            "Ksfraser\\Webhooks\\": "src/Ksfraser/Webhooks/",
+            "Ksfraser\\Plugins\\": "src/Ksfraser/Plugins/",
+            "Ksfraser\\Localization\\": "src/Ksfraser/Localization/"
         }
     },
     "autoload-dev": {
