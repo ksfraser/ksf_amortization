@@ -11,6 +11,7 @@ use Ksfraser\HTML\Elements\Input;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\ScriptHandlers\LoanTypeScriptHandler;
+use Ksfraser\HTML\Rows\LoanTypeTableRow;
 
 /**
  * LoanTypeTable - Displays and manages loan types
@@ -52,51 +53,9 @@ class LoanTypeTable {
         $table->append($headerRow);
         
         // Data rows
+        $rowBuilder = new LoanTypeTableRow();
         foreach ($loanTypes as $type) {
-            $row = (new TableRow())->addClass('data-row');
-            
-            // ID cell
-            $row->append((new TableData())
-                ->addClass('id-cell')
-                ->setText((string)($type->id ?? 'N/A'))
-            );
-            
-            // Name cell
-            $row->append((new TableData())
-                ->addClass('name-cell')
-                ->setText(htmlspecialchars($type->name ?? ''))
-            );
-            
-            // Description cell
-            $row->append((new TableData())
-                ->addClass('description-cell')
-                ->setText(htmlspecialchars($type->description ?? ''))
-            );
-            
-            // Actions cell
-            $actionsCell = (new TableData())->addClass('actions-cell');
-            $actionsDiv = (new Div())->addClass('action-buttons');
-            
-            // Edit button
-            $editBtn = (new Button())
-                ->setType('button')
-                ->addClass('btn-small btn-edit')
-                ->setText('Edit')
-                ->setAttribute('onclick', 'window.loanTypeHandler && window.loanTypeHandler.edit(' . intval($type->id ?? 0) . ')');
-            $actionsDiv->append($editBtn);
-            
-            // Delete button
-            $deleteBtn = (new Button())
-                ->setType('button')
-                ->addClass('btn-small btn-delete')
-                ->setText('Delete')
-                ->setAttribute('onclick', 'window.loanTypeHandler && window.loanTypeHandler.delete(' . intval($type->id ?? 0) . ')');
-            $actionsDiv->append($deleteBtn);
-            
-            $actionsCell->append($actionsDiv);
-            $row->append($actionsCell);
-            
-            $table->append($row);
+            $table->append($rowBuilder->build($type));
         }
         
         $output .= $table->render();

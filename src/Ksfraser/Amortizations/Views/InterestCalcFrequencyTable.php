@@ -11,6 +11,7 @@ use Ksfraser\HTML\Elements\Input;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\ScriptHandlers\InterestFreqScriptHandler;
+use Ksfraser\HTML\Rows\InterestFreqTableRow;
 
 /**
  * InterestCalcFrequencyTable - Displays and manages interest calculation frequencies
@@ -52,44 +53,9 @@ class InterestCalcFrequencyTable {
         $table->append($headerRow);
         
         // Data rows
+        $rowBuilder = new InterestFreqTableRow();
         foreach ($interestCalcFreqs as $freq) {
-            $row = (new TableRow())->addClass('data-row');
-            
-            $row->append((new TableData())
-                ->addClass('id-cell')
-                ->setText((string)($freq->id ?? 'N/A'))
-            );
-            
-            $row->append((new TableData())
-                ->addClass('name-cell')
-                ->setText(htmlspecialchars($freq->name ?? ''))
-            );
-            
-            $row->append((new TableData())
-                ->addClass('description-cell')
-                ->setText(htmlspecialchars($freq->description ?? ''))
-            );
-            
-            $actionsCell = (new TableData())->addClass('actions-cell');
-            $actionsDiv = (new Div())->addClass('action-buttons');
-            
-            $editBtn = (new Button())
-                ->setType('button')
-                ->addClass('btn-small btn-edit')
-                ->setText('Edit')
-                ->setAttribute('onclick', 'window.interestFreqHandler && window.interestFreqHandler.edit(' . intval($freq->id ?? 0) . ')');
-            $actionsDiv->append($editBtn);
-            
-            $deleteBtn = (new Button())
-                ->setType('button')
-                ->addClass('btn-small btn-delete')
-                ->setText('Delete')
-                ->setAttribute('onclick', 'window.interestFreqHandler && window.interestFreqHandler.delete(' . intval($freq->id ?? 0) . ')');
-            $actionsDiv->append($deleteBtn);
-            
-            $actionsCell->append($actionsDiv);
-            $row->append($actionsCell);
-            $table->append($row);
+            $table->append($rowBuilder->build($freq));
         }
         
         $output .= $table->render();

@@ -9,6 +9,7 @@ use Ksfraser\HTML\Elements\TableHeader;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\ScriptHandlers\LoanScriptHandler;
+use Ksfraser\HTML\Rows\LoanSummaryTableRow;
 
 /**
  * LoanSummaryTable - Displays loan summary information
@@ -50,56 +51,9 @@ class LoanSummaryTable {
         $table->append($headerRow);
         
         // Data rows
+        $rowBuilder = new LoanSummaryTableRow();
         foreach ($loans as $loan) {
-            $row = (new TableRow())->addClass('data-row');
-            
-            $row->append((new TableData())
-                ->addClass('id-cell')
-                ->setText((string)($loan->id ?? 'N/A'))
-            );
-            
-            $row->append((new TableData())
-                ->addClass('borrower-cell')
-                ->setText(htmlspecialchars($loan->borrower ?? ''))
-            );
-            
-            $amountText = isset($loan->amount) 
-                ? '$' . number_format((float)$loan->amount, 2)
-                : 'N/A';
-            $row->append((new TableData())
-                ->addClass('amount-cell')
-                ->setText($amountText)
-            );
-            
-            // Status with color coding
-            $status = htmlspecialchars($loan->status ?? 'Unknown');
-            $statusClass = 'status-' . strtolower(str_replace(' ', '-', $status));
-            $row->append((new TableData())
-                ->addClass('status-cell ' . $statusClass)
-                ->setText($status)
-            );
-            
-            // Actions
-            $actionsCell = (new TableData())->addClass('actions-cell');
-            $actionsDiv = (new Div())->addClass('action-buttons');
-            
-            $viewBtn = (new Button())
-                ->setType('button')
-                ->addClass('btn-small btn-view')
-                ->setText('View')
-                ->setAttribute('onclick', 'window.loanHandler && window.loanHandler.view(' . intval($loan->id ?? 0) . ')');
-            $actionsDiv->append($viewBtn);
-            
-            $editBtn = (new Button())
-                ->setType('button')
-                ->addClass('btn-small btn-edit')
-                ->setText('Edit')
-                ->setAttribute('onclick', 'window.loanHandler && window.loanHandler.edit(' . intval($loan->id ?? 0) . ')');
-            $actionsDiv->append($editBtn);
-            
-            $actionsCell->append($actionsDiv);
-            $row->append($actionsCell);
-            $table->append($row);
+            $table->append($rowBuilder->build($loan));
         }
         
         $output .= $table->render();
