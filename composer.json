@@ -1,39 +1,20 @@
 {
-    "name": "ksfraser/amortizations",
-    "description": "Multi-platform amortization framework - FA, WordPress, SuiteCRM",
+    "name": "ksfraser/amortizations-core",
+    "description": "Core amortization and loan management engine - shared across all platforms",
     "type": "library",
     "license": "MIT",
     "version": "1.0.0",
+    "homepage": "https://github.com/ksfraser/ksf_amortization",
     "repositories": [
         {
             "type": "path",
             "url": "vendor-src/ksfraser-html"
-        },
-        {
-            "type": "path",
-            "url": "packages/ksf-amortizations-core"
-        },
-        {
-            "type": "path",
-            "url": "packages/ksf-amortizations-frontaccounting"
-        },
-        {
-            "type": "path",
-            "url": "packages/ksf-amortizations-wordpress"
-        },
-        {
-            "type": "path",
-            "url": "packages/ksf-amortizations-suitecrm"
         }
     ],
     "require": {
         "php": ">=7.3",
         "brick/math": "^0.11",
-        "ksfraser/html": "^1.0",
-        "ksfraser/amortizations-core": "^1.0",
-        "ksfraser/amortizations-frontaccounting": "^1.0",
-        "ksfraser/amortizations-wordpress": "^1.0",
-        "ksfraser/amortizations-suitecrm": "^1.0"
+        "ksfraser/html": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.2"
@@ -60,10 +41,11 @@
         "test-php73": "phpunit --bootstrap vendor/autoload.php --configuration phpunit-php73.xml tests/",
         "test-php74+": "phpunit --bootstrap vendor/autoload.php --configuration phpunit.xml tests/",
         "test-version": "php -v && composer test",
-        "test-core": "cd packages/ksf-amortizations-core && composer test",
-        "test-fa": "cd packages/ksf-amortizations-frontaccounting && composer test",
-        "test-wp": "cd packages/ksf-amortizations-wordpress && composer test",
-        "test-suite": "cd packages/ksf-amortizations-suitecrm && composer test",
-        "test-all": "composer test-core && composer test-fa && composer test-wp && composer test-suite"
+        "test-fa": "cd modules/amortization && composer test",
+        "test-wp": "cd modules/wordpress && composer test",
+        "test-suite": "cd modules/suitecrm && composer test",
+        "test-all": "composer test && composer test-fa && composer test-wp && composer test-suite",
+        "init-submodules": "git submodule update --init --recursive",
+        "update-submodules": "git submodule update --recursive --remote"
     }
 }
