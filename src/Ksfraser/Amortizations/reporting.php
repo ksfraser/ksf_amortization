@@ -12,6 +12,12 @@ use Ksfraser\Amortizations\FA\FADataProvider;
 // $db should be available from controller scope
 global $db;
 
+// Check if we're in a proper FA environment
+if (!isset($db) || !$db) {
+    echo '<p>Database connection not available. This view must be accessed through FrontAccounting.</p>';
+    return;
+}
+
 // Use FADataProvider to get reports (follows Repository pattern)
 // Exceptions propagate to FA's exception handler
 $dataProvider = new FADataProvider($db);
