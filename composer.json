@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=7.3",
-        "brick/math": "^0.11",
+        "brick/math": "^0.9",
         "ksfraser/html": "^1.0"
     },
     "require-dev": {

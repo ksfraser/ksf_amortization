@@ -18,11 +18,11 @@
     ],
     "require": {
         "php": ">=7.4",
-        "brick/math": "^0.11",
+        "brick/math": "^0.9",
         "ksfraser/html": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.2"
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
