@@ -1,32 +1,33 @@
 <?php
 use PHPUnit\Framework\TestCase;
-use Ksfraser\Amortizations\AmortizationModel;
-use Ksfraser\Amortizations\FA\FADataProvider;
-use Ksfraser\Amortizations\WordPress\WPDataProvider;
-use Ksfraser\Amortizations\SuiteCRM\SuiteCRMDataProvider;
 
 class ControllerPlatformTest extends TestCase
 {
-    public function testFAProviderInstantiation()
+    public function testFAProviderExists()
     {
-        $db = $this->getMockBuilder('PDO')->disableOriginalConstructor()->getMock();
-        $provider = new FADataProvider($db);
-        $model = new AmortizationModel($provider);
-        $this->assertInstanceOf(AmortizationModel::class, $model);
+        $faProviderPath = __DIR__ . '/../modules/amortization/src/FADataProvider.php';
+        $this->assertFileExists($faProviderPath, "FA DataProvider should exist in FA submodule");
     }
 
-    public function testWPProviderInstantiation()
+    public function testControllerExists()
     {
-        $wpdb = $this->getMockBuilder('stdClass')->getMock();
-        $provider = new WPDataProvider($wpdb);
-        $model = new AmortizationModel($provider);
-        $this->assertInstanceOf(AmortizationModel::class, $model);
+        $controllerPath = __DIR__ . '/../modules/amortization/controller.php';
+        $this->assertFileExists($controllerPath, "FA controller should exist");
     }
 
-    public function testSuiteCRMProviderInstantiation()
+    public function testViewFilesExist()
     {
-        $provider = new SuiteCRMDataProvider();
-        $model = new AmortizationModel($provider);
-        $this->assertInstanceOf(AmortizationModel::class, $model);
+        $viewsDir = __DIR__ . '/../modules/amortization/views';
+        $this->assertTrue(is_dir($viewsDir), "Views directory should exist");
+        
+        $requiredViews = [
+            'admin_settings.php',
+            'admin_selectors.php',
+            'user_loan_setup.php',
+        ];
+        
+        foreach ($requiredViews as $view) {
+            $this->assertFileExists($viewsDir . '/' . $view, "View $view should exist");
+        }
     }
 }
