@@ -1,8 +1,25 @@
 <?php
 /**
  * Reporting View
- * Displays paydown schedule for selected loan
+ * Displays available reports
  * @package AmortizationModule
  */
 
-echo "<p>Reports view - functionality under development</p>";
+use Ksfraser\Amortizations\Views\ReportingTable;
+use Ksfraser\Amortizations\FA\FADataProvider;
+
+// Note: This view is included by controller.php
+// $db should be available from controller scope
+global $db;
+
+// Use FADataProvider to get reports (follows Repository pattern)
+try {
+    $dataProvider = new FADataProvider($db);
+    $reports = $dataProvider->getAllReports();
+    
+    // Use ReportingTable SRP class to render
+    echo ReportingTable::render($reports);
+    
+} catch (Exception $e) {
+    echo '<p>Error loading reports: ' . htmlspecialchars($e->getMessage()) . '</p>';
+}
