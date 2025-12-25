@@ -1,3 +1,0 @@
-<?php
-// Staging Table Model for Amortization Module
-// ...existing code...
