@@ -21,5 +21,10 @@ try {
     echo ReportingTable::render($reports);
     
 } catch (Exception $e) {
-    echo '<p>Error loading reports: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    // Use FrontAccounting's error handling system
+    if (function_exists('display_error')) {
+        display_error('Error loading reports: ' . $e->getMessage());
+    } else {
+        echo '<p class="error">Error loading reports: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    }
 }

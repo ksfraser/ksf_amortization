@@ -21,5 +21,10 @@ try {
     echo LoanSummaryTable::render($loans);
     
 } catch (Exception $e) {
-    echo '<p>Error loading loan list: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    // Use FrontAccounting's error handling system
+    if (function_exists('display_error')) {
+        display_error('Error loading loan list: ' . $e->getMessage());
+    } else {
+        echo '<p class="error">Error loading loan list: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    }
 }
