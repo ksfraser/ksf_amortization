@@ -385,24 +385,41 @@ HTML;
      */
     private function htmlToPdf(string $html, string $filename = ''): string
     {
-        // TODO: Implement PDF generation using selected library
-        // For now, return HTML as placeholder
         $filename = $filename ?: 'scenario-report-' . date('Y-m-d-His') . '.pdf';
 
-        // This would typically:
-        // 1. Initialize PDF library
-        // 2. Load HTML
-        // 3. Generate PDF
-        // 4. Save to file or return binary content
+        // Check if DomPDF is available
+        if (!class_exists('Dompdf\Dompdf')) {
+            // Fallback: return HTML if DomPDF not installed
+            error_log('DomPDF not available - returning HTML instead of PDF');
+            return $html;
+        }
 
-        // Example with DomPDF:
-        // $pdf = new Dompdf();
-        // $pdf->loadHtml($html);
-        // $pdf->setPaper('A4', 'portrait');
-        // $pdf->render();
-        // $pdf->stream($filename);
-
-        return $html; // Placeholder
+        try {
+            // Initialize DomPDF
+            $options = new \Dompdf\Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', true);
+            $options->set('defaultFont', 'Arial');
+            
+            $dompdf = new \Dompdf\Dompdf($options);
+            
+            // Load HTML content
+            $dompdf->loadHtml($html);
+            
+            // Set paper size and orientation
+            $dompdf->setPaper('A4', 'portrait');
+            
+            // Render PDF (first pass to calculate pages)
+            $dompdf->render();
+            
+            // Return PDF output as string
+            return $dompdf->output();
+            
+        } catch (\Exception $e) {
+            error_log('PDF generation error: ' . $e->getMessage());
+            // Fallback to HTML on error
+            return $html;
+        }
     }
 
     /**

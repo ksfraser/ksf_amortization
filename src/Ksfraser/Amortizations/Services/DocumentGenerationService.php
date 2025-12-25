@@ -208,10 +208,80 @@ class DocumentGenerationService
 
     /**
      * Add formatting to document
+     * 
+     * Applies formatting options like fonts, colors, margins, headers/footers
+     * 
+     * @param array $document Document structure
+     * @param array $formatOptions Formatting configuration
+     * @return array Document with applied formatting
      */
     public function addFormattingToDocument(array $document, array $formatOptions): array
     {
-        $document['formatting'] = $formatOptions;
+        // Initialize formatting structure if not exists
+        if (!isset($document['formatting'])) {
+            $document['formatting'] = [];
+        }
+        
+        // Apply font settings
+        if (isset($formatOptions['font'])) {
+            $document['formatting']['font'] = [
+                'family' => $formatOptions['font']['family'] ?? 'Arial',
+                'size' => $formatOptions['font']['size'] ?? 12,
+                'color' => $formatOptions['font']['color'] ?? '#000000'
+            ];
+        }
+        
+        // Apply page settings
+        if (isset($formatOptions['page'])) {
+            $document['formatting']['page'] = [
+                'size' => $formatOptions['page']['size'] ?? 'A4',
+                'orientation' => $formatOptions['page']['orientation'] ?? 'portrait',
+                'margin_top' => $formatOptions['page']['margin_top'] ?? 25,
+                'margin_right' => $formatOptions['page']['margin_right'] ?? 25,
+                'margin_bottom' => $formatOptions['page']['margin_bottom'] ?? 25,
+                'margin_left' => $formatOptions['page']['margin_left'] ?? 25
+            ];
+        }
+        
+        // Apply header settings
+        if (isset($formatOptions['header'])) {
+            $document['formatting']['header'] = [
+                'enabled' => $formatOptions['header']['enabled'] ?? true,
+                'content' => $formatOptions['header']['content'] ?? '',
+                'logo' => $formatOptions['header']['logo'] ?? null,
+                'height' => $formatOptions['header']['height'] ?? 50
+            ];
+        }
+        
+        // Apply footer settings
+        if (isset($formatOptions['footer'])) {
+            $document['formatting']['footer'] = [
+                'enabled' => $formatOptions['footer']['enabled'] ?? true,
+                'content' => $formatOptions['footer']['content'] ?? 'Page {PAGE_NUM} of {PAGE_COUNT}',
+                'height' => $formatOptions['footer']['height'] ?? 30
+            ];
+        }
+        
+        // Apply styling/theme
+        if (isset($formatOptions['theme'])) {
+            $document['formatting']['theme'] = [
+                'primary_color' => $formatOptions['theme']['primary_color'] ?? '#007bff',
+                'secondary_color' => $formatOptions['theme']['secondary_color'] ?? '#6c757d',
+                'heading_color' => $formatOptions['theme']['heading_color'] ?? '#212529',
+                'border_color' => $formatOptions['theme']['border_color'] ?? '#dee2e6'
+            ];
+        }
+        
+        // Apply table styling
+        if (isset($formatOptions['tables'])) {
+            $document['formatting']['tables'] = [
+                'border_width' => $formatOptions['tables']['border_width'] ?? 1,
+                'cell_padding' => $formatOptions['tables']['cell_padding'] ?? 8,
+                'header_bg' => $formatOptions['tables']['header_bg'] ?? '#f8f9fa',
+                'stripe_rows' => $formatOptions['tables']['stripe_rows'] ?? true
+            ];
+        }
+        
         return $document;
     }
 

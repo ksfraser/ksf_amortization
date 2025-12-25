@@ -122,11 +122,47 @@ class ReportingTable {
      * Get JavaScript handlers
      */
     private static function getScripts(): string {
-        return <<<HTML
+        return <<<'HTML'
 <script>
 function viewReport(id) {
-    console.log('View report:', id);
-    // TODO: Implement view report details/preview
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.id = 'report-modal';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+    
+    // Create modal content
+    const content = document.createElement('div');
+    content.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 90%; max-height: 90%; overflow: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);';
+    content.innerHTML = '<h2>Report #' + id + '</h2><p>Loading report details...</p><button onclick="closeReportModal()" style="margin-top: 15px;">Close</button>';
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // Fetch report details via AJAX
+    const controller = window.location.pathname.split('?')[0];
+    fetch(controller + '?action=report_details&id=' + id)
+        .then(response => response.json())
+        .then(data => {
+            let html = '<h2>Report #' + id + '</h2>';
+            html += '<table border="1" cellpadding="8" style="width: 100%; border-collapse: collapse;">';
+            html += '<tr><th>Property</th><th>Value</th></tr>';
+            for (const [key, value] of Object.entries(data)) {
+                html += '<tr><td><strong>' + key + '</strong></td><td>' + value + '</td></tr>';
+            }
+            html += '</table>';
+            html += '<button onclick="closeReportModal()" style="margin-top: 15px;">Close</button>';
+            content.innerHTML = html;
+        })
+        .catch(error => {
+            content.innerHTML = '<h2>Report #' + id + '</h2><p style="color: red;">Error loading report: ' + error.message + '</p><button onclick="closeReportModal()" style="margin-top: 15px;">Close</button>';
+        });
+}
+
+function closeReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) {
+        modal.remove();
+    }
 }
 </script>
 HTML;
