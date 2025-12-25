@@ -13,18 +13,9 @@ use Ksfraser\Amortizations\FA\FADataProvider;
 global $db;
 
 // Use FADataProvider to get reports (follows Repository pattern)
-try {
-    $dataProvider = new FADataProvider($db);
-    $reports = $dataProvider->getAllReports();
-    
-    // Use ReportingTable SRP class to render
-    echo ReportingTable::render($reports);
-    
-} catch (Exception $e) {
-    // Use FrontAccounting's error handling system
-    if (function_exists('display_error')) {
-        display_error('Error loading reports: ' . $e->getMessage());
-    } else {
-        echo '<p class="error">Error loading reports: ' . htmlspecialchars($e->getMessage()) . '</p>';
-    }
-}
+// Exceptions propagate to FA's exception handler
+$dataProvider = new FADataProvider($db);
+$reports = $dataProvider->getAllReports();
+
+// Use ReportingTable SRP class to render
+echo ReportingTable::render($reports);

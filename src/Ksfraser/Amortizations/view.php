@@ -13,18 +13,9 @@ use Ksfraser\Amortizations\FA\FADataProvider;
 global $db;
 
 // Use FADataProvider to get loans (follows Repository pattern)
-try {
-    $dataProvider = new FADataProvider($db);
-    $loans = $dataProvider->getAllLoans();
-    
-    // Use LoanSummaryTable SRP class to render
-    echo LoanSummaryTable::render($loans);
-    
-} catch (Exception $e) {
-    // Use FrontAccounting's error handling system
-    if (function_exists('display_error')) {
-        display_error('Error loading loan list: ' . $e->getMessage());
-    } else {
-        echo '<p class="error">Error loading loan list: ' . htmlspecialchars($e->getMessage()) . '</p>';
-    }
-}
+// Exceptions propagate to FA's exception handler
+$dataProvider = new FADataProvider($db);
+$loans = $dataProvider->getAllLoans();
+
+// Use LoanSummaryTable SRP class to render
+echo LoanSummaryTable::render($loans);
