@@ -66,32 +66,32 @@ switch ($action) {
         
         $nav = (new Div())
             ->addAttribute('class', 'module-nav')
-            ->addAttribute('style', 'margin-bottom: 20px;');
+            ->addAttribute('style', 'margin-bottom: 20px; text-align: right;');
         
         $nav->appendChild(
             (new Link())
-                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=create')
+                ->setHref($path_to_root . '/modules/amortization/controller.php?action=create')
                 ->setText('Add New Loan')
                 ->addAttribute('class', 'button')
         );
         
         $nav->appendChild(
             (new Link())
-                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=admin')
+                ->setHref($path_to_root . '/modules/amortization/controller.php?action=admin')
                 ->setText('Admin Settings')
                 ->addAttribute('class', 'button')
         );
         
         $nav->appendChild(
             (new Link())
-                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=admin_selectors')
+                ->setHref($path_to_root . '/modules/amortization/controller.php?action=admin_selectors')
                 ->setText('Manage Selectors')
                 ->addAttribute('class', 'button')
         );
         
         $nav->appendChild(
             (new Link())
-                ->setHref($path_to_root . '/modules/amortization/modules/amortization/controller.php?action=report')
+                ->setHref($path_to_root . '/modules/amortization/controller.php?action=report')
                 ->setText('Reports')
                 ->addAttribute('class', 'button')
         );
