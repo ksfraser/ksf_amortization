@@ -35,6 +35,13 @@ class ReportingTable {
         $heading = (new Heading(3))->setText('Reports');
         $output .= $heading->render();
         
+        // Check if no reports
+        if (empty($reports)) {
+            $output .= '<p>No reports available. Reports are generated when you create and calculate loan amortization schedules.</p>';
+            $output .= '<p><a href="?action=create">Create a loan</a> to generate your first report.</p>';
+            return $output;
+        }
+        
         // Build table
         $table = (new Table())->addClass('reporting-table');
         

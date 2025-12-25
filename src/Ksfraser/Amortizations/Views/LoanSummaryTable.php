@@ -29,11 +29,19 @@ class LoanSummaryTable {
      */
     public static function render(array $loans = []): string {
         $output = '';
-                // Load stylesheets
+        
+        // Load stylesheets
         $output .= self::getStylesheets();
-                // Build heading
+        
+        // Build heading
         $heading = (new Heading(3))->setText('Loan Summary');
         $output .= $heading->render();
+        
+        // Check if no loans
+        if (empty($loans)) {
+            $output .= '<p>No loans found. <a href="?action=create">Create your first loan</a></p>';
+            return $output;
+        }
         
         // Build table
         $table = (new Table())->addClass('loan-summary-table');
