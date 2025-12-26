@@ -11,6 +11,7 @@ use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\Elements\HtmlParagraph;
 use Ksfraser\HTML\Elements\HtmlString;
 use Ksfraser\HTML\Elements\CreateActionLink;
+use Ksfraser\HTML\Elements\ModalBuilder;
 use Ksfraser\HTML\ScriptHandlers\ReportScriptHandler;
 
 /**
@@ -137,6 +138,7 @@ class ReportingTable {
      * Get stylesheets for this view
      */
     private static function getStylesheets(): string {
-        return StylesheetManager::getStylesheets('reporting');
+        $modalStyles = '<style>' . ModalBuilder::getStyles() . '</style>';
+        return $modalStyles . StylesheetManager::getStylesheets('reporting');
     }
 }
