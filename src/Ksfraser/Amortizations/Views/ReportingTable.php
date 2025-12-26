@@ -138,7 +138,7 @@ class ReportingTable {
      * Get stylesheets for this view
      */
     private static function getStylesheets(): string {
-        $modalStyles = '<style>' . ModalBuilder::getStyles() . '</style>';
-        return $modalStyles . StylesheetManager::getStylesheets('reporting');
+        $modalStylesheet = ModalBuilder::getStylesheetLink();
+        return $modalStylesheet . StylesheetManager::getStylesheets('reporting');
     }
 }
