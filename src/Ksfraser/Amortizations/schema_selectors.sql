@@ -1,12 +1,12 @@
 -- Table for loan types
-CREATE TABLE ksf_amort_loan_types (
+CREATE TABLE IF NOT EXISTS ksf_amort_loan_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     description VARCHAR(255) DEFAULT ''
 );
 
 -- Table for interest calculation frequencies
-CREATE TABLE ksf_amort_interest_calc_frequencies (
+CREATE TABLE IF NOT EXISTS ksf_amort_interest_calc_frequencies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     description VARCHAR(255) DEFAULT ''
@@ -29,7 +29,7 @@ INSERT INTO ksf_amort_interest_calc_frequencies (name, description) VALUES
 ('annual', 'Annual');
 
 -- Table: 0_ksf_selectors
-CREATE TABLE 0_ksf_selectors (
+CREATE TABLE IF NOT EXISTS 0_ksf_selectors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     selector_name VARCHAR(32) NOT NULL,
     option_name VARCHAR(64) NOT NULL,

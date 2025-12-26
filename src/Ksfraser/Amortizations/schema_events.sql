@@ -1,5 +1,5 @@
 -- Table for out-of-schedule loan events (skipped/extra payments)
-CREATE TABLE 0_ksf_loan_events (
+CREATE TABLE IF NOT EXISTS 0_ksf_loan_events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     loan_id INT NOT NULL,
     event_type VARCHAR(32) NOT NULL,
