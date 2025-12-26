@@ -10,6 +10,7 @@ use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\Elements\HtmlParagraph;
 use Ksfraser\HTML\Elements\HtmlString;
+use Ksfraser\HTML\Elements\HtmlA;
 use Ksfraser\HTML\ScriptHandlers\ReportScriptHandler;
 
 /**
@@ -45,8 +46,11 @@ class ReportingTable {
             ));
             $output .= $emptyMsg1->getHtml();
             
+            $createLink = (new HtmlA())
+                ->setHref('?action=create')
+                ->setText('Create a loan');
             $emptyMsg2 = new HtmlParagraph(new HtmlString(
-                '<a href="?action=create">Create a loan</a> to generate your first report.'
+                $createLink->getHtml() . ' to generate your first report.'
             ));
             $output .= $emptyMsg2->getHtml();
             return $output;
