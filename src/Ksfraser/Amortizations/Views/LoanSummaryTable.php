@@ -9,7 +9,7 @@ use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\Elements\HtmlParagraph;
 use Ksfraser\HTML\Elements\HtmlString;
-use Ksfraser\HTML\Elements\ActionLink;
+use Ksfraser\HTML\Elements\CreateActionLink;
 use Ksfraser\HTML\ScriptHandlers\LoanScriptHandler;
 use Ksfraser\HTML\Rows\LoanSummaryTableRow;
 
@@ -42,7 +42,7 @@ class LoanSummaryTable {
         
         // Check if no loans
         if (empty($loans)) {
-            $createLink = ActionLink::create('Create your first loan');
+            $createLink = new CreateActionLink('Create your first loan');
             $emptyMsg = new HtmlParagraph(new HtmlString(
                 'No loans found. ' . $createLink->getHtml()
             ));
