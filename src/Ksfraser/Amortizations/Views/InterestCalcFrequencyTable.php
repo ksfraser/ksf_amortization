@@ -12,6 +12,7 @@ use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\ScriptHandlers\InterestFreqScriptHandler;
 use Ksfraser\HTML\Rows\InterestFreqTableRow;
+use Ksfraser\Amortizations\Views\StylesheetManager;
 
 /**
  * InterestCalcFrequencyTable - Displays and manages interest calculation frequencies

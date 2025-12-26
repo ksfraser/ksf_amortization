@@ -12,6 +12,7 @@ use Ksfraser\HTML\Elements\HtmlString;
 use Ksfraser\HTML\Elements\CreateActionLink;
 use Ksfraser\HTML\ScriptHandlers\LoanScriptHandler;
 use Ksfraser\HTML\Rows\LoanSummaryTableRow;
+use Ksfraser\Amortizations\Views\StylesheetManager;
 
 /**
  * LoanSummaryTable - Displays loan summary information

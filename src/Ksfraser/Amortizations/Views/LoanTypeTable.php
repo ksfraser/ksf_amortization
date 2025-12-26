@@ -12,6 +12,7 @@ use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
 use Ksfraser\HTML\ScriptHandlers\LoanTypeScriptHandler;
 use Ksfraser\HTML\Rows\LoanTypeTableRow;
+use Ksfraser\Amortizations\Views\StylesheetManager;
 
 /**
  * LoanTypeTable - Displays and manages loan types

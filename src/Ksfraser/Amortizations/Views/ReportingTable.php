@@ -13,6 +13,7 @@ use Ksfraser\HTML\Elements\HtmlString;
 use Ksfraser\HTML\Elements\CreateActionLink;
 use Ksfraser\HTML\Elements\ModalBuilder;
 use Ksfraser\HTML\ScriptHandlers\ReportScriptHandler;
+use Ksfraser\Amortizations\Views\StylesheetManager;
 
 /**
  * ReportingTable - Displays available reports
