@@ -14,7 +14,7 @@
     "require": {
         "php": ">=7.3",
         "brick/math": "^0.9",
-        "ksfraser/html": "^1.0",
+        "ksfraser/html": "^1.0 || dev-main",
         "dompdf/dompdf": "^2.0"
     },
     "require-dev": {
