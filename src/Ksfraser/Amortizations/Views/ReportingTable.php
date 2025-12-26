@@ -8,6 +8,9 @@ use Ksfraser\HTML\Elements\TableData;
 use Ksfraser\HTML\Elements\TableHeader;
 use Ksfraser\HTML\Elements\Button;
 use Ksfraser\HTML\Elements\Div;
+use Ksfraser\HTML\Elements\HtmlParagraph;
+use Ksfraser\HTML\Elements\HtmlString;
+use Ksfraser\HTML\ScriptHandlers\ReportScriptHandler;
 
 /**
  * ReportingTable - Displays available reports
@@ -37,8 +40,15 @@ class ReportingTable {
         
         // Check if no reports
         if (empty($reports)) {
-            $output .= '<p>No reports available. Reports are generated when you create and calculate loan amortization schedules.</p>';
-            $output .= '<p><a href="?action=create">Create a loan</a> to generate your first report.</p>';
+            $emptyMsg1 = new HtmlParagraph(new HtmlString(
+                'No reports available. Reports are generated when you create and calculate loan amortization schedules.'
+            ));
+            $output .= $emptyMsg1->getHtml();
+            
+            $emptyMsg2 = new HtmlParagraph(new HtmlString(
+                '<a href="?action=create">Create a loan</a> to generate your first report.'
+            ));
+            $output .= $emptyMsg2->getHtml();
             return $output;
         }
         
@@ -113,7 +123,10 @@ class ReportingTable {
         }
         
         $output .= $table->render();
-        $output .= self::getScripts();
+        
+        // Add JavaScript handlers via SRP class
+        $scriptHandler = new ReportScriptHandler();
+        $output .= $scriptHandler->render();
         
         return $output;
     }
@@ -123,55 +136,5 @@ class ReportingTable {
      */
     private static function getStylesheets(): string {
         return StylesheetManager::getStylesheets('reporting');
-    }
-    
-    /**
-     * Get JavaScript handlers
-     */
-    private static function getScripts(): string {
-        return <<<'HTML'
-<script>
-function viewReport(id) {
-    // Create modal overlay
-    const modal = document.createElement('div');
-    modal.id = 'report-modal';
-    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;';
-    
-    // Create modal content
-    const content = document.createElement('div');
-    content.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 90%; max-height: 90%; overflow: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);';
-    content.innerHTML = '<h2>Report #' + id + '</h2><p>Loading report details...</p><button onclick="closeReportModal()" style="margin-top: 15px;">Close</button>';
-    
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-    
-    // Fetch report details via AJAX
-    const controller = window.location.pathname.split('?')[0];
-    fetch(controller + '?action=report_details&id=' + id)
-        .then(response => response.json())
-        .then(data => {
-            let html = '<h2>Report #' + id + '</h2>';
-            html += '<table border="1" cellpadding="8" style="width: 100%; border-collapse: collapse;">';
-            html += '<tr><th>Property</th><th>Value</th></tr>';
-            for (const [key, value] of Object.entries(data)) {
-                html += '<tr><td><strong>' + key + '</strong></td><td>' + value + '</td></tr>';
-            }
-            html += '</table>';
-            html += '<button onclick="closeReportModal()" style="margin-top: 15px;">Close</button>';
-            content.innerHTML = html;
-        })
-        .catch(error => {
-            content.innerHTML = '<h2>Report #' + id + '</h2><p style="color: red;">Error loading report: ' + error.message + '</p><button onclick="closeReportModal()" style="margin-top: 15px;">Close</button>';
-        });
-}
-
-function closeReportModal() {
-    const modal = document.getElementById('report-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
-</script>
-HTML;
     }
 }
