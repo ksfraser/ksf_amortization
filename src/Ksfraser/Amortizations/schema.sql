@@ -1,5 +1,5 @@
 -- Table: 0_ksf_loans_summary
-CREATE TABLE 0_ksf_loans_summary (
+CREATE TABLE IF NOT EXISTS 0_ksf_loans_summary (
     id INT AUTO_INCREMENT PRIMARY KEY,
     borrower_id INT NOT NULL,
     borrower_type VARCHAR(32) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE 0_ksf_loans_summary (
 );
 
 -- Table: 0_ksf_amortization_staging
-CREATE TABLE 0_ksf_amortization_staging (
+CREATE TABLE IF NOT EXISTS 0_ksf_amortization_staging (
     id INT AUTO_INCREMENT PRIMARY KEY,
     loan_id INT NOT NULL,
     payment_date DATE NOT NULL,
