@@ -66,7 +66,7 @@ class PartialPaymentEventHandler implements LoanEventHandler
         // Validate payment amount is partial (less than regular)
         if ($partialPaymentAmount > $regularPayment) {
             throw new \LogicException(
-                "Payment of ${$partialPaymentAmount} exceeds regular payment of ${$regularPayment}. " .
+                "Payment of ".$partialPaymentAmount." exceeds regular payment of ".$regularPayment.". " .
                 "Use extra_payment event type for amounts >= regular payment."
             );
         }
