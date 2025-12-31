@@ -361,7 +361,7 @@ class PaymentStrategyAnalyzer
         );
 
         return [
-            'recommended_strategy' => $recommended['strategy']['name'],
+            'recommended_strategy' => isset($recommended['strategy']['name']) ? $recommended['strategy']['name'] : null,
             'interest_saved' => round($baseline['total_interest'] - $best['total_interest'], 2),
             'months_to_payoff' => $best['payoff_months'],
             'comparison_data' => $analyses,

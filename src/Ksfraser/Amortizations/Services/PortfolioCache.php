@@ -10,9 +10,18 @@ use Ksfraser\Amortizations\Models\Loan;
  * frequently-accessed portfolio metrics and aggregations.
  */
 class PortfolioCache {
-    private PortfolioManagementService $portfolioService;
-    private CacheManager $cache;
-    private int $defaultTTL = 1800; // 30 minutes
+    /**
+     * @var PortfolioManagementService
+     */
+    private $portfolioService;
+    /**
+     * @var CacheManager
+     */
+    private $cache;
+    /**
+     * @var int
+     */
+    private $defaultTTL = 1800; // 30 minutes
 
     public function __construct(
         PortfolioManagementService $portfolioService = null,
