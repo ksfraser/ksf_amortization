@@ -10,3 +10,9 @@
 [submodule "modules/suitecrm"]
 	path = modules/suitecrm
 	url = https://github.com/ksfraser/ksf_amortization_suitecrm.git
+[submodule "vendor-src/ksf_amortization_core"]
+	path = vendor-src/ksf_amortization_core
+	url = https://github.com/ksfraser/ksf_amortization_core.git
+[submodule "vendor-src/ksf_amortization"]
+	path = vendor-src/ksf_amortization
+	url = https://github.com/ksfraser/ksf_amortization.git

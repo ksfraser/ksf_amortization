@@ -29,7 +29,10 @@ class CacheManager {
      * @param mixed $value Cache value
      * @param int $ttl Time to live in seconds (default: 1 hour)
      */
-    public function set(string $key, mixed $value, int $ttl = null): void {
+    /**
+     * @param int|null $ttl Time to live in seconds (default: 1 hour)
+     */
+    public function set(string $key, $value, $ttl = null): void {
         if (empty($key)) {
             throw new InvalidArgumentException("Cache key cannot be empty");
         }
@@ -192,7 +195,10 @@ class CacheManager {
      * @param array $data Key-value pairs to pre-populate cache
      * @param int $ttl Time to live for all entries
      */
-    public function warm(array $data, int $ttl = null): int {
+    /**
+     * @param int|null $ttl Time to live for all entries
+     */
+    public function warm(array $data, $ttl = null): int {
         $count = 0;
         foreach ($data as $key => $value) {
             $this->set((string)$key, $value, $ttl);

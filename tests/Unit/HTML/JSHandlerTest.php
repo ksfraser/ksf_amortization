@@ -3,9 +3,9 @@
 namespace Tests\Unit\HTML;
 
 use PHPUnit\Framework\TestCase;
-use Ksfraser\HTML\Elements\SelectEditJSHandler;
-use Ksfraser\HTML\Elements\AjaxSelectPopulator;
-use Ksfraser\HTML\Elements\PaymentFrequencyHandler;
+use Ksfraser\Amortizations\Handlers\SelectEditJSHandler;
+use Ksfraser\Amortizations\Handlers\AjaxSelectPopulator;
+use Ksfraser\Amortizations\Handlers\PaymentFrequencyHandler;
 
 /**
  * JSHandlerTest - Unit Tests for JavaScript Handler Classes
