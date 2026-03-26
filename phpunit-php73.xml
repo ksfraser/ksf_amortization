@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- PHPUnit configuration for PHP 7.3 compatibility testing
-     
-     This configuration excludes or marks as skipped any tests that use
-     PHP 7.4+ features (arrow functions, match expressions, etc.).
-     
-     Tests marked with @group php74 will be skipped when running with this config.
-     
-     Usage:
-       composer test-php73
-       phpunit --configuration phpunit-php73.xml
--->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
          bootstrap="vendor/autoload.php"
@@ -29,14 +18,6 @@
         </testsuite>
     </testsuites>
 
-    <source>
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-        <exclude>
-            <directory>src/Ksfraser/Amortizations/Repositories</directory>
-        </exclude>
-    </source>
 
     <!-- Skip tests with php74 group -->
     <groups>
