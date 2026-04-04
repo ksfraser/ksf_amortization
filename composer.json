@@ -25,7 +25,12 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
+<<<<<<< HEAD
             "Ksfraser\\Amortizations\\": "src/"
+=======
+            "Ksfraser\\Amortizations\\FA\\": "src/",
+            "Ksfraser\\Amortizations\\Repository\\": "Repository/"
+>>>>>>> 3c7623ccf8fbbfafb1196bce3fafcae599f499bd
         }
     },
     "scripts": {
