@@ -163,9 +163,11 @@ class hooks_amortization extends hooks {
     function db_prevoid($trans_type, $trans_no) {
         // Assuming $db is a PDO instance available in scope
         // You may need to adjust how $db is retrieved in your environment
+        /*
         global $db;
         $provider = new FADataProvider($db);
         $provider->resetPostedToGL($trans_no, $trans_type);
+        */
     }
     
 
