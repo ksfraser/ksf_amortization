@@ -1,9 +1,3 @@
-[submodule "vendor-src/ksfraser-html"]
-	path = vendor-src/ksfraser-html
-	url = https://github.com/ksfraser/html.git
-[submodule "modules/amortization"]
-	path = modules/amortization
-	url = https://github.com/ksfraser/ksf_amortization_fa.git
 [submodule "modules/wordpress"]
 	path = modules/wordpress
 	url = https://github.com/ksfraser/ksf_amortization_wp.git
