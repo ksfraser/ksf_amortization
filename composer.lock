@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9118a19e3ee190b6c1af00b41c8d026",
+    "content-hash": "da3bf808146c747b45a12e1baf63116e",
     "packages": [
         {
             "name": "brick/math",
@@ -293,6 +293,140 @@
                 "symlink": false,
                 "relative": true
             }
+        },
+        {
+            "name": "ksfraser/ksf-caching",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ksfraser/ksf-caching.git",
+                "reference": "1272a9f2e0c997c2acdae75887626bbbdf11b3c2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ksfraser/ksf-caching/zipball/1272a9f2e0c997c2acdae75887626bbbdf11b3c2",
+                "reference": "1272a9f2e0c997c2acdae75887626bbbdf11b3c2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "9.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ksfraser\\Caching\\": "src/Ksfraser/Caching/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "KSF Development Team",
+                    "email": "dev@ksfraser.com"
+                }
+            ],
+            "description": "Multi-backend caching abstraction layer supporting Redis, Database, File, and Memory backends with TTL and statistics",
+            "homepage": "https://github.com/ksfraser/ksf-caching",
+            "support": {
+                "issues": "https://github.com/ksfraser/ksf-caching/issues",
+                "source": "https://github.com/ksfraser/ksf-caching/tree/0.1.0"
+            },
+            "time": "2026-04-05T03:37:58+00:00"
+        },
+        {
+            "name": "ksfraser/ksf-oauth2-server",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ksfraser/ksf-oauth2-server.git",
+                "reference": "7de852dff3956aa40b1ff1d74b6344a06206244d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ksfraser/ksf-oauth2-server/zipball/7de852dff3956aa40b1ff1d74b6344a06206244d",
+                "reference": "7de852dff3956aa40b1ff1d74b6344a06206244d",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "^6.0",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "9.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ksfraser\\Security\\": "src/Ksfraser/Security/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "KSF Development Team",
+                    "email": "dev@ksfraser.com"
+                }
+            ],
+            "description": "Production-grade OAuth2 and OpenID Connect server implementation with PKCE, JWT, and multi-tier caching support",
+            "homepage": "https://github.com/ksfraser/ksf-oauth2-server",
+            "support": {
+                "issues": "https://github.com/ksfraser/ksf-oauth2-server/issues",
+                "source": "https://github.com/ksfraser/ksf-oauth2-server/tree/0.1.0"
+            },
+            "time": "2026-04-05T03:37:45+00:00"
+        },
+        {
+            "name": "ksfraser/ksf-performance-monitoring",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ksfraser/ksf-performance-monitoring.git",
+                "reference": "d0600488aa6d06fb60c2cf52090affda50f58eae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ksfraser/ksf-performance-monitoring/zipball/d0600488aa6d06fb60c2cf52090affda50f58eae",
+                "reference": "d0600488aa6d06fb60c2cf52090affda50f58eae",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "9.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ksfraser\\Monitoring\\": "src/Ksfraser/Monitoring/",
+                    "Ksfraser\\Performance\\": "src/Ksfraser/Performance/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "KSF Development Team",
+                    "email": "dev@ksfraser.com"
+                }
+            ],
+            "description": "Performance benchmarking and real-time monitoring framework with latency analysis, load testing, and operational metrics collection",
+            "homepage": "https://github.com/ksfraser/ksf-performance-monitoring",
+            "support": {
+                "issues": "https://github.com/ksfraser/ksf-performance-monitoring/issues",
+                "source": "https://github.com/ksfraser/ksf-performance-monitoring/tree/0.1.0"
+            },
+            "time": "2026-04-05T03:38:09+00:00"
         },
         {
             "name": "lcobucci/clock",

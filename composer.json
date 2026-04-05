@@ -20,7 +20,10 @@
         "ksfraser/html": "^1.0 || dev-main",
         "dompdf/dompdf": "^2.0",
         "firebase/php-jwt": "^6.0",
-        "league/oauth2-server": "^8.0"
+        "league/oauth2-server": "^8.0",
+        "ksfraser/ksf-oauth2-server": "^0.1.0",
+        "ksfraser/ksf-caching": "^0.1.0",
+        "ksfraser/ksf-performance-monitoring": "^0.1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "9.6"
@@ -31,9 +34,6 @@
                 "src/Ksfraser/Amortizations/",
                 "vendor-src/ksf_amortization_core/Ksfraser/Amortizations/"
             ],
-            "Ksfraser\\Caching\\": "src/Ksfraser/Caching/",
-            "Ksfraser\\Performance\\": "src/Ksfraser/Performance/",
-            "Ksfraser\\Security\\": "src/Ksfraser/Security/",
             "Ksfraser\\Api\\": "src/Ksfraser/Api/",
             "Ksfraser\\Webhooks\\": "src/Ksfraser/Webhooks/",
             "Ksfraser\\Plugins\\": "src/Ksfraser/Plugins/",
