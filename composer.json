@@ -23,7 +23,7 @@
         "league/oauth2-server": "^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6"
+        "phpunit/phpunit": "9.6"
     },
     "autoload": {
         "psr-4": {
