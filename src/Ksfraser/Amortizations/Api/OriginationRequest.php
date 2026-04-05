@@ -1,3 +1,12 @@
+<?php
+namespace Ksfraser\Amortizations\Api;
+
+class OriginationRequest {
+	public $applicantName;
+	public $loanAmount;
+	public $term;
+	public $interestRate;
+
 	public function validate() {
 		$errors = [];
 		if (empty($this->applicantName)) {
@@ -9,13 +18,7 @@
 		// Add more validation as needed
 		return $errors;
 	}
-<?php
-namespace Ksfraser\Amortizations\Api;
-class OriginationRequest {
-	public $applicantName;
-	public $loanAmount;
-	public $term;
-	public $interestRate;
+
 	// Add more properties as needed for test coverage
 	public static function fromArray(array $data) {
 		$obj = new self();

@@ -1,3 +1,11 @@
+<?php
+namespace Ksfraser\Amortizations\Api;
+
+class MarketRequest {
+	public $marketId;
+	public $date;
+	public $rateType;
+
 	public function validate() {
 		$errors = [];
 		if (empty($this->marketId)) {
@@ -6,12 +14,7 @@
 		// Add more validation as needed
 		return $errors;
 	}
-<?php
-namespace Ksfraser\Amortizations\Api;
-class MarketRequest {
-	public $marketId;
-	public $date;
-	public $rateType;
+
 	// Add more properties as needed for test coverage
 	public static function fromArray(array $data) {
 		$obj = new self();

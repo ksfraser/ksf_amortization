@@ -7,15 +7,20 @@
     "homepage": "https://github.com/ksfraser/ksf_amortization",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/ksfraser/html.git"
+            "type": "path",
+            "url": "../ksfraser-html",
+            "options": {
+                "symlink": false
+            }
         }
     ],
     "require": {
         "php": ">=7.3",
         "brick/math": "^0.9",
         "ksfraser/html": "^1.0 || dev-main",
-        "dompdf/dompdf": "^2.0"
+        "dompdf/dompdf": "^2.0",
+        "firebase/php-jwt": "^6.0",
+        "league/oauth2-server": "^8.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6"
@@ -38,6 +43,12 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": true,
+        "audit": {
+            "block-insecure": false
         }
     },
     "scripts": {

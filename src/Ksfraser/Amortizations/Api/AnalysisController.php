@@ -3,13 +3,16 @@ namespace Ksfraser\Amortizations\Api;
 
 use Ksfraser\Amortizations\Services\AnalysisService;
 use Ksfraser\Amortizations\Repositories\LoanRepository;
+use Ksfraser\Amortizations\Authentication\Middleware\AuthenticationMiddleware;
 
 /**
  * AnalysisController: API endpoints for loan analysis
  * 
- * GET /api/v1/analysis/compare       - Compare multiple loans
- * POST /api/v1/analysis/forecast     - Forecast with extra payments
- * GET /api/v1/analysis/recommendations - Get recommendations
+ * PROTECTED ENDPOINTS (require OAuth2 token):
+ * GET /api/v1/analysis/compare       - Compare multiple loans (scope: analysis:read)
+ * POST /api/v1/analysis/forecast     - Forecast with extra payments (scope: analysis:advanced)
+ * GET /api/v1/analysis/recommendations - Get recommendations (scope: analysis:advanced)
+ * GET /api/v1/analysis/timeline       - Get debt payoff timeline (scope: analysis:advanced)
  */
 class AnalysisController extends BaseApiController
 {
@@ -17,9 +20,18 @@ class AnalysisController extends BaseApiController
     private LoanRepository $loanRepository;
 
     public function __construct(
+        AuthenticationMiddleware $authMiddleware = null,
         AnalysisService $analysisService = null,
         LoanRepository $loanRepository = null
     ) {
+        // Configure OAuth2 protection for this controller
+        if ($authMiddleware) {
+            $this->setAuthMiddleware($authMiddleware);
+        }
+        
+        // All endpoints require analysis scopes
+        $this->requiresAuthentication = true;
+        
         $this->analysisService = $analysisService;
         $this->loanRepository = $loanRepository ?? new LoanRepository();
     }
@@ -27,10 +39,20 @@ class AnalysisController extends BaseApiController
     /**
      * GET /api/v1/analysis/compare?loan_ids=1,2,3
      * Compare multiple loans
+     * 
+     * OAuth2 Scope Required: analysis:read
      */
-    public function compare(array $queryParams = []): ApiResponse
+    public function compare(array $queryParams = [], string $bearerToken = ''): ApiResponse
     {
         try {
+            // Verify OAuth2 token for analysis:read access
+            if ($errorResponse = $this->verifyRequest($bearerToken)) {
+                return $errorResponse;
+            }
+
+            // Log access for audit
+            $this->logAccess('analysis.compare', $queryParams);
+
             // Validate loan_ids parameter
             if (empty($queryParams['loan_ids'])) {
                 throw new ValidationException(
@@ -77,6 +99,8 @@ class AnalysisController extends BaseApiController
      * POST /api/v1/analysis/forecast
      * Forecast early payoff with extra payments
      * 
+     * OAuth2 Scope Required: analysis:advanced
+     * 
      * Request body:
      * {
      *   "loan_id": 1,
@@ -84,9 +108,17 @@ class AnalysisController extends BaseApiController
      *   "frequency": "monthly"
      * }
      */
-    public function forecast(array $requestData = []): ApiResponse
+    public function forecast(array $requestData = [], string $bearerToken = ''): ApiResponse
     {
         try {
+            // Verify OAuth2 token for analysis:advanced access
+            if ($errorResponse = $this->verifyRequest($bearerToken)) {
+                return $errorResponse;
+            }
+
+            // Log access for audit
+            $this->logAccess('analysis.forecast', $requestData);
+
             // Validate required fields
             if (empty($requestData['loan_id'])) {
                 throw new ValidationException(
@@ -161,10 +193,20 @@ class AnalysisController extends BaseApiController
     /**
      * GET /api/v1/analysis/recommendations?loan_ids=1,2,3
      * Get recommendations based on loans
+     * 
+     * OAuth2 Scope Required: analysis:advanced
      */
-    public function recommendations(array $queryParams = []): ApiResponse
+    public function recommendations(array $queryParams = [], string $bearerToken = ''): ApiResponse
     {
         try {
+            // Verify OAuth2 token for analysis:advanced access
+            if ($errorResponse = $this->verifyRequest($bearerToken)) {
+                return $errorResponse;
+            }
+
+            // Log access for audit
+            $this->logAccess('analysis.recommendations', $queryParams);
+
             // Validate loan_ids parameter
             if (empty($queryParams['loan_ids'])) {
                 throw new ValidationException(
@@ -206,10 +248,20 @@ class AnalysisController extends BaseApiController
     /**
      * GET /api/v1/analysis/timeline?loan_ids=1,2,3
      * Get debt payoff timeline
+     * 
+     * OAuth2 Scope Required: analysis:advanced
      */
-    public function timeline(array $queryParams = []): ApiResponse
+    public function timeline(array $queryParams = [], string $bearerToken = ''): ApiResponse
     {
         try {
+            // Verify OAuth2 token for analysis:advanced access
+            if ($errorResponse = $this->verifyRequest($bearerToken)) {
+                return $errorResponse;
+            }
+
+            // Log access for audit
+            $this->logAccess('analysis.timeline', $queryParams);
+
             // Validate loan_ids parameter
             if (empty($queryParams['loan_ids'])) {
                 throw new ValidationException(

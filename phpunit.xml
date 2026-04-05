@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
-         bootstrap="vendor/autoload.php">
+         bootstrap="vendor/autoload.php"
+         failOnSkipped="true"
+         failOnWarning="true"
+         failOnRisky="true"
+         failOnIncomplete="true">
     <testsuites>
         <testsuite name="Unit Tests">
             <directory>tests/Unit</directory>
@@ -11,12 +15,12 @@
         </testsuite>
     </testsuites>
 
-    <source>
+    <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">src</directory>
         </include>
         <exclude>
             <directory>src/Ksfraser/Amortizations/Repositories</directory>
         </exclude>
-    </source>
+    </coverage>
 </phpunit>
