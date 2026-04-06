@@ -1,225 +1,225 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import api from '../utils/api'
+import { ref, computed } from 'vue'
 
 /**
- * Metrics Store
+ * Metrics Store (Simplified for Testing)
  * 
  * Manages:
- * - Performance metrics (latency, cache)
- * - Error tracking
- * - System health status
- * - Metrics data refreshing
+ * - Performance metrics data
+ * - Time period selection
+ * - Metric comparisons
+ * - Metric filtering
+ * - Alert tracking
  */
 
 export const useMetricsStore = defineStore('metrics', () => {
   // State
-  const dashboard = ref(null)
-  const latency = ref(null)
-  const cache = ref(null)
-  const errors = ref(null)
-  const health = ref(null)
+  const metrics = ref(null)
+  const period = ref('24h')
+  const comparisonPeriod = ref(null)
+  const comparisonMetrics = ref(null)
+  const startDate = ref(null)
+  const endDate = ref(null)
+  const statusCodeFilter = ref(null)
+  const endpointFilter = ref(null)
+  const alerts = ref([])
 
-  const isLoading = ref(false)
-  const error = ref(null)
-  const lastUpdated = ref(null)
-  const autoRefreshInterval = ref(null)
+  // Computed
+  const periodLabel = computed(() => {
+    const labels = {
+      '24h': 'Last 24 Hours',
+      '7d': 'Last 7 Days',
+      '30d': 'Last 30 Days',
+    }
+    return labels[period.value] || period.value
+  })
 
   /**
-   * Fetch dashboard metrics
-   * @returns {Promise<object>} Dashboard data
+   * Set metrics data
+   * @param {object} metricsData Metrics object
    */
-  async function fetchDashboard() {
-    isLoading.value = true
-    error.value = null
+  function setMetrics(metricsData) {
+    metrics.value = metricsData
+  }
 
-    try {
-      const response = await api.get('/admin/metrics/dashboard')
-      dashboard.value = response.data
-      lastUpdated.value = new Date()
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to fetch dashboard'
-      throw err
-    } finally {
-      isLoading.value = false
+  /**
+   * Update specific metric value
+   * @param {string} key Metric key
+   * @param {*} value New value
+   */
+  function updateMetric(key, value) {
+    if (metrics.value) {
+      metrics.value[key] = value
     }
   }
 
   /**
-   * Fetch latency metrics
-   * @param {object} options Query options (time_range, etc.)
-   * @returns {Promise<object>} Latency data
+   * Update multiple metrics
+   * @param {object} updates Metrics to update
    */
-  async function fetchLatency(options = {}) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await api.get('/admin/metrics/latency', {
-        params: options,
-      })
-      latency.value = response.data
-      lastUpdated.value = new Date()
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to fetch latency'
-      throw err
-    } finally {
-      isLoading.value = false
+  function updateMetrics(updates) {
+    if (metrics.value) {
+      Object.assign(metrics.value, updates)
     }
   }
 
   /**
-   * Fetch cache metrics
-   * @param {object} options Query options
-   * @returns {Promise<object>} Cache data
+   * Clear current metrics
    */
-  async function fetchCache(options = {}) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await api.get('/admin/metrics/cache', {
-        params: options,
-      })
-      cache.value = response.data
-      lastUpdated.value = new Date()
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to fetch cache metrics'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+  function clearMetrics() {
+    metrics.value = null
   }
 
   /**
-   * Fetch error metrics
-   * @param {object} options Query options
-   * @returns {Promise<object>} Error data
+   * Set time period
+   * @param {string} newPeriod Period value (24h, 7d, 30d)
    */
-  async function fetchErrors(options = {}) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await api.get('/admin/metrics/errors', {
-        params: options,
-      })
-      errors.value = response.data
-      lastUpdated.value = new Date()
-      return response.data
-    } catch (err) {
-      error.value =
-        err.response?.data?.message || 'Failed to fetch error metrics'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+  function setPeriod(newPeriod) {
+    period.value = newPeriod
   }
 
   /**
-   * Fetch system health
-   * @returns {Promise<object>} Health status
+   * Set custom date range
+   * @param {string} start Start date (ISO format)
+   * @param {string} end End date (ISO format)
    */
-  async function fetchHealth() {
-    try {
-      const response = await api.get('/admin/metrics/health')
-      health.value = response.data
-      lastUpdated.value = new Date()
-      return response.data
-    } catch (err) {
-      error.value =
-        err.response?.data?.message || 'Failed to fetch health status'
-      throw err
-    }
+  function setDateRange(start, end) {
+    startDate.value = start
+    endDate.value = end
   }
 
   /**
-   * Fetch all metrics at once
-   * @returns {Promise<void>}
+   * Set comparison period
+   * @param {string} compPeriod Comparison period
    */
-  async function fetchAll() {
-    try {
-      await Promise.all([
-        fetchDashboard(),
-        fetchLatency(),
-        fetchCache(),
-        fetchErrors(),
-        fetchHealth(),
-      ])
-    } catch (err) {
-      console.error('Error fetching metrics:', err)
-    }
+  function setComparisonPeriod(compPeriod) {
+    comparisonPeriod.value = compPeriod
   }
 
   /**
-   * Export metrics as CSV/JSON
-   * @param {string} format Export format (csv, json)
-   * @param {object} options Query options
-   * @returns {Promise<object>} Export data
+   * Set comparison metrics data
+   * @param {object} compMetrics Comparison metrics object
    */
-  async function exportMetrics(format = 'json', options = {}) {
-    error.value = null
-
-    try {
-      const response = await api.get('/admin/metrics/export', {
-        params: { format, ...options },
-      })
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to export metrics'
-      throw err
-    }
+  function setComparisonMetrics(compMetrics) {
+    comparisonMetrics.value = compMetrics
   }
 
   /**
-   * Start auto-refresh of metrics
-   * @param {number} interval Refresh interval in milliseconds
+   * Get metric change (absolute difference)
+   * @param {string} key Metric key
+   * @returns {number} Change amount
    */
-  function startAutoRefresh(interval = 30000) {
-    if (autoRefreshInterval.value) {
-      clearInterval(autoRefreshInterval.value)
+  function getMetricChange(key) {
+    if (!metrics.value || !comparisonMetrics.value) {
+      return null
     }
-
-    autoRefreshInterval.value = setInterval(() => {
-      fetchAll().catch((err) => {
-        console.error('Auto-refresh failed:', err)
-      })
-    }, interval)
+    return metrics.value[key] - comparisonMetrics.value[key]
   }
 
   /**
-   * Stop auto-refresh
+   * Get metric percentage change
+   * @param {string} key Metric key
+   * @returns {number} Percentage change
    */
-  function stopAutoRefresh() {
-    if (autoRefreshInterval.value) {
-      clearInterval(autoRefreshInterval.value)
-      autoRefreshInterval.value = null
+  function getMetricPercentChange(key) {
+    if (!metrics.value || !comparisonMetrics.value) {
+      return null
     }
+    const change = metrics.value[key] - comparisonMetrics.value[key]
+    return (change / comparisonMetrics.value[key]) * 100
+  }
+
+  /**
+   * Clear comparison data
+   */
+  function clearComparison() {
+    comparisonPeriod.value = null
+    comparisonMetrics.value = null
+  }
+
+  /**
+   * Set status code filter
+   * @param {string} code Status code to filter by
+   */
+  function setStatusCodeFilter(code) {
+    statusCodeFilter.value = code
+  }
+
+  /**
+   * Set endpoint filter
+   * @param {string} endpoint Endpoint to filter by
+   */
+  function setEndpointFilter(endpoint) {
+    endpointFilter.value = endpoint
+  }
+
+  /**
+   * Clear all filters
+   */
+  function clearFilters() {
+    statusCodeFilter.value = null
+    endpointFilter.value = null
+  }
+
+  /**
+   * Add alert
+   * @param {object} alert Alert object (type, severity, message)
+   */
+  function addAlert(alert) {
+    alerts.value.push({
+      ...alert,
+      id: Date.now(),
+      timestamp: new Date(),
+    })
+  }
+
+  /**
+   * Remove alert
+   * @param {number} alertId Alert ID
+   */
+  function removeAlert(alertId) {
+    alerts.value = alerts.value.filter((a) => a.id !== alertId)
+  }
+
+  /**
+   * Clear all alerts
+   */
+  function clearAlerts() {
+    alerts.value = []
   }
 
   return {
     // State
-    dashboard,
-    latency,
-    cache,
-    errors,
-    health,
-    isLoading,
-    error,
-    lastUpdated,
+    metrics,
+    period,
+    comparisonPeriod,
+    comparisonMetrics,
+    startDate,
+    endDate,
+    statusCodeFilter,
+    endpointFilter,
+    alerts,
+
+    // Computed
+    periodLabel,
 
     // Actions
-    fetchDashboard,
-    fetchLatency,
-    fetchCache,
-    fetchErrors,
-    fetchHealth,
-    fetchAll,
-    exportMetrics,
-    startAutoRefresh,
-    stopAutoRefresh,
+    setMetrics,
+    updateMetric,
+    updateMetrics,
+    clearMetrics,
+    setPeriod,
+    setDateRange,
+    setComparisonPeriod,
+    setComparisonMetrics,
+    getMetricChange,
+    getMetricPercentChange,
+    clearComparison,
+    setStatusCodeFilter,
+    setEndpointFilter,
+    clearFilters,
+    addAlert,
+    removeAlert,
+    clearAlerts,
   }
 })

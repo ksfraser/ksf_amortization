@@ -8,68 +8,131 @@ import { ref } from 'vue'
  * - Global modal visibility and state
  * - Modal content and actions
  * - Modal lifecycle (open/close)
+ * - Modal stacking for nested modals
  */
 
 export const useModalStore = defineStore('modal', () => {
-  // State
-  const isOpen = ref(false)
-  const type = ref(null) // 'info', 'success', 'error', 'warning', 'custom'
-  const title = ref('')
-  const message = ref('')
-  const confirmText = ref('Confirm')
-  const cancelText = ref('Cancel')
-  const isDestructive = ref(false)
+  // Modal state object
+  const modal = ref({
+    title: null,
+    message: null,
+    type: null,
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    isDestructive: false,
+    isLoading: false,
+    onConfirm: null,
+    onCancel: null,
+    onClose: null,
+  })
 
-  // Callbacks
-  const onConfirm = ref(null)
-  const onCancel = ref(null)
-  const onClose = ref(null)
+  // Global state
+  const isOpen = ref(false)
+  const modalStack = ref([])
 
   /**
    * Open modal with configuration
    * @param {object} config Modal configuration
    */
   function open(config = {}) {
-    type.value = config.type ?? 'info'
-    title.value = config.title ?? ''
-    message.value = config.message ?? ''
-    confirmText.value = config.confirmText ?? 'Confirm'
-    cancelText.value = config.cancelText ?? 'Cancel'
-    isDestructive.value = config.isDestructive ?? false
-    onConfirm.value = config.onConfirm ?? null
-    onCancel.value = config.onCancel ?? null
-    onClose.value = config.onClose ?? null
+    modal.value = {
+      title: config.title ?? null,
+      message: config.message ?? null,
+      type: config.type ?? null,
+      confirmText: config.confirmText ?? 'Confirm',
+      cancelText: config.cancelText ?? 'Cancel',
+      isDestructive: config.isDestructive ?? false,
+      isLoading: config.isLoading ?? false,
+      onConfirm: config.onConfirm ?? null,
+      onCancel: config.onCancel ?? null,
+      onClose: config.onClose ?? null,
+    }
     isOpen.value = true
   }
 
   /**
-   * Close modal
+   * Close modal and execute onClose callback
    */
   function close() {
+    if (modal.value.onClose) {
+      modal.value.onClose()
+    }
     isOpen.value = false
-    if (onClose.value) {
-      onClose.value()
+    modal.value = {
+      title: null,
+      message: null,
+      type: null,
+      confirmText: 'Confirm',
+      cancelText: 'Cancel',
+      isDestructive: false,
+      isLoading: false,
+      onConfirm: null,
+      onCancel: null,
+      onClose: null,
     }
   }
 
   /**
-   * Confirm modal action
+   * Confirm modal action and close
    */
   function confirm() {
-    if (onConfirm.value) {
-      onConfirm.value()
+    if (modal.value.onConfirm) {
+      modal.value.onConfirm()
     }
     close()
   }
 
   /**
-   * Cancel modal action
+   * Cancel modal action and close
    */
   function cancel() {
-    if (onCancel.value) {
-      onCancel.value()
+    if (modal.value.onCancel) {
+      modal.value.onCancel()
     }
     close()
+  }
+
+  /**
+   * Push modal onto stack (for nested modals)
+   * @param {object} config Modal configuration
+   */
+  function pushModal(config = {}) {
+    modalStack.value.push({
+      ...modal.value,
+    })
+    open(config)
+  }
+
+  /**
+   * Pop modal from stack
+   */
+  function popModal() {
+    if (modalStack.value.length > 0) {
+      close()
+      const prevModal = modalStack.value.pop()
+      Object.assign(modal.value, prevModal)
+      isOpen.value = true
+    }
+  }
+
+  /**
+   * Close all modals
+   */
+  function closeAll() {
+    isOpen.value = false
+    modalStack.value = []
+    modal.value = {
+      title: null,
+      message: null,
+      type: null,
+      confirmText: 'Confirm',
+      cancelText: 'Cancel',
+      isDestructive: false,
+      isLoading: false,
+      onConfirm: null,
+      onCancel: null,
+      onClose: null,
+    }
   }
 
   /**
@@ -155,18 +218,17 @@ export const useModalStore = defineStore('modal', () => {
   return {
     // State
     isOpen,
-    type,
-    title,
-    message,
-    confirmText,
-    cancelText,
-    isDestructive,
+    modal,
+    modalStack,
 
     // Actions
     open,
     close,
     confirm,
     cancel,
+    pushModal,
+    popModal,
+    closeAll,
     showConfirm,
     showError,
     showSuccess,

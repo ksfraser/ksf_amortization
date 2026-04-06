@@ -188,6 +188,37 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Set user directly (for testing or external data source)
+   * @param {object} userData User data
+   */
+  function setUser(userData) {
+    user.value = userData
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData))
+    }
+  }
+
+  /**
+   * Set refresh token from external source
+   * @param {string} newRefreshToken Refresh token value
+   */
+  function setRefreshToken(newRefreshToken) {
+    refreshToken.value = newRefreshToken
+    localStorage.setItem('refresh_token', newRefreshToken)
+  }
+
+  /**
+   * Update user data (for testing or external updates)
+   * @param {object} updates User updates
+   */
+  function updateUser(updates) {
+    if (user.value) {
+      user.value = { ...user.value, ...updates }
+      localStorage.setItem('user', JSON.stringify(user.value))
+    }
+  }
+
   return {
     // State
     user,
@@ -209,6 +240,9 @@ export const useAuthStore = defineStore('auth', () => {
     fetchCurrentUser,
     refreshAccessToken,
     setToken,
+    setUser,
+    setRefreshToken,
+    updateUser,
     updateProfile,
     changePassword,
   }

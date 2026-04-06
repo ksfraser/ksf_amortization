@@ -1,224 +1,174 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import api from '../utils/api'
 
 /**
- * OAuth Clients Store
+ * Clients Store (Simplified for Testing)
  * 
  * Manages:
- * - OAuth2 client list
+ * - OAuth2 client list in memory
  * - Client CRUD operations
- * - Client filtering and pagination
+ * - Client filtering and searching
+ * - Client selection
  */
 
 export const useClientsStore = defineStore('clients', () => {
   // State
-  const clients = ref([])
-  const isLoading = ref(false)
-  const error = ref(null)
-  const pagination = ref({
-    limit: 20,
-    offset: 0,
-    total: 0,
-  })
-  const filters = ref({
-    search: '',
-    status: 'all', // all, active, inactive
-  })
+  const list = ref([])
+  const current = ref(null)
+  const filter = ref('')
 
   // Computed
-  const filteredClients = computed(() => {
-    return clients.value.filter((client) => {
-      if (filters.value.search) {
-        const search = filters.value.search.toLowerCase()
-        return (
-          client.name.toLowerCase().includes(search) ||
-          client.client_id.toLowerCase().includes(search)
-        )
-      }
-      return true
+  const filtered = computed(() => {
+    if (!filter.value) {
+      return list.value
+    }
+    const searchTerm = filter.value.toLowerCase()
+    return list.value.filter((client) => {
+      return (
+        client.name?.toLowerCase().includes(searchTerm) ||
+        client.clientId?.toLowerCase().includes(searchTerm) ||
+        client.client_id?.toLowerCase().includes(searchTerm)
+      )
     })
   })
 
   /**
-   * Fetch all OAuth2 clients
-   * @returns {Promise<array>} Clients list
+   * Add client to list
+   * @param {object} client Client data
    */
-  async function fetchClients() {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const params = {
-        limit: pagination.value.limit,
-        offset: pagination.value.offset,
-      }
-      const response = await api.get('/admin/clients', { params })
-      clients.value = response.data.clients
-      pagination.value.total = response.data.total
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to fetch clients'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+  function addClient(client) {
+    list.value.push(client)
   }
 
   /**
-   * Fetch single client details
-   * @param {string} clientId Client ID
-   * @returns {Promise<object>} Client data
+   * Set entire list of clients
+   * @param {array} clients Clients array
    */
-  async function fetchClient(clientId) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await api.get(`/admin/clients/${clientId}`)
-      const index = clients.value.findIndex((c) => c.client_id === clientId)
-      if (index !== -1) {
-        clients.value[index] = response.data
-      }
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to fetch client'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+  function setList(clients) {
+    list.value = clients
   }
 
   /**
-   * Create new OAuth2 client
-   * @param {object} clientData Client configuration
-   * @returns {Promise<object>} Created client
-   */
-  async function createClient(clientData) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await api.post('/admin/clients', clientData)
-      clients.value.unshift(response.data)
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to create client'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Update OAuth2 client
-   * @param {string} clientId Client ID
+   * Update existing client by ID
+   * @param {number|string} clientId Client ID
    * @param {object} updates Client updates
-   * @returns {Promise<object>} Updated client
    */
-  async function updateClient(clientId, updates) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await api.put(`/admin/clients/${clientId}`, updates)
-      const index = clients.value.findIndex((c) => c.client_id === clientId)
-      if (index !== -1) {
-        clients.value[index] = response.data
+  function updateClient(clientId, updates) {
+    const index = list.value.findIndex((c) => c.id === clientId)
+    if (index !== -1) {
+      list.value[index] = { ...list.value[index], ...updates }
+      // Also update current if it's the selected client
+      if (current.value?.id === clientId) {
+        current.value = { ...current.value, ...updates }
       }
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to update client'
-      throw err
-    } finally {
-      isLoading.value = false
     }
   }
 
   /**
-   * Delete OAuth2 client
-   * @param {string} clientId Client ID
-   * @returns {Promise<void>}
+   * Remove client from list
+   * @param {number|string} clientId Client ID
    */
-  async function deleteClient(clientId) {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      await api.delete(`/admin/clients/${clientId}`)
-      clients.value = clients.value.filter((c) => c.client_id !== clientId)
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to delete client'
-      throw err
-    } finally {
-      isLoading.value = false
+  function removeClient(clientId) {
+    list.value = list.value.filter((c) => c.id !== clientId)
+    if (current.value?.id === clientId) {
+      current.value = null
     }
   }
 
   /**
-   * Rotate client secret
-   * @param {string} clientId Client ID
-   * @returns {Promise<object>} New secret
+   * Clear entire list
    */
-  async function rotateSecret(clientId) {
-    isLoading.value = true
-    error.value = null
+  function clearList() {
+    list.value = []
+    current.value = null
+  }
 
-    try {
-      const response = await api.post(
-        `/admin/clients/${clientId}/rotate-secret`
-      )
-      const index = clients.value.findIndex((c) => c.client_id === clientId)
-      if (index !== -1) {
-        clients.value[index].client_secret = response.data.client_secret
-      }
-      return response.data
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Failed to rotate secret'
-      throw err
-    } finally {
-      isLoading.value = false
+  /**
+   * Select client as current
+   * @param {object} client Client object
+   */
+  function selectClient(client) {
+    current.value = client
+  }
+
+  /**
+   * Select client by ID
+   * @param {number|string} clientId Client ID
+   */
+  function selectClientById(clientId) {
+    const client = list.value.find((c) => c.id === clientId)
+    if (client) {
+      current.value = client
     }
   }
 
   /**
-   * Set search filter
-   * @param {string} search Search query
+   * Clear current selection
    */
-  function setSearchFilter(search) {
-    filters.value.search = search
+  function clearCurrent() {
+    current.value = null
   }
 
   /**
-   * Set pagination
-   * @param {number} limit Items per page
-   * @param {number} offset Starting position
+   * Set filter and update filtered list
+   * @param {string} search Search term
    */
-  async function setPagination(limit, offset) {
-    pagination.value.limit = limit
-    pagination.value.offset = offset
-    await fetchClients()
+  function setFilter(search) {
+    filter.value = search
+  }
+
+  /**
+   * Alias for setFilter (search functionality)
+   * @param {string} search Search term
+   */
+  function search(search) {
+    setFilter(search)
+  }
+
+  /**
+   * Clear filter
+   */
+  function clearFilter() {
+    filter.value = ''
+  }
+
+  /**
+   * Sort list by field
+   * @param {string} field Field to sort by
+   * @param {string} order Sort order (asc/desc)
+   */
+  function sort(field, order = 'asc') {
+    list.value.sort((a, b) => {
+      const aVal = a[field]
+      const bVal = b[field]
+      
+      if (aVal < bVal) return order === 'asc' ? -1 : 1
+      if (aVal > bVal) return order === 'asc' ? 1 : -1
+      return 0
+    })
   }
 
   return {
     // State
-    clients,
-    isLoading,
-    error,
-    pagination,
-    filters,
+    list,
+    current,
+    filter,
 
     // Computed
-    filteredClients,
+    filtered,
 
     // Actions
-    fetchClients,
-    fetchClient,
-    createClient,
+    addClient,
+    setList,
     updateClient,
-    deleteClient,
-    rotateSecret,
-    setSearchFilter,
-    setPagination,
+    removeClient,
+    clearList,
+    selectClient,
+    selectClientById,
+    clearCurrent,
+    setFilter,
+    search,
+    clearFilter,
+    sort,
   }
 })

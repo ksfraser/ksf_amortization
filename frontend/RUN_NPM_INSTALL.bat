@@ -27,6 +27,7 @@ if errorlevel 1 (
     exit /b 1
 )
 echo.
+npm run build
 
 echo [3/3] Build complete!
 echo.
