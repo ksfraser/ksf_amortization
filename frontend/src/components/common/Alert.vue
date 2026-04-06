@@ -33,6 +33,8 @@
 
       <!-- Close Button -->
       <button
+        v-if="closable"
+        aria-label="Close alert"
         class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
         @click="close"
       >

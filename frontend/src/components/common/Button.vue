@@ -2,11 +2,12 @@
   <button
     :class="[
       'btn',
-      `btn-${variant}`,
+      `btn-${variantClass}`,
       `btn-${size}`,
       { 'opacity-50 cursor-not-allowed': disabled, 'animate-pulse': loading },
     ]"
     :disabled="disabled || loading"
+    @click="handleClick"
     v-bind="$attrs"
   >
     <span v-if="loading" class="spinner mr-2">
@@ -29,11 +30,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 /**
  * Reusable Button Component
  * 
  * Props:
- * - variant: Button style (primary, secondary, success, danger, warning)
+ * - variant: Button style (primary, secondary, success, error, warning)
  * - size: Button size (sm, md, lg)
  * - disabled: Disable button
  * - loading: Show loading spinner
@@ -44,11 +47,11 @@
  * </Button>
  */
 
-defineProps({
+const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning'].includes(value),
+    validator: (value) => ['primary', 'secondary', 'success', 'error', 'warning'].includes(value),
   },
   size: {
     type: String,
@@ -64,4 +67,18 @@ defineProps({
     default: false,
   },
 })
+
+const emit = defineEmits(['click'])
+
+// Map error variant to danger class
+const variantClass = computed(() => {
+  return props.variant === 'error' ? 'danger' : props.variant
+})
+
+// Handle click - don't emit if disabled or loading
+const handleClick = (event) => {
+  if (!props.disabled && !props.loading) {
+    emit('click', event)
+  }
+}
 </script>
