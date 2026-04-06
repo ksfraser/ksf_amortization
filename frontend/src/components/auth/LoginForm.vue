@@ -13,6 +13,7 @@
         required
         class="w-full"
         :disabled="isLoading"
+        @input="errors.email = ''"
       />
       <p v-if="errors.email" class="text-error-600 text-sm mt-1">
         {{ errors.email }}
@@ -21,9 +22,14 @@
 
     <!-- Password Field -->
     <div>
-      <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-        Password
-      </label>
+      <div class="flex justify-between items-center mb-1">
+        <label for="password" class="block text-sm font-medium text-gray-700">
+          Password
+        </label>
+        <a href="#" class="text-sm text-primary-600 hover:text-primary-700">
+          Forgot password?
+        </a>
+      </div>
       <input
         id="password"
         v-model="form.password"
@@ -32,6 +38,7 @@
         required
         class="w-full"
         :disabled="isLoading"
+        @input="errors.password = ''"
       />
       <p v-if="errors.password" class="text-error-600 text-sm mt-1">
         {{ errors.password }}
@@ -68,6 +75,7 @@
       type="error"
       title="Login Failed"
       :message="generalError"
+      closable
       @close="generalError = ''"
     />
 
