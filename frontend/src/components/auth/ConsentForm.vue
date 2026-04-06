@@ -1,29 +1,41 @@
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-6">
-    <!-- App Info -->
-    <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
-      <div class="flex gap-4">
-        <div class="h-16 w-16 bg-primary-200 rounded-lg flex items-center justify-center flex-shrink-0">
-          <span class="text-primary-700 font-bold text-2xl">{{ appName.charAt(0) }}</span>
-        </div>
-        <div class="flex-1">
-          <h3 class="font-semibold text-gray-900">{{ appName }}</h3>
-          <p class="text-sm text-gray-600">wants to access your account</p>
-        </div>
-      </div>
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-semibold text-gray-900">
+        Grant Access
+      </h2>
+      <p class="text-gray-600 mt-2">
+        You are granting this application permission to access your account
+      </p>
     </div>
 
-    <!-- Scopes -->
-    <div class="space-y-3">
-      <h4 class="font-semibold text-gray-900">This app will have access to:</h4>
+    <!-- Scopes by Category -->
+    <div v-if="groupedScopes.length > 0" class="space-y-6">
+      <div v-for="group in groupedScopes" :key="group.category" class="space-y-3">
+        <!-- Category Header -->
+        <h3 class="font-semibold text-gray-900">{{ group.category || 'Permissions' }}</h3>
 
-      <div v-for="scope in scopes" :key="scope" class="flex items-start gap-3 px-4 py-2 bg-gray-50 rounded-lg">
-        <svg class="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-        </svg>
-        <div>
-          <p class="font-medium text-gray-900">{{ formatScopeName(scope) }}</p>
-          <p class="text-sm text-gray-600">{{ getScopeDescription(scope) }}</p>
+        <!-- Scopes in Category -->
+        <div class="space-y-3">
+          <label v-for="scope in group.scopes" :key="scope.id" class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <input
+              type="checkbox"
+              :checked="selectedScopes.includes(scope.id)"
+              :disabled="scope.required"
+              @change="toggleScope(scope.id)"
+              class="h-4 w-4 mt-0.5"
+            />
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-gray-900">{{ scope.name }}</span>
+                <span v-if="scope.required" class="inline-block px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 rounded">
+                  Required
+                </span>
+              </div>
+              <p class="text-sm text-gray-600 mt-1">{{ scope.description }}</p>
+            </div>
+          </label>
         </div>
       </div>
     </div>
@@ -32,7 +44,8 @@
     <Alert
       type="warning"
       title="Authorization Required"
-      message="You are about to grant this application access to your account. Only proceed if you trust this application."
+      message="Only authorize this application if you trust it. It will have access to your account data."
+      closable
     />
 
     <!-- Action Buttons -->
@@ -62,13 +75,14 @@
       type="error"
       title="Error"
       :message="error"
+      closable
       @close="error = ''"
     />
   </form>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Button from '../common/Button.vue'
 import Alert from '../common/Alert.vue'
 
@@ -78,18 +92,18 @@ import Alert from '../common/Alert.vue'
  * Displays OAuth consent screen where user approves/denies scope access
  * 
  * Props:
- * - appName: Application name requesting access
- * - scopes: Array of requested scopes
+ * - appName: Application name requesting access (optional)
+ * - scopes: Array of scope objects with id, name, description, required, category
  * 
  * Emits:
- * - approve: When user approves consent
+ * - approve: When user approves consent with selected scopes
  * - deny: When user denies consent
  */
 
 const props = defineProps({
   appName: {
     type: String,
-    required: true,
+    default: 'Application',
   },
   scopes: {
     type: Array,
@@ -101,30 +115,45 @@ const emit = defineEmits(['approve', 'deny'])
 
 const isLoading = ref(false)
 const error = ref('')
+const selectedScopes = ref([])
 
-const scopeDescriptions = {
-  read: 'Read access to your profile and data',
-  write: 'Write access to modify your data',
-  profile: 'Access to your profile information',
-  email: 'Access to your email address',
-  offline_access: 'Access when you are not online',
+// Initialize selected scopes with required scopes
+const initializeScopes = () => {
+  selectedScopes.value = props.scopes
+    .filter((scope) => scope.required)
+    .map((scope) => scope.id)
 }
 
-const formatScopeName = (scope) => {
-  return scope
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
+// Group scopes by category
+const groupedScopes = computed(() => {
+  const groups = {}
+  
+  props.scopes.forEach((scope) => {
+    const category = scope.category || 'Permissions'
+    if (!groups[category]) {
+      groups[category] = { category, scopes: [] }
+    }
+    groups[category].scopes.push(scope)
+  })
 
-const getScopeDescription = (scope) => {
-  return scopeDescriptions[scope] || 'Access to your account'
+  return Object.values(groups)
+})
+
+const toggleScope = (scopeId) => {
+  const index = selectedScopes.value.indexOf(scopeId)
+  if (index > -1) {
+    selectedScopes.value.splice(index, 1)
+  } else {
+    selectedScopes.value.push(scopeId)
+  }
 }
 
 const handleApprove = async () => {
   isLoading.value = true
   try {
-    emit('approve')
+    emit('approve', {
+      scopes: selectedScopes.value,
+    })
   } catch (err) {
     error.value = err.message || 'Failed to approve consent'
   } finally {
@@ -142,4 +171,7 @@ const handleDeny = async () => {
     isLoading.value = false
   }
 }
+
+// Initialize on mount
+initializeScopes()
 </script>
