@@ -1,5 +1,7 @@
 import { config } from '@vue/test-utils'
-import { vi } from 'vitest'
+import { vi, beforeAll, afterAll, afterEach } from 'vitest'
+import { setupServer } from 'msw/node'
+import * as handlers from './fixtures/mocks'
 
 /**
  * Global Test Setup
@@ -10,6 +12,18 @@ import { vi } from 'vitest'
  * - Environment variables
  * - API mocking (MSW)
  */
+
+// Setup MSW server with all handlers
+const server = setupServer(...handlers.successHandlers)
+
+// Start MSW server before all tests
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }))
+
+// Reset handlers between tests
+afterEach(() => server.resetHandlers())
+
+// Cleanup after all tests
+afterAll(() => server.close())
 
 // Mock window.matchMedia for responsive components
 Object.defineProperty(window, 'matchMedia', {

@@ -316,3 +316,10 @@ export function setupAfterEach() {
   // Cleanup after each test
   vi.clearAllMocks()
 }
+
+// Convenience exports for factory functions
+export const createUser = factories.createUser.bind(factories)
+export const createClient = factories.createClient.bind(factories)
+export const createToken = factories.createToken.bind(factories)
+export const createConsent = factories.createConsent.bind(factories)
+export const createMetrics = factories.createMetrics.bind(factories)
