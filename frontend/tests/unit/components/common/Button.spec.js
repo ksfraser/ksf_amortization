@@ -56,7 +56,7 @@ describe('Button.vue', () => {
         slots: { default: 'Primary' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('bg-primary-600')
+      expect(wrapper.find('button').classes()).toContain('btn-primary')
     })
 
     it('applies secondary variant class', () => {
@@ -65,7 +65,7 @@ describe('Button.vue', () => {
         slots: { default: 'Secondary' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('bg-gray-200')
+      expect(wrapper.find('button').classes()).toContain('btn-secondary')
     })
 
     it('applies success variant class', () => {
@@ -74,7 +74,7 @@ describe('Button.vue', () => {
         slots: { default: 'Success' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('bg-success-600')
+      expect(wrapper.find('button').classes()).toContain('btn-success')
     })
 
     it('applies error variant class', () => {
@@ -83,7 +83,7 @@ describe('Button.vue', () => {
         slots: { default: 'Error' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('bg-error-600')
+      expect(wrapper.find('button').classes()).toContain('btn-danger')
     })
 
     it('applies warning variant class', () => {
@@ -92,7 +92,7 @@ describe('Button.vue', () => {
         slots: { default: 'Warning' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('bg-warning-600')
+      expect(wrapper.find('button').classes()).toContain('btn-warning')
     })
   })
 
@@ -103,8 +103,7 @@ describe('Button.vue', () => {
         slots: { default: 'Small' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('px-3')
-      expect(wrapper.find('button').classes()).toContain('py-1')
+      expect(wrapper.find('button').classes()).toContain('btn-sm')
     })
 
     it('applies medium (default) size', () => {
@@ -112,8 +111,7 @@ describe('Button.vue', () => {
         slots: { default: 'Medium' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('px-4')
-      expect(wrapper.find('button').classes()).toContain('py-2')
+      expect(wrapper.find('button').classes()).toContain('btn-md')
     })
 
     it('applies large size class', () => {
@@ -122,8 +120,7 @@ describe('Button.vue', () => {
         slots: { default: 'Large' },
       })
 
-      expect(wrapper.find('button').classes()).toContain('px-6')
-      expect(wrapper.find('button').classes()).toContain('py-3')
+      expect(wrapper.find('button').classes()).toContain('btn-lg')
     })
   })
 

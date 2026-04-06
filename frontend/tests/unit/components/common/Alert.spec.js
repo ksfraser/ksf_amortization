@@ -48,24 +48,19 @@ describe('Alert.vue', () => {
   })
 
   describe('Alert Types', () => {
-    const types = [
-      { type: 'success', color: 'bg-success-50', border: 'border-success' },
-      { type: 'error', color: 'bg-error-50', border: 'border-error' },
-      { type: 'warning', color: 'bg-warning-50', border: 'border-warning' },
-      { type: 'info', color: 'bg-primary-50', border: 'border-primary' },
-    ]
+    const types = ['success', 'error', 'warning', 'info']
 
-    types.forEach(({ type, color, border }) => {
-      it(`applies correct styles for ${type} type`, () => {
+    types.forEach((type) => {
+      it(`applies correct alert-type class for ${type} type`, () => {
         wrapper = mount(Alert, {
-          props: { type, title: 'Test' },
+          props: { type, message: 'Test message' },
         })
-        expect(wrapper.find('[role="alert"]').classes()).toContain(color)
+        expect(wrapper.find('[role="alert"]').classes()).toContain(`alert-${type}`)
       })
 
       it(`renders correct icon for ${type} type`, () => {
         wrapper = mount(Alert, {
-          props: { type, title: 'Test' },
+          props: { type, message: 'Test message' },
         })
         expect(wrapper.find('svg').exists()).toBe(true)
       })
