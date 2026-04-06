@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles */
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply bg-white text-gray-900 font-sans;
+}
+
+/* Typography */
+
+h1 {
+  @apply text-4xl font-bold tracking-tight;
+}
+
+h2 {
+  @apply text-3xl font-bold tracking-tight;
+}
+
+h3 {
+  @apply text-2xl font-semibold;
+}
+
+h4 {
+  @apply text-xl font-semibold;
+}
+
+h5 {
+  @apply text-lg font-semibold;
+}
+
+h6 {
+  @apply text-base font-semibold;
+}
+
+p {
+  @apply leading-relaxed;
+}
+
+/* Links */
+
+a {
+  @apply text-primary-600 hover:text-primary-700 transition-colors duration-200 underline-offset-2;
+}
+
+a:hover {
+  @apply underline;
+}
+
+/* Forms */
+
+input,
+textarea,
+select {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+}
+
+button {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200;
+}
+
+/* Buttons */
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-4 focus:ring-primary-300;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-4 focus:ring-gray-400;
+}
+
+.btn-success {
+  @apply bg-success-600 text-white hover:bg-success-700 focus:ring-4 focus:ring-success-300;
+}
+
+.btn-error {
+  @apply bg-error-600 text-white hover:bg-error-700 focus:ring-4 focus:ring-error-300;
+}
+
+.btn-warning {
+  @apply bg-warning-600 text-white hover:bg-warning-700 focus:ring-4 focus:ring-warning-300;
+}
+
+.btn-sm {
+  @apply px-3 py-1 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-lg;
+}
+
+/* Cards */
+
+.card {
+  @apply bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.card-header {
+  @apply px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-lg;
+}
+
+.card-body {
+  @apply px-6 py-4;
+}
+
+.card-footer {
+  @apply px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg;
+}
+
+/* Alerts */
+
+.alert {
+  @apply px-4 py-3 rounded-lg border;
+}
+
+.alert-success {
+  @apply bg-success-50 border-success-200 text-success-800;
+}
+
+.alert-error {
+  @apply bg-error-50 border-error-200 text-error-800;
+}
+
+.alert-warning {
+  @apply bg-warning-50 border-warning-200 text-warning-800;
+}
+
+.alert-info {
+  @apply bg-primary-50 border-primary-200 text-primary-800;
+}
+
+/* Loading Spinner */
+
+.spinner {
+  @apply inline-block animate-spin;
+}
+
+.spinner svg {
+  @apply w-5 h-5;
+}
+
+/* Badges */
+
+.badge {
+  @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded-full;
+}
+
+.badge-primary {
+  @apply bg-primary-100 text-primary-800;
+}
+
+.badge-success {
+  @apply bg-success-100 text-success-800;
+}
+
+.badge-error {
+  @apply bg-error-100 text-error-800;
+}
+
+.badge-warning {
+  @apply bg-warning-100 text-warning-800;
+}
+
+/* Animations */
+
+@keyframes fadeIn {
+  from {
+    @apply opacity-0;
+  }
+  to {
+    @apply opacity-100;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    @apply opacity-0 transform -translate-y-4;
+  }
+  to {
+    @apply opacity-100 transform translate-y-0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-in-down {
+  animation: slideInDown 0.3s ease-out;
+}

@@ -1,0 +1,35 @@
+# Ignore artifacts
+dist
+node_modules
+coverage
+.vscode-test
+*.vsix
+
+# Ignore git
+.git
+.gitignore
+
+# Build outputs
+*.js.map
+*.css.map
+
+# Dependencies
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Testing
+.nyc_output
+.coverage
+*.lcov
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
