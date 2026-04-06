@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="close" />
 
     <!-- Modal -->
-    <div class="relative bg-white rounded-lg shadow-lg max-w-md w-full mx-4 fade-in">
+    <div role="dialog" class="relative bg-white rounded-lg shadow-lg max-w-md w-full mx-4 fade-in">
       <!-- Header -->
       <div v-if="title" class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
         <h2 class="text-xl font-semibold text-gray-900">{{ title }}</h2>
