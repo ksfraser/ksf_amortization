@@ -134,7 +134,7 @@ const tokens = ref([
   {
     id: 2,
     name: 'Mobile App Token',
-    value: 'sk_live_abcdefghijklmnopqrstuvwxyz1234567890',
+    value: 'tok_test_1234567890abcdefghijklmn',
     active: true,
     created_at: new Date(Date.now() - 90 * 24 * 3600000),
     expires_at: new Date(Date.now() + 90 * 24 * 3600000),
