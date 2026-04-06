@@ -49,8 +49,13 @@
         <!-- Right Side -->
         <div class="flex items-center gap-4">
           <!-- User Menu -->
-          <div v-if="authStore.isAuthenticated" class="relative group">
-            <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+          <div v-if="authStore.isAuthenticated" class="relative">
+            <button 
+              class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
+              @click="isMenuOpen = !isMenuOpen"
+              aria-haspopup="true"
+              :aria-expanded="isMenuOpen"
+            >
               <span class="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-semibold">
                 {{ authStore.userName?.charAt(0).toUpperCase() }}
               </span>
@@ -58,7 +63,7 @@
             </button>
 
             <!-- Dropdown Menu -->
-            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div v-if="isMenuOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
               <div class="px-4 py-2 border-b border-gray-200">
                 <p class="text-sm font-medium text-gray-900">{{ authStore.userName }}</p>
                 <p class="text-xs text-gray-500">{{ authStore.userEmail }}</p>
@@ -105,6 +110,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 
@@ -120,12 +126,14 @@ import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const isMenuOpen = ref(false)
 
 const isActive = (path) => {
   return router.currentRoute.value.path.startsWith(path)
 }
 
 const logout = async () => {
+  isMenuOpen.value = false
   await authStore.logout()
   router.push('/login')
 }
