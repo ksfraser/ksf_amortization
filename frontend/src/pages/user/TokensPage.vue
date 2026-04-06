@@ -125,7 +125,7 @@ const tokens = ref([
   {
     id: 1,
     name: 'Development API Key',
-    value: 'sk_test_1234567890abcdefghijklmnopqrstuvwxyz',
+    value: 'test_dev_apikey_1234567890abcdefghijklmnopqrstuvwxyz',
     active: true,
     created_at: new Date(Date.now() - 30 * 24 * 3600000),
     expires_at: null,
@@ -164,7 +164,7 @@ const copyNewToken = async () => {
 }
 
 const createNewToken = () => {
-  newToken.value = 'sk_live_' + Math.random().toString(36).substring(2, 40)
+  newToken.value = 'token_' + Math.random().toString(36).substring(2, 40)
   tokens.value.unshift({
     id: tokens.value.length + 1,
     name: `Token ${tokens.value.length + 1}`,
