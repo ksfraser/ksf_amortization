@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { mount } from '@vue/test-utils'
@@ -323,3 +324,8 @@ export const createClient = factories.createClient.bind(factories)
 export const createToken = factories.createToken.bind(factories)
 export const createConsent = factories.createConsent.bind(factories)
 export const createMetrics = factories.createMetrics.bind(factories)
+
+// Convenience exports for waiter functions
+export const flushPromises = waiters.flushPromises.bind(waiters)
+export const waitFor = waiters.waitFor.bind(waiters)
+export const waitForElement = waiters.waitForElement.bind(waiters)

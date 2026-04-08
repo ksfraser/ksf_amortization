@@ -14,6 +14,10 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test --reporter=html",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
     "type-check": "vue-tsc --noEmit",
     "format": "prettier --write --list-different --ignore-path .gitignore ."
   },
@@ -43,7 +47,8 @@
     "prettier": "^3.1.0",
     "@vitest/coverage-v8": "^1.0.0",
     "happy-dom": "^12.10.0",
-    "msw": "^1.3.0"
+    "msw": "^1.3.0",
+    "@playwright/test": "^1.40.0"
   },
   "engines": {
     "node": ">=18.0.0",

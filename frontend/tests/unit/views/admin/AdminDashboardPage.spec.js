@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AdminDashboardPage from '@/views/admin/AdminDashboardPage.vue'
+import AdminDashboardPage from '@/pages/admin/AdminDashboardPage.vue'
 import { createTestPinia, createTestRouter, createUser } from '../../../fixtures/helpers'
 
 /**

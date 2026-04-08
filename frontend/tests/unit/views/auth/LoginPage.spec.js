@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import LoginPage from '@/views/auth/LoginPage.vue'
+import LoginPage from '@/pages/auth/LoginPage.vue'
 import { createTestPinia, createTestRouter } from '../../../fixtures/helpers'
 
 /**
