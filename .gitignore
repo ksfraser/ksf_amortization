@@ -1,7 +1,3 @@
 /vendor/
 .swp
 .swo
-
-# Separate module repositories (managed independently)
-/modules/wordpress/
-/modules/suitecrm/
