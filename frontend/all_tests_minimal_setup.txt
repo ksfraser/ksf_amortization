@@ -1,0 +1,162 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mc:/Users/prote/Documents/software-devel/ksf_amortization/frontend[39m
+
+ [33m❯[39m tests/unit/components/admin/MetricsDashboard.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/auth/ProfileView.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/common/TopNavigation.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/stores/clients.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/admin/ClientForm.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/stores/metrics.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/admin/ClientList.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/auth/LoginForm.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/router/index.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/stores/ui.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/auth/ConsentForm.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/stores/auth.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/common/Button.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/common/LoadingOverlay.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/common/GlobalModal.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/components/common/Alert.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/views/user/DashboardPage.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/views/admin/AdminDashboardPage.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/views/auth/LoginPage.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/views/user/ProfilePage.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/sanity.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/basic.spec.js [2m ([22m[2m0 test[22m[2m)[22m
+
+[2m Test Files [22m [1m[31m22 failed[39m[22m[90m (22)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 01:16:41
+[2m   Duration [22m 59.43s[2m (transform 5.26s, setup 11.82s, collect 9.69s, tests 0ms, environment 18.43s, prepare 10.09s)[22m
+
+
+
+=== STDERR ===
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Suites 22 [27m[22m⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/basic.spec.js [2m[ tests/unit/basic.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/basic.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/sanity.spec.js [2m[ tests/unit/sanity.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/sanity.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/router/index.spec.js [2m[ tests/unit/router/index.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/router/index.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/stores/auth.spec.js [2m[ tests/unit/stores/auth.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/stores/auth.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/stores/clients.spec.js [2m[ tests/unit/stores/clients.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/stores/clients.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/stores/metrics.spec.js [2m[ tests/unit/stores/metrics.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/stores/metrics.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/stores/ui.spec.js [2m[ tests/unit/stores/ui.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/stores/ui.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/admin/ClientForm.spec.js [2m[ tests/unit/components/admin/ClientForm.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/admin/ClientForm.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/admin/ClientList.spec.js [2m[ tests/unit/components/admin/ClientList.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/admin/ClientList.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/admin/MetricsDashboard.spec.js [2m[ tests/unit/components/admin/MetricsDashboard.spec.js ][22m
+[31m[1mError[22m: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.[39m
+[90m [2m❯[22m TransformPluginContext._formatError node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49258:41[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49253:16[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64259:14[22m[39m
+[90m [2m❯[22m PluginContainer.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49099:18[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51978:27[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/auth/ConsentForm.spec.js [2m[ tests/unit/components/auth/ConsentForm.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/auth/ConsentForm.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/auth/LoginForm.spec.js [2m[ tests/unit/components/auth/LoginForm.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/auth/LoginForm.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/auth/ProfileView.spec.js [2m[ tests/unit/components/auth/ProfileView.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/auth/ProfileView.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/common/Alert.spec.js [2m[ tests/unit/components/common/Alert.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/common/Alert.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/common/Button.spec.js [2m[ tests/unit/components/common/Button.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/common/Button.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/common/GlobalModal.spec.js [2m[ tests/unit/components/common/GlobalModal.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/common/GlobalModal.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/common/LoadingOverlay.spec.js [2m[ tests/unit/components/common/LoadingOverlay.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/common/LoadingOverlay.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/components/common/TopNavigation.spec.js [2m[ tests/unit/components/common/TopNavigation.spec.js ][22m
+[31m[1mError[22m: No test suite found in file C:/Users/prote/Documents/software-devel/ksf_amortization/frontend/tests/unit/components/common/TopNavigation.spec.js[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/views/admin/AdminDashboardPage.spec.js [2m[ tests/unit/views/admin/AdminDashboardPage.spec.js ][22m
+[31m[1mError[22m: Failed to resolve import "@/views/admin/AdminDashboardPage.vue" from "tests/unit/views/admin/AdminDashboardPage.spec.js". Does the file exist?[39m
+[90m [2m❯[22m TransformPluginContext._formatError node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49258:41[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49253:16[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64307:23[22m[39m
+[90m [2m❯[22m async file:/c:/Users/prote/Documents/software-devel/ksf_amortization/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64439:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64366:7[22m[39m
+[90m [2m❯[22m PluginContainer.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49099:18[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51978:27[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/views/user/DashboardPage.spec.js [2m[ tests/unit/views/user/DashboardPage.spec.js ][22m
+[31m[1mError[22m: Failed to resolve import "@/views/user/DashboardPage.vue" from "tests/unit/views/user/DashboardPage.spec.js". Does the file exist?[39m
+[90m [2m❯[22m TransformPluginContext._formatError node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49258:41[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49253:16[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64307:23[22m[39m
+[90m [2m❯[22m async file:/c:/Users/prote/Documents/software-devel/ksf_amortization/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64439:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64366:7[22m[39m
+[90m [2m❯[22m PluginContainer.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49099:18[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51978:27[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/views/user/ProfilePage.spec.js [2m[ tests/unit/views/user/ProfilePage.spec.js ][22m
+[31m[1mError[22m: Failed to resolve import "@/views/user/ProfilePage.vue" from "tests/unit/views/user/ProfilePage.spec.js". Does the file exist?[39m
+[90m [2m❯[22m TransformPluginContext._formatError node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49258:41[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49253:16[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64307:23[22m[39m
+[90m [2m❯[22m async file:/c:/Users/prote/Documents/software-devel/ksf_amortization/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64439:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64366:7[22m[39m
+[90m [2m❯[22m PluginContainer.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49099:18[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51978:27[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/22]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/views/auth/LoginPage.spec.js [2m[ tests/unit/views/auth/LoginPage.spec.js ][22m
+[31m[1mError[22m: Failed to resolve import "@/views/auth/LoginPage.vue" from "tests/unit/views/auth/LoginPage.spec.js". Does the file exist?[39m
+[90m [2m❯[22m TransformPluginContext._formatError node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49258:41[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49253:16[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64307:23[22m[39m
+[90m [2m❯[22m async file:/c:/Users/prote/Documents/software-devel/ksf_amortization/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64439:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m64366:7[22m[39m
+[90m [2m❯[22m PluginContainer.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m49099:18[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51978:27[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/22]⎯[22m[39m
+
