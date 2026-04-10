@@ -14,7 +14,10 @@ use DateTime;
  */
 class LoanComparisonEngine
 {
-    private DecimalCalculator $calculator;
+    /**
+     * @var DecimalCalculator
+     */
+    private $calculator;
 
     public function __construct()
     {
@@ -223,12 +226,19 @@ class LoanComparisonEngine
         $comparison = $this->compareLoanOffersSideBySide($offers, $fees);
 
         $bestOffer = $comparison[0];
-        $key = match ($goal) {
-            'minimize_cost' => 'total_cost',
-            'minimize_payment' => 'monthly_payment',
-            'minimize_term' => 'term_months',
-            default => 'total_cost',
-        };
+        switch ($goal) {
+            case 'minimize_cost':
+                $key = 'total_cost';
+                break;
+            case 'minimize_payment':
+                $key = 'monthly_payment';
+                break;
+            case 'minimize_term':
+                $key = 'term_months';
+                break;
+            default:
+                $key = 'total_cost';
+        }
 
         foreach ($comparison as $offer) {
             if ($offer[$key] < $bestOffer[$key]) {
@@ -239,11 +249,11 @@ class LoanComparisonEngine
         $savings = $this->calculateCostSavingsBetweenOffers(
             $offers[0],
             $offers[array_key_first(
-                array_filter($comparison, fn($o) => $o['offer_id'] === $bestOffer['offer_id'])
+                array_filter($comparison, function($o) use ($bestOffer) { return $o['offer_id'] === $bestOffer['offer_id']; })
             )],
             $fees[0],
             $fees[array_key_first(
-                array_filter($comparison, fn($o) => $o['offer_id'] === $bestOffer['offer_id'])
+                array_filter($comparison, function($o) use ($bestOffer) { return $o['offer_id'] === $bestOffer['offer_id']; })
             )],
             $offers[0]->getAnnualRate()
         );
@@ -368,7 +378,10 @@ class LoanComparisonEngine
             );
         }
 
-        usort($comparison, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($comparison, function($a, $b) {
+            if ($a['score'] == $b['score']) return 0;
+            return ($a['score'] < $b['score']) ? 1 : -1;
+        });
         return $comparison;
     }
 

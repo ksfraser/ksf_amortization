@@ -155,7 +155,7 @@ class PortfolioCache {
      * Invalidate specific portfolio cache by loan IDs
      */
     public function invalidateForLoans(array $loans): int {
-        $loanIds = array_map(fn($l) => $l->getId(), $loans);
+        $loanIds = array_map(function($l) { return $l->getId(); }, $loans);
         $idString = implode('_', $loanIds);
         
         return $this->cache->deleteByPattern("/.*{$idString}.*/");
@@ -213,7 +213,7 @@ class PortfolioCache {
      * Generate consistent cache key for portfolio calculations
      */
     private function generatePortfolioKey(string $metric, array $loans): string {
-        $loanIds = array_map(fn($l) => $l->getId(), $loans);
+        $loanIds = array_map(function($l) { return $l->getId(); }, $loans);
         sort($loanIds);
         $idHash = md5(implode(':', $loanIds));
 

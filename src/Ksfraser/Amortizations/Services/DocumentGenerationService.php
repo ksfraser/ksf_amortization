@@ -14,7 +14,10 @@ use DateTime;
  */
 class DocumentGenerationService
 {
-    private DecimalCalculator $calculator;
+    /**
+     * @var DecimalCalculator
+     */
+    private $calculator;
 
     public function __construct()
     {
@@ -347,14 +350,25 @@ class DocumentGenerationService
         $bundle = [];
 
         foreach ($formats as $format) {
-            $bundle[$format] = match ($format) {
-                'csv' => $this->generateAmortizationScheduleAsCSV($loan, $schedule),
-                'excel' => $this->generateAmortizationScheduleAsExcel($loan, $schedule),
-                'json' => $this->exportToJSON($loan, $schedule),
-                'html' => $this->exportToHTML($loan, $schedule),
-                'pdf' => $this->exportToPDF($loan, $schedule),
-                default => '',
-            };
+            switch ($format) {
+                case 'csv':
+                    $bundle[$format] = $this->generateAmortizationScheduleAsCSV($loan, $schedule);
+                    break;
+                case 'excel':
+                    $bundle[$format] = $this->generateAmortizationScheduleAsExcel($loan, $schedule);
+                    break;
+                case 'json':
+                    $bundle[$format] = $this->exportToJSON($loan, $schedule);
+                    break;
+                case 'html':
+                    $bundle[$format] = $this->exportToHTML($loan, $schedule);
+                    break;
+                case 'pdf':
+                    $bundle[$format] = $this->exportToPDF($loan, $schedule);
+                    break;
+                default:
+                    $bundle[$format] = '';
+            }
         }
 
         return $bundle;

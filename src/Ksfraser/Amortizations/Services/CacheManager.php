@@ -11,16 +11,28 @@ use InvalidArgumentException;
  * to optimize performance across all amortization services.
  */
 class CacheManager {
-    private array $cache = [];
-    private array $metadata = [];
-    private array $stats = [
+    /**
+     * @var array
+     */
+    private $cache = [];
+    /**
+     * @var array
+     */
+    private $metadata = [];
+    /**
+     * @var array
+     */
+    private $stats = [
         'hits' => 0,
         'misses' => 0,
         'sets' => 0,
         'deletes' => 0,
         'ttl_expirations' => 0
     ];
-    private int $defaultTTL = 3600;
+    /**
+     * @var int
+     */
+    private $defaultTTL = 3600;
 
     /**
      * Set cache value with TTL
@@ -30,7 +42,9 @@ class CacheManager {
      * @param int $ttl Time to live in seconds (default: 1 hour)
      */
     /**
-     * @param int|null $ttl Time to live in seconds (default: 1 hour)
+     * @param string $key
+     * @param mixed $value
+     * @param int|null $ttl
      */
     public function set(string $key, $value, $ttl = null): void {
         if (empty($key)) {
@@ -56,7 +70,11 @@ class CacheManager {
      * @param string $key Cache key
      * @return mixed|null Cached value or null if expired/missing
      */
-    public function get(string $key): mixed {
+    /**
+     * @param string $key
+     * @return mixed|null
+     */
+    public function get(string $key) {
         if (!$this->has($key)) {
             $this->stats['misses']++;
             return null;
@@ -195,10 +213,7 @@ class CacheManager {
      * @param array $data Key-value pairs to pre-populate cache
      * @param int $ttl Time to live for all entries
      */
-    /**
-     * @param int|null $ttl Time to live for all entries
-     */
-    public function warm(array $data, $ttl = null): int {
+    public function warm(array $data, int $ttl = null): int {
         $count = 0;
         foreach ($data as $key => $value) {
             $this->set((string)$key, $value, $ttl);

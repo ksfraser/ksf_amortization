@@ -92,7 +92,10 @@ class RefinancingAnalysisService
             ];
         }
 
-        usort($comparison, fn($a, $b) => $b['net_savings'] <=> $a['net_savings']);
+        usort($comparison, function($a, $b) {
+            if ($a['net_savings'] == $b['net_savings']) return 0;
+            return ($a['net_savings'] < $b['net_savings']) ? 1 : -1;
+        });
 
         foreach ($comparison as $index => &$offer) {
             $offer['rank'] = $index + 1;
@@ -125,12 +128,19 @@ class RefinancingAnalysisService
 
         $recommended = $comparison[0];
 
-        $reasoning = match ($goal) {
-            'maximize_savings' => "This offer provides the maximum net savings of \${$recommended['net_savings']} after closing costs.",
-            'minimize_payment' => "This offer reduces your monthly payment to \${$recommended['monthly_payment']}, saving you \${$recommended['monthly_savings']}/month.",
-            'accelerate_payoff' => "This offer reduces your loan term while maintaining manageable payments.",
-            default => "This offer provides the best overall value.",
-        };
+        switch ($goal) {
+            case 'maximize_savings':
+                $reasoning = "This offer provides the maximum net savings of \\${$recommended['net_savings']} after closing costs.";
+                break;
+            case 'minimize_payment':
+                $reasoning = "This offer reduces your monthly payment to \\${$recommended['monthly_payment']}, saving you \\${$recommended['monthly_savings']}/month.";
+                break;
+            case 'accelerate_payoff':
+                $reasoning = "This offer reduces your loan term while maintaining manageable payments.";
+                break;
+            default:
+                $reasoning = "This offer provides the best overall value.";
+        }
 
         return [
             'recommended_offer' => $recommended,
