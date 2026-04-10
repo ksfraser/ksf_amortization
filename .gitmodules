@@ -1,9 +1,3 @@
-[submodule "modules/wordpress"]
-	path = modules/wordpress
-	url = https://github.com/ksfraser/ksf_amortization_wp.git
-[submodule "modules/suitecrm"]
-	path = modules/suitecrm
-	url = https://github.com/ksfraser/ksf_amortization_suitecrm.git
 [submodule "vendor-src/ksf_amortization_core"]
 	path = vendor-src/ksf_amortization_core
 	url = https://github.com/ksfraser/ksf_amortization_core.git
