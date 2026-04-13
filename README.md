@@ -1,15 +1,17 @@
-# KSF Amortization - Core Library
+# KSF Amortization - Unified Platform
 
 Amortization calculation and loan management engine - shared across FrontAccounting, WordPress, and SuiteCRM.
 
-## 📚 Architecture
+## 📚 Architecture (Phase 24+)
 
-This is the **core library** that powers amortization calculations on all platforms. Platform-specific modules are in separate repositories as Git submodules:
+This monorepo consolidates the core library and platform-specific modules into a unified codebase:
 
-- **Core Library** (this repo): `ksf_amortization` - Shared business logic
-- **FrontAccounting Module**: `ksf_amortization_fa` - FA-specific adapter (in `modules/amortization/`)
-- **WordPress Plugin**: `ksf_amortization_wp` - WP-specific adapter (in `modules/wordpress/`)
-- **SuiteCRM Module**: `ksf_amortization_suitecrm` - SuiteCRM-specific adapter (in `modules/suitecrm/`)
+- **Core Library** (`src/Ksfraser/Amortizations/`): Shared business logic, calculators, and services
+- **API Layer** (`src/Ksfraser/Api/`): REST endpoints, authentication, and response handling
+- **FrontAccounting Module** (`modules/amortization/`): FA-specific adapter and integration
+- **Frontend** (`frontend/`): Vue 3 SPA admin dashboard and user portal
+- **Testing Infrastructure**: PHPUnit (backend), Vitest (frontend), comprehensive test suites
+- **Deployment** (`ansible/`): Automated deployment for webserver and containerized FA
 
 ## ✨ Features
 
@@ -35,47 +37,50 @@ This is the **core library** that powers amortization calculations on all platfo
 
 ## 🚀 Quick Start
 
-### Clone with All Submodules
+### Clone the Unified Monorepo
 ```bash
-git clone --recursive https://github.com/ksfraser/ksf_amortization.git
+git clone https://github.com/ksfraser/ksf_amortization.git
 cd ksf_amortization
 composer install
 ```
 
 ### Run Tests
+
+**Backend (PHP):**
 ```bash
-# Core tests only
-composer test
+# FrontAccounting module tests
+cd ksf_amortization && php ../vendor/bin/phpunit
 
-# All platform tests
-composer test-all
+# All core tests
+php vendor/bin/phpunit --configuration phpunit.xml
+```
 
-# Specific platform
-composer test-fa      # FrontAccounting
-composer test-wp      # WordPress
-composer test-suite   # SuiteCRM
+**Frontend (Vue/Vitest):**
+```bash
+cd frontend && npm install && npm run test
+```
+
+### Local Development
+
+```bash
+# Start development servers
+cd frontend && npm run dev        # Vue dev server (http://localhost:5173)
+php -S localhost:8000 -t public/  # API server
+
+# Watch tests
+cd frontend && npm run test:watch
 ```
 
 ### Deploy to FrontAccounting
+
+**Traditional nginx + PHP-FPM:**
 ```bash
-cd modules/amortization
-composer install
-# Then activate in FA Admin → Modules & Packages
+ansible-playbook ansible/deploy-webserver.yml -i ansible/inventory.yml
 ```
 
-### Deploy to WordPress
+**Containerized with Docker Compose:**
 ```bash
-cd modules/wordpress
-composer install
-# Then activate in WordPress Admin → Plugins
-```
-
-### Deploy to SuiteCRM
-```bash
-cd modules/suitecrm
-composer install
-php install.php
-# Then activate in SuiteCRM Admin → Module Manager
+ansible-playbook ansible/deploy-frontaccounting-container.yml -i ansible/inventory.yml
 ```
 
 ## 📋 Requirements
