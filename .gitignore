@@ -1,3 +1,75 @@
+# Dependencies
 /vendor/
-.swp
-.swo
+/node_modules/
+/vendor-src/
+/frontend/node_modules/
+
+# Environment files
+.env
+.env.*.local
+.env.local
+!.env.example
+
+# Docker volumes
+mysql_data/
+redis_data/
+.docker/
+
+# Build artifacts
+dist/
+build/
+coverage/
+*.tar.gz
+
+# Test outputs
+test_output.txt
+test_results*.txt
+ppi_test.txt
+debug_input.php
+debug_table.php
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+php-fpm-error.log
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Backups
+backup_*.sql
+*.sql.bak
+
+# Performance/profiling
+perf*.txt
+profile*.txt
+
+# Phase progress (tracking only, not deployment)
+PhaseProgress/
+
+# Transient test files
+*.test.output
+final_test_results*.txt
+integration_results.txt
+full_test_results.txt

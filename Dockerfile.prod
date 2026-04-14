@@ -1,0 +1,57 @@
+FROM php:8.1-fpm-alpine as builder
+
+# Install system dependencies
+RUN apk add --no-cache git libpq-dev
+
+# Copy composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# Copy application files
+COPY . .
+
+# Install PHP dependencies (no dev, optimized)
+RUN composer install --no-dev --optimize-autoloader --classmap-authoritative
+
+# Build frontend
+RUN apk add --no-cache nodejs npm && \
+    cd frontend && \
+    npm install --production && \
+    npm run build && \
+    cd ..
+
+# Final stage
+FROM php:8.1-fpm-alpine
+
+# Install runtime dependencies only
+RUN apk add --no-cache libpq curl
+
+# Copy PHP extension from builder
+COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
+COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
+
+# PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql
+
+WORKDIR /app
+
+# Copy built application from builder
+COPY --from=builder --chown=www-data:www-data /app /app
+
+# Remove dev files
+RUN rm -rf \
+    .git .gitignore \
+    tests/ .github/ \
+    frontend/src frontend/tests \
+    docker-compose.yml Dockerfile.dev
+
+# Create log directory
+RUN mkdir -p /var/log/ksf-amortization && \
+    chown -R www-data:www-data /var/log/ksf-amortization
+
+USER www-data
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

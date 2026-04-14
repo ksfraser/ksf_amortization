@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: ksf_nginx_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/dist:/app/frontend/dist:ro
+      - ./nginx-prod.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - api
+    networks:
+      - ksf_prod
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/api/health"]
+      timeout: 5s
+      retries: 3
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: ksf_api_prod
+    restart: always
+    environment:
+      DB_HOST: mysql
+      DB_NAME: ksf_amortization
+      DB_USER: ${DB_USER:-ksf_user}
+      DB_PASS: ${DB_PASS:?Database password required}
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      REDIS_HOST: redis
+      CACHE_DRIVER: redis
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - app_logs:/var/log/ksf-amortization
+    networks:
+      - ksf_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/api/health"]
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  mysql:
+    image: mysql:5.7
+    container_name: ksf_mysql_prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Root password required}
+      MYSQL_DATABASE: ksf_amortization
+      MYSQL_USER: ${DB_USER:-ksf_user}
+      MYSQL_PASSWORD: ${DB_PASS:?Database password required}
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+      - mysql_logs:/var/log/mysql
+    networks:
+      - ksf_prod
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      timeout: 5s
+      retries: 10
+    command:
+      - --max_connections=100
+      - --slow-query-log=1
+      - --slow-query-log-file=/var/log/mysql/slow.log
+      - --long-query-time=1
+
+  redis:
+    image: redis:7-alpine
+    container_name: ksf_redis_prod
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASS:?Redis password required}
+    volumes:
+      - redis_data:/data
+    networks:
+      - ksf_prod
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASS}", "ping"]
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data_prod:
+  redis_data:
+  app_logs:
+  nginx_logs:
+
+networks:
+  ksf_prod:
+    driver: bridge

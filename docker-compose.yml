@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ksf_php_dev
+    volumes:
+      - .:/app
+      - ./php-dev.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      DB_HOST: mysql
+      DB_NAME: ksf_amortization
+      DB_USER: root
+      DB_PASS: root
+      APP_ENV: development
+      APP_DEBUG: 'true'
+    depends_on:
+      - mysql
+    ports:
+      - "9000:9000"
+    networks:
+      - ksf_dev
+
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: ksf_nginx_dev
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/app
+      - ./nginx-dev.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - php
+    networks:
+      - ksf_dev
+
+  mysql:
+    image: mysql:5.7
+    container_name: ksf_mysql_dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ksf_amortization
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3306:3306"
+    networks:
+      - ksf_dev
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: ksf_redis_dev
+    ports:
+      - "6379:6379"
+    networks:
+      - ksf_dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 5s
+      retries: 10
+
+  node:
+    image: node:18-alpine
+    container_name: ksf_node_dev
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost/api
+    networks:
+      - ksf_dev
+
+volumes:
+  mysql_data_dev:
+
+networks:
+  ksf_dev:
+    driver: bridge
