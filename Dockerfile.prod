@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine as builder
+.FROM php:8.1-fpm-alpine as builder
 
 # Install system dependencies
 RUN apk add --no-cache git libpq-dev

@@ -50,7 +50,7 @@ class AjaxSelectPopulator extends HtmlElement
         return $this;
     }
 
-    public function setPlaceholder($text)
+    public function setPlaceholder(string $text): HtmlElement
     {
         $this->placeholder = $text;
         return $this;

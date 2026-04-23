@@ -37,7 +37,8 @@
             "Ksfraser\\Api\\": "src/Ksfraser/Api/",
             "Ksfraser\\Webhooks\\": "src/Ksfraser/Webhooks/",
             "Ksfraser\\Plugins\\": "src/Ksfraser/Plugins/",
-            "Ksfraser\\Localization\\": "src/Ksfraser/Localization/"
+            "Ksfraser\\Localization\\": "src/Ksfraser/Localization/",
+            "Ksfraser\\Common\\": "vendor-src/Ksfraser/Common/"
         }
     },
     "autoload-dev": {

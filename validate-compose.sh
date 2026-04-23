@@ -1,4 +1,4 @@
-#!/bin/sh
+...#!/bin/sh
 # Docker Compose YAML Syntax Validator
 # This script validates docker-compose YAML files without requiring Docker
 

@@ -1,4 +1,4 @@
-.PHONY: help dev prod build up down logs test docker-clean
+...PHONY: help dev prod build up down logs test docker-clean
 
 help:
 	@echo "KSF Amortization - Development Commands"

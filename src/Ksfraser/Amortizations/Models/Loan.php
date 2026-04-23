@@ -394,7 +394,7 @@ class Loan
      */
     public function __toString(): string
     {
-        $balloon = $this->hasBalloonPayment() ? " (with ${$this->balloonAmount} balloon)" : '';
+        $balloon = $this->hasBalloonPayment() ? " (with {$this->balloonAmount} balloon)" : '';
         return sprintf(
             "$%.2f @ %.2f%% for %d months%s",
             $this->principal,
