@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',  // Changed from jsdom to happy-dom (lighter weight)
     setupFiles: ['./tests/setup-minimal.js'],
     coverage: {
       provider: 'v8',
@@ -26,10 +26,14 @@ export default defineConfig({
     },
     include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    testTimeout: 30000,
+    hookTimeout: 30000,
+    isolate: true,
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
+  ssr: false,  // Disable SSR mode which was causing parse errors
 })
