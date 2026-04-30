@@ -1,0 +1,73 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ksf_integration
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP 8.2
+      uses: shivammathur/setup-php-action@v2
+      with:
+        php-version: 8.2
+        extensions: mbstring, pdo_mysql, redis
+
+    - name: Install dependencies
+      run: composer install --no-interaction
+
+    - name: Setup environment
+      run: cp .env.example .env.integration
+
+    - name: Generate app key
+      run: php artisan key:generate --env=integration
+
+    - name: Run database migrations
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ksf_integration
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan migrate --env=integration
+
+    - name: Run integration tests
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ksf_integration
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan test --filter Integration --env=integration
