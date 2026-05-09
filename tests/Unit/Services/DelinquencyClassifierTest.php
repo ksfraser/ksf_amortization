@@ -23,8 +23,8 @@ use DateTimeImmutable;
  * - Generate risk scores for loan portfolio analysis
  * - Identify patterns (chronic late payer, recent deterioration, etc.)
  *
- * Test coverage: 8 tests
- * - Classify current loans (1 test)
+ * Test coverage: 9 tests
+ * - Classify current loans (2 tests)
  * - Classify 30/60/90+ day delinquency (3 tests)
  * - Calculate days overdue (1 test)
  * - Track missed payment count (1 test)
@@ -54,6 +54,29 @@ class DelinquencyClassifierTest extends TestCase
             ['amount' => 188.71, 'status' => 'on_time', 'date' => '2024-01-01'],
             ['amount' => 188.71, 'status' => 'on_time', 'date' => '2024-02-01'],
             ['amount' => 188.71, 'status' => 'on_time', 'date' => '2024-03-01'],
+        ]);
+
+        $status = $this->classifier->classify($loan);
+
+        $this->assertEquals('CURRENT', $status['status']);
+        $this->assertEquals(0, $status['days_overdue']);
+        $this->assertEquals('No action required', $status['recommendation']);
+    }
+
+    /**
+     * Test 1b: A recent on-time payment cures an older late payment
+     */
+    public function testRecentOnTimePaymentResetsDelinquencyToCurrent()
+    {
+        $loan = $this->createTestLoan();
+
+        $today = new DateTimeImmutable();
+        $fortyDaysAgo = $today->modify('-40 days')->format('Y-m-d');
+        $fiveDaysAgo = $today->modify('-5 days')->format('Y-m-d');
+
+        $this->recordPayments($loan->getId(), [
+            ['amount' => 188.71, 'status' => 'late', 'date' => $fortyDaysAgo],
+            ['amount' => 188.71, 'status' => 'on_time', 'date' => $fiveDaysAgo],
         ]);
 
         $status = $this->classifier->classify($loan);
@@ -179,6 +202,28 @@ class DelinquencyClassifierTest extends TestCase
         $missedCount = $this->classifier->countMissedPayments($loan);
 
         $this->assertEquals(3, $missedCount);
+    }
+
+    /**
+     * Test 6b: Older missed payments followed by current payments should not escalate recommendations
+     */
+    public function testOlderMissedPaymentsDoNotTriggerChargeOffRecommendation()
+    {
+        $loan = $this->createTestLoan();
+
+        $this->recordPayments($loan->getId(), [
+            ['amount' => 0.00, 'status' => 'missed', 'date' => '2024-01-01'],
+            ['amount' => 0.00, 'status' => 'missed', 'date' => '2024-02-01'],
+            ['amount' => 0.00, 'status' => 'missed', 'date' => '2024-03-01'],
+            ['amount' => 188.71, 'status' => 'on_time', 'date' => '2024-04-01'],
+            ['amount' => 188.71, 'status' => 'on_time', 'date' => '2024-05-01'],
+        ]);
+
+        $status = $this->classifier->classify($loan);
+        $recommendationText = strtolower(implode(' ', $status['recommendations'] ?? []));
+
+        $this->assertEquals('CURRENT', $status['status']);
+        $this->assertStringNotContainsString('charge-off', $recommendationText);
     }
 
     /**

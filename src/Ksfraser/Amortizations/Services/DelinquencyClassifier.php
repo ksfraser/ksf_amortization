@@ -14,8 +14,8 @@ use DateTimeImmutable;
  *
  * Delinquency Tiers:
  * - CURRENT: All payments on schedule
- * - 30_DAYS_PAST_DUE: 1-29 days overdue
- * - 60_DAYS_PAST_DUE: 30-59 days overdue
+ * - 30_DAYS_PAST_DUE: 30-59 days overdue
+ * - 60_DAYS_PAST_DUE: 60-89 days overdue
  * - 90_PLUS_DAYS_PAST_DUE: 90+ days overdue
  *
  * Collection Actions by Tier:
@@ -89,9 +89,10 @@ class DelinquencyClassifier
     {
         $daysOverdue = $this->calculateDaysOverdue($loan);
         $missedCount = $this->countMissedPayments($loan);
+        $consecutiveMissedCount = $this->countConsecutiveMissedPayments($loan);
         $status = $this->determineStatus($daysOverdue);
-        $recommendations = $this->generateRecommendations($status, $daysOverdue, $missedCount);
-        $riskScore = $this->calculateRiskScore($status, $daysOverdue, $missedCount);
+        $recommendations = $this->generateRecommendations($status, $daysOverdue, $consecutiveMissedCount);
+        $riskScore = $this->calculateRiskScore($status, $daysOverdue, $consecutiveMissedCount);
 
         return [
             'status' => $status,
@@ -100,13 +101,14 @@ class DelinquencyClassifier
             'recommendations' => $recommendations,
             'risk_score' => $riskScore,
             'missed_payments' => $missedCount,
+            'consecutive_missed_payments' => $consecutiveMissedCount,
             'next_action_date' => $this->calculateNextActionDate($status),
             'last_updated' => (new DateTimeImmutable())->format('Y-m-d H:i:s')
         ];
     }
 
     /**
-     * Calculate days overdue from the most recent late payment
+    * Calculate days overdue from the latest dated payment event
      *
      * @param Loan $loan The loan to analyze
      * @return int Days past due (0 if current)
@@ -119,24 +121,27 @@ class DelinquencyClassifier
             return 0;
         }
 
-        // Find most recent late or missed payment
-        $latePayments = array_filter($history, function ($record) {
-            return in_array($record['status'], ['late', 'missed'], true);
+        $datedHistory = array_values(array_filter($history, function ($record) {
+            return ($record['event_date'] ?? null) instanceof DateTimeImmutable;
+        }));
+
+        if (empty($datedHistory)) {
+            return 0;
+        }
+
+        usort($datedHistory, function (array $left, array $right): int {
+            return $left['event_date'] <=> $right['event_date'];
         });
 
-        if (empty($latePayments)) {
+        $latestEvent = end($datedHistory);
+        $latestStatus = $latestEvent['status'] ?? 'unknown';
+
+        // A more recent on-time or partial payment cures earlier delinquency.
+        if (!in_array($latestStatus, ['late', 'missed'], true)) {
             return 0;
         }
 
-        // Get the most recent late/missed payment
-        $latestLate = end($latePayments);
-        $eventDate = $latestLate['event_date'];
-
-        if (!$eventDate instanceof DateTimeImmutable) {
-            return 0;
-        }
-
-        // Calculate days from that date to now
+        $eventDate = $latestEvent['event_date'];
         $now = new DateTimeImmutable();
         $interval = $now->diff($eventDate);
 
@@ -153,6 +158,42 @@ class DelinquencyClassifier
     {
         $history = $this->tracker->getHistoryByStatus($loan->getId(), 'missed');
         return count($history);
+    }
+
+    /**
+     * Count consecutive missed payments from the most recent payment history backwards.
+     */
+    public function countConsecutiveMissedPayments(Loan $loan): int
+    {
+        $history = $this->tracker->getHistory($loan->getId());
+
+        if (empty($history)) {
+            return 0;
+        }
+
+        $datedHistory = array_values(array_filter($history, function ($record) {
+            return ($record['event_date'] ?? null) instanceof DateTimeImmutable;
+        }));
+
+        if (empty($datedHistory)) {
+            return 0;
+        }
+
+        usort($datedHistory, function (array $left, array $right): int {
+            return $left['event_date'] <=> $right['event_date'];
+        });
+
+        $consecutiveMissed = 0;
+        for ($index = count($datedHistory) - 1; $index >= 0; $index--) {
+            $status = $datedHistory[$index]['status'] ?? 'unknown';
+            if ($status !== 'missed') {
+                break;
+            }
+
+            $consecutiveMissed++;
+        }
+
+        return $consecutiveMissed;
     }
 
     /**
@@ -261,10 +302,10 @@ class DelinquencyClassifier
                 break;
         }
 
-        // Add missed payment recommendations
+        // Add severe escalation only when the borrower is currently in a missed-payment run.
         if ($missedPayments >= 3) {
-            if (!in_array('Evaluate for charge-off', $recommendations)) {
-                $recommendations[] = 'Consider charge-off due to multiple missed payments';
+            if (!in_array('Evaluate for charge-off', $recommendations, true)) {
+                $recommendations[] = 'Consider charge-off due to consecutive missed payments';
             }
         }
 
