@@ -30,6 +30,7 @@
     },
     "autoload": {
         "psr-4": {
+            "App\\Domain\\": "src/Domain/",
             "Ksfraser\\Amortizations\\": [
                 "src/Ksfraser/Amortizations/",
                 "vendor-src/ksf_amortization_core/Ksfraser/Amortizations/"
